@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+  --color-ink: #17171a;
+  --color-ink-soft: #232327;
+  --color-cream: #f8f6f4;
+  --color-paper: #ffffff;
+  --color-border: #ece7e3;
+  --color-pink: #e34d78;
+  --color-pink-dark: #c73f66;
+  --color-pink-soft: #fbe6ec;
+  --color-charcoal: #1f1b1a;
+  --color-charcoal-soft: #8b8681;
+}
+
+@theme inline {
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-cream: var(--color-cream);
+  --color-paper: var(--color-paper);
+  --color-border: var(--color-border);
+  --color-pink: var(--color-pink);
+  --color-pink-dark: var(--color-pink-dark);
+  --color-pink-soft: var(--color-pink-soft);
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-soft: var(--color-charcoal-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-fraunces);
+}
+
+html {
+  background: var(--color-cream);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-charcoal);
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
