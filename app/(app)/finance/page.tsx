@@ -11,14 +11,17 @@ export const dynamic = "force-dynamic";
 
 export default async function FinancePage() {
   const supabase = createClient();
-  const { data: transactions } = await supabase
-    .from("finance_transactions")
-    .select("*")
-    .order("occurred_on", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(200);
+  const [{ data: allForStats }, { data: recent }] = await Promise.all([
+    supabase.from("finance_transactions").select("type, category, amount, occurred_on"),
+    supabase
+      .from("finance_transactions")
+      .select("*")
+      .order("occurred_on", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(200),
+  ]);
 
-  const all = transactions ?? [];
+  const all = recent ?? [];
   const monthPrefix = todayLocalDate().slice(0, 7); // YYYY-MM
 
   let balance = 0;
@@ -26,7 +29,7 @@ export default async function FinancePage() {
   let monthExpense = 0;
   const categoryTotals: Partial<Record<FinanceCategory, number>> = {};
 
-  for (const tx of all) {
+  for (const tx of allForStats ?? []) {
     balance += tx.type === "income" ? tx.amount : -tx.amount;
 
     if (tx.occurred_on.startsWith(monthPrefix)) {
