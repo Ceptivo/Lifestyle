@@ -47,6 +47,8 @@ import {
   Scissors,
   Droplet,
   Flame,
+  Sparkles,
+  HardDrive,
   type LucideIcon,
 } from "lucide-react";
 
@@ -99,6 +101,8 @@ export const ICONS: Record<string, LucideIcon> = {
   scissors: Scissors,
   droplet: Droplet,
   flame: Flame,
+  sparkles: Sparkles,
+  "hard-drive": HardDrive,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);
