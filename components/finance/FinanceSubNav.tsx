@@ -11,6 +11,7 @@ const items = [
   { href: "/finance/budgets", label: "Budgets" },
   { href: "/finance/goals", label: "Goals" },
   { href: "/finance/accounts", label: "Accounts" },
+  { href: "/finance/categories", label: "Categories" },
 ];
 
 export function FinanceSubNav() {

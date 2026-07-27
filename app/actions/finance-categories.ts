@@ -27,6 +27,19 @@ export async function addCategory(formData: FormData) {
   return data.id as string;
 }
 
+export async function updateCategory(id: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const icon = String(formData.get("icon") ?? DEFAULT_ICON);
+
+  if (!name) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("finance_categories").update({ name, icon }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/finance", "layout");
+}
+
 export async function deleteCategory(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("finance_categories").delete().eq("id", id);
