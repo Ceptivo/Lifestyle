@@ -78,7 +78,7 @@ export default async function ProfilePage() {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm text-charcoal-soft">Budgets within limit this month</p>
-          <p className={cn("text-sm font-semibold", budgetsWithinLimit === (budgets ?? []).length ? "text-emerald-600" : "text-pink-dark")}>
+          <p className={cn("text-sm font-semibold", budgetsWithinLimit === (budgets ?? []).length ? "text-emerald-600" : "text-danger")}>
             {budgetsWithinLimit} of {(budgets ?? []).length}
           </p>
         </div>

@@ -1,24 +1,21 @@
-// Validated categorical palette (dataviz skill default), checked against this
-// app's paper surface (#ffffff): fixed hue order, adjacent-pair CVD ΔE ≥ 8,
-// normal-vision floor ≥ 15. Three slots (aqua/yellow/magenta) sit below 3:1
-// contrast on white, so anywhere they're used carries a direct label — never
-// color fill alone. Never reorder or cycle these; a 9th series folds into
-// "Other" instead of generating a new hue.
+// Palette matched to the FinTrack dark-theme reference: the donut legend
+// (Shopping/Food/Groceries/Health) and the 3-color "Within/Risk/Overspending"
+// bar both read orange-red + lime-green + purple + teal + blue. Categorical
+// identity, fixed order, never cycled — a 9th series folds into "Other."
 export const CATEGORICAL: string[] = [
-  "#2a78d6", // blue
-  "#eb6834", // orange
-  "#1baf7a", // aqua
-  "#eda100", // yellow
-  "#e87ba4", // magenta
-  "#008300", // green
-  "#4a3aa7", // violet
-  "#e34948", // red
+  "#ff7452", // orange-red
+  "#c7f53b", // lime green (accent)
+  "#9b7ef0", // purple
+  "#35d0ba", // teal
+  "#5b9bff", // blue
+  "#eda100", // amber
+  "#e87ba4", // rose
+  "#7c8591", // slate
 ];
 
-export const OTHER_SLOT = "#898781"; // muted — the "Other" bucket, deliberately outside the identity palette
+export const OTHER_SLOT = "#5c5c60"; // muted gray — the "Other" bucket, deliberately outside the identity palette
 
-// Income/expense are a fixed semantic pair (not part of the categorical
-// identity system) — same green/pink already used for amounts throughout
-// the app (TransactionList, MonthlyTrend).
-export const INCOME_COLOR = "#059669"; // emerald-600, matches text-emerald-600 used elsewhere
-export const EXPENSE_COLOR = "#e34d78"; // --color-pink
+// Income/expense are a fixed semantic pair matching the reference's two-line
+// charts (green "Budget"/"Income" line vs orange-red "Spent"/"Expenses" line).
+export const INCOME_COLOR = "#c7f53b"; // --color-pink (accent)
+export const EXPENSE_COLOR = "#ff7452"; // --color-danger

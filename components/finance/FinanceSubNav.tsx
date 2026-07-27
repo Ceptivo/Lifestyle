@@ -31,7 +31,9 @@ export function FinanceSubNav() {
                 href={href}
                 className={cn(
                   "block whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  active ? "bg-pink text-white" : "bg-paper text-charcoal-soft hover:bg-pink-soft hover:text-pink-dark"
+                  active
+                    ? "bg-pink text-ink font-semibold"
+                    : "bg-paper text-charcoal-soft hover:bg-pink-soft hover:text-pink-dark"
                 )}
               >
                 {label}

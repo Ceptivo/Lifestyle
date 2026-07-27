@@ -21,7 +21,7 @@ export function MonthlyTrend({ months }: { months: MonthTotal[] }) {
               <div className="h-full rounded-full bg-emerald-500" style={{ width: `${(m.income / max) * 100}%` }} />
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-cream">
-              <div className="h-full rounded-full bg-pink" style={{ width: `${(m.expense / max) * 100}%` }} />
+              <div className="h-full rounded-full bg-danger" style={{ width: `${(m.expense / max) * 100}%` }} />
             </div>
           </div>
         </div>

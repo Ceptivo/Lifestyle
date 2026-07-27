@@ -29,7 +29,7 @@ export function CategoryTrend({
         const delta = entry.thisMonth - entry.lastMonth;
         const pct = entry.lastMonth > 0 ? (delta / entry.lastMonth) * 100 : entry.thisMonth > 0 ? 100 : 0;
         const Trend = delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
-        const trendColor = delta > 0 ? "text-pink-dark" : delta < 0 ? "text-emerald-600" : "text-charcoal-soft";
+        const trendColor = delta > 0 ? "text-danger" : delta < 0 ? "text-emerald-600" : "text-charcoal-soft";
 
         return (
           <div key={entry.categoryId} className="flex items-center gap-3">

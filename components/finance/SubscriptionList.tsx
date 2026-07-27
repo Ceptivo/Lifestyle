@@ -131,7 +131,7 @@ function SubscriptionCard({
           <button
             type="submit"
             aria-label="Delete subscription"
-            className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-pink"
+            className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-danger"
           >
             <Trash2 size={14} />
           </button>

@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { Card } from "@/components/ui/Card";
 import { BudgetForm } from "@/components/finance/BudgetForm";
 import { BudgetList } from "@/components/finance/BudgetList";
-import { todayLocalDate } from "@/lib/format";
+import { formatCurrency, todayLocalDate } from "@/lib/format";
+import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +30,38 @@ export default async function BudgetsPage() {
     (c) => c.type === "expense" && !budgetedCategoryIds.has(c.id)
   );
 
+  const totalBudgeted = (budgets ?? []).reduce((sum, b) => sum + b.monthly_limit, 0);
+  const totalSpent = (budgets ?? []).reduce((sum, b) => sum + (spentByCategory[b.category_id] ?? 0), 0);
+  const totalPct = totalBudgeted > 0 ? Math.min(100, (totalSpent / totalBudgeted) * 100) : 0;
+  const overBudget = totalSpent > totalBudgeted && totalBudgeted > 0;
+
   return (
     <div>
+      {totalBudgeted > 0 && (
+        <Card className="mb-6">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm text-charcoal-soft">
+              Spend: <span className="font-semibold text-charcoal">{formatCurrency(totalSpent)}</span> /{" "}
+              {formatCurrency(totalBudgeted)}
+            </p>
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-xs font-semibold",
+                overBudget ? "bg-danger-soft text-danger" : "bg-pink-soft text-pink-dark"
+              )}
+            >
+              {((totalSpent / totalBudgeted) * 100 || 0).toFixed(0)}%
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-cream">
+            <div
+              className={cn("h-full rounded-full", overBudget ? "bg-danger" : "bg-pink")}
+              style={{ width: `${totalPct}%` }}
+            />
+          </div>
+        </Card>
+      )}
+
       <div className="mb-6">
         <BudgetForm categories={availableCategories} />
       </div>

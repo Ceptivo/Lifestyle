@@ -27,7 +27,7 @@ export function IconPicker({
               aria-label={key}
               className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-                active ? "bg-pink text-white" : "bg-paper text-charcoal-soft hover:bg-pink-soft hover:text-pink-dark"
+                active ? "bg-pink text-ink" : "bg-paper text-charcoal-soft hover:bg-pink-soft hover:text-pink-dark"
               )}
             >
               <Icon name={key} size={16} />

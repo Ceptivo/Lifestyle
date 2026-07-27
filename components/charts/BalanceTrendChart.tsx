@@ -71,28 +71,28 @@ export function BalanceTrendChart({
         onPointerDown={(e) => handleMove(e.clientX)}
       >
         {min < 0 && (
-          <line x1={PAD_X} x2={WIDTH - PAD_X} y1={zeroY} y2={zeroY} stroke="#e1e0d9" strokeWidth={1} />
+          <line x1={PAD_X} x2={WIDTH - PAD_X} y1={zeroY} y2={zeroY} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
         )}
-        <path d={areaPath} fill="#e34d78" fillOpacity={0.1} stroke="none" />
-        <path d={linePath} fill="none" stroke="#e34d78" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+        <path d={areaPath} fill="#c7f53b" fillOpacity={0.14} stroke="none" />
+        <path d={linePath} fill="none" stroke="#c7f53b" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
 
         {hoverIndex !== null && (
-          <line x1={activeX} x2={activeX} y1={PAD_TOP} y2={HEIGHT - PAD_BOTTOM} stroke="#c3c2b7" strokeWidth={1} />
+          <line x1={activeX} x2={activeX} y1={PAD_TOP} y2={HEIGHT - PAD_BOTTOM} stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
         )}
-        <circle cx={activeX} cy={activeY} r={4} fill="#e34d78" stroke="#ffffff" strokeWidth={2} />
+        <circle cx={activeX} cy={activeY} r={4} fill="#c7f53b" stroke="#19191c" strokeWidth={2} />
 
-        <text x={PAD_X} y={14} textAnchor="start" fontSize={11} fill="#898781">
+        <text x={PAD_X} y={14} textAnchor="start" fontSize={11} fill="#8e8e93">
           {maxFormatted}
         </text>
         {min < 0 && (
-          <text x={PAD_X} y={HEIGHT - 2} textAnchor="start" fontSize={11} fill="#898781">
+          <text x={PAD_X} y={HEIGHT - 2} textAnchor="start" fontSize={11} fill="#8e8e93">
             {minFormatted}
           </text>
         )}
       </svg>
 
       <div
-        className="pointer-events-none absolute top-0 rounded-xl border border-border bg-paper px-3 py-2 shadow-sm"
+        className="pointer-events-none absolute top-0 rounded-xl border border-border bg-paper px-3 py-2"
         style={{
           left: `${(activeX / WIDTH) * 100}%`,
           transform: tooltipRight ? "translate(calc(-100% - 8px), 0)" : "translate(8px, 0)",

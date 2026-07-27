@@ -2,6 +2,12 @@ import type { ReactNode } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 
+const TONE_CLASSES = {
+  paper: "bg-paper",
+  "pink-soft": "bg-pink-soft border-transparent",
+  "danger-soft": "bg-danger-soft border-transparent",
+};
+
 export function Card({
   children,
   className,
@@ -9,18 +15,10 @@ export function Card({
 }: {
   children: ReactNode;
   className?: string;
-  tone?: "paper" | "pink-soft";
+  tone?: keyof typeof TONE_CLASSES;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-2xl border border-border p-5 shadow-sm",
-        tone === "paper" ? "bg-paper" : "bg-pink-soft border-transparent",
-        className
-      )}
-    >
-      {children}
-    </div>
+    <div className={cn("rounded-3xl border border-border p-5", TONE_CLASSES[tone], className)}>{children}</div>
   );
 }
 
@@ -46,7 +44,7 @@ export function StatCard({
         <p
           className={cn(
             "mt-1 flex items-center gap-0.5 text-[10px] font-semibold sm:text-xs",
-            isGood ? "text-emerald-600" : "text-pink-dark"
+            isGood ? "text-emerald-600" : "text-danger"
           )}
         >
           <DeltaIcon size={11} />

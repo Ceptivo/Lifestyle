@@ -6,6 +6,7 @@ import { AccountsSummary } from "@/components/finance/AccountsSummary";
 import { BalanceTrendChart } from "@/components/charts/BalanceTrendChart";
 import { CategoryStackedBar } from "@/components/charts/CategoryStackedBar";
 import { MiniColumnChart } from "@/components/charts/MiniColumnChart";
+import { RingProgress } from "@/components/charts/RingProgress";
 import { CATEGORICAL, OTHER_SLOT } from "@/lib/chart-colors";
 import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
 
@@ -134,6 +135,14 @@ export default async function FinanceDashboardPage() {
     });
   }
 
+  const monthSaved = monthIncome - monthExpense;
+  const savingsRate = monthIncome > 0 ? (monthSaved / monthIncome) * 100 : 0;
+  const expenseChangePct = pctDelta(monthExpense, lastMonthExpense);
+  const savingsHeadline = monthSaved >= 0 ? "Well done!" : "Heads up";
+  const savingsBody = Number.isFinite(expenseChangePct)
+    ? `Your spending ${expenseChangePct <= 0 ? "reduced" : "increased"} by ${Math.abs(expenseChangePct).toFixed(0)}% from last month.`
+    : "Track a full month to see how your spending is trending.";
+
   return (
     <div>
       <div className="mb-6 grid grid-cols-3 gap-2.5 sm:gap-3">
@@ -153,6 +162,17 @@ export default async function FinanceDashboardPage() {
           delta={{ pct: pctDelta(monthExpense, lastMonthExpense), goodDirection: "down" }}
         />
       </div>
+
+      <Card className="mb-6 flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-bold text-charcoal">{savingsHeadline}</p>
+          <p className="mt-1 text-xs text-charcoal-soft">{savingsBody}</p>
+          <Link href="/finance/profile" className="mt-2 inline-block text-xs font-semibold text-pink">
+            View Details
+          </Link>
+        </div>
+        <RingProgress pct={savingsRate} value={formatCurrency(monthSaved)} label="Saved" />
+      </Card>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
         Balance — last 30 days

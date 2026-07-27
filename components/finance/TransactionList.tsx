@@ -12,13 +12,15 @@ export function TransactionList({
   transactions,
   accountsById,
   categoriesById,
+  emptyMessage = "No transactions yet. Add the first one.",
 }: {
   transactions: Transaction[];
   accountsById: Record<string, LookupEntry>;
   categoriesById: Record<string, LookupEntry>;
+  emptyMessage?: string;
 }) {
   if (!transactions.length) {
-    return <p className="text-center text-sm text-charcoal-soft">No transactions yet. Add the first one.</p>;
+    return <p className="text-center text-sm text-charcoal-soft">{emptyMessage}</p>;
   }
 
   return (
@@ -49,7 +51,7 @@ export function TransactionList({
                 <button
                   type="submit"
                   aria-label="Delete transaction"
-                  className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-pink"
+                  className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-danger"
                 >
                   <Trash2 size={14} />
                 </button>

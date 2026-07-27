@@ -4,8 +4,8 @@
   "description": "A personal all-in-one app.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8f6f4",
-  "theme_color": "#17171a",
+  "background_color": "#0c0c0e",
+  "theme_color": "#0c0c0e",
   "orientation": "portrait",
   "icons": [
     {

@@ -88,7 +88,7 @@ export function AddTransactionForm({
               type="button"
               onClick={() => setType(t)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
-                type === t ? "bg-pink text-white" : "text-charcoal-soft"
+                type === t ? "bg-pink text-ink font-semibold" : "text-charcoal-soft"
               }`}
             >
               {t}

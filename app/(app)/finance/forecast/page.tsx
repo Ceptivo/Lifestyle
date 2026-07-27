@@ -79,9 +79,9 @@ export default async function ForecastPage() {
       </p>
 
       {firstNegative && (
-        <Card tone="pink-soft" className="mb-6 flex items-center gap-3 px-4 py-3.5">
-          <AlertTriangle size={18} className="shrink-0 text-pink-dark" />
-          <p className="text-sm text-pink-dark">
+        <Card tone="danger-soft" className="mb-6 flex items-center gap-3 px-4 py-3.5">
+          <AlertTriangle size={18} className="shrink-0 text-danger" />
+          <p className="text-sm text-danger">
             Projected to go negative by <span className="font-semibold">{firstNegative.label}</span>.
           </p>
         </Card>
@@ -99,7 +99,7 @@ export default async function ForecastPage() {
                 </p>
               )}
             </div>
-            <p className={cn("text-base font-bold tabular-nums", p.balance < 0 ? "text-pink-dark" : "text-charcoal")}>
+            <p className={cn("text-base font-bold tabular-nums", p.balance < 0 ? "text-danger" : "text-charcoal")}>
               {formatCurrency(p.balance)}
             </p>
           </div>

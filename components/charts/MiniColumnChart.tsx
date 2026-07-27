@@ -41,7 +41,7 @@ export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
 
       <div className="relative">
         <svg viewBox={`0 0 ${width} ${HEIGHT}`} className="w-full" style={{ height: HEIGHT }}>
-          <line x1={0} x2={width} y1={baseline} y2={baseline} stroke="#e1e0d9" strokeWidth={1} />
+          <line x1={0} x2={width} y1={baseline} y2={baseline} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
           {months.map((m, i) => {
             const groupX = i * GROUP_W + 10;
             const incomeH = scale(m.income);
@@ -77,7 +77,7 @@ export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
                   y={HEIGHT - 4}
                   textAnchor="middle"
                   fontSize={11}
-                  fill="#898781"
+                  fill="#8e8e93"
                 >
                   {m.label.split(" ")[0]}
                 </text>
@@ -88,7 +88,7 @@ export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
 
         {hovered && hoveredData && (
           <div
-            className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-xl border border-border bg-paper px-3 py-2 shadow-sm"
+            className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-xl border border-border bg-paper px-3 py-2"
             style={{ left: `${((hovered.monthIndex * GROUP_W + GROUP_W / 2) / width) * 100}%` }}
           >
             <p className="text-xs text-charcoal-soft">

@@ -34,7 +34,7 @@ export function BudgetList({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
-                  <p className={cn("text-xs", over ? "text-pink-dark" : "text-charcoal-soft")}>
+                  <p className={cn("text-xs", over ? "text-danger" : "text-charcoal-soft")}>
                     {formatCurrency(budget.spent)} of {formatCurrency(budget.monthlyLimit)}
                   </p>
                 </div>
@@ -42,7 +42,7 @@ export function BudgetList({
                   <button
                     type="submit"
                     aria-label="Delete budget"
-                    className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-pink"
+                    className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-danger"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -50,7 +50,7 @@ export function BudgetList({
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-cream">
                 <div
-                  className={cn("h-full rounded-full", over ? "bg-pink-dark" : "bg-pink")}
+                  className={cn("h-full rounded-full", over ? "bg-danger" : "bg-pink")}
                   style={{ width: `${pct}%` }}
                 />
               </div>
