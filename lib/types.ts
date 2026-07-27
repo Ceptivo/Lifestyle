@@ -1,26 +1,58 @@
 export type FinanceType = "income" | "expense";
 
-export type FinanceCategory =
-  | "income"
-  | "housing"
-  | "groceries"
-  | "transport"
-  | "utilities"
-  | "dining"
-  | "shopping"
-  | "health"
-  | "subscriptions"
-  | "savings"
-  | "other";
-
 export interface Database {
   public: {
     Tables: {
+      finance_accounts: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string;
+          starting_balance: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string;
+          starting_balance?: number;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          icon?: string;
+          starting_balance?: number;
+        };
+        Relationships: [];
+      };
+      finance_categories: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string;
+          type: FinanceType;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string;
+          type: FinanceType;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          icon?: string;
+          type?: FinanceType;
+        };
+        Relationships: [];
+      };
       finance_transactions: {
         Row: {
           id: string;
           type: FinanceType;
-          category: FinanceCategory;
+          account_id: string;
+          category_id: string;
           amount: number;
           description: string | null;
           occurred_on: string;
@@ -29,7 +61,8 @@ export interface Database {
         Insert: {
           id?: string;
           type: FinanceType;
-          category?: FinanceCategory;
+          account_id: string;
+          category_id: string;
           amount: number;
           description?: string | null;
           occurred_on?: string;
@@ -37,10 +70,58 @@ export interface Database {
         };
         Update: {
           type?: FinanceType;
-          category?: FinanceCategory;
+          account_id?: string;
+          category_id?: string;
           amount?: number;
           description?: string | null;
           occurred_on?: string;
+        };
+        Relationships: [];
+      };
+      finance_budgets: {
+        Row: {
+          id: string;
+          category_id: string;
+          monthly_limit: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          category_id: string;
+          monthly_limit: number;
+          created_at?: string;
+        };
+        Update: {
+          category_id?: string;
+          monthly_limit?: number;
+        };
+        Relationships: [];
+      };
+      finance_goals: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string;
+          target_amount: number;
+          current_amount: number;
+          target_date: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string;
+          target_amount: number;
+          current_amount?: number;
+          target_date?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          icon?: string;
+          target_amount?: number;
+          current_amount?: number;
+          target_date?: string | null;
         };
         Relationships: [];
       };

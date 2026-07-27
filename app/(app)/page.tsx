@@ -9,10 +9,13 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const supabase = createClient();
-  const { data: transactions } = await supabase.from("finance_transactions").select("type, amount, occurred_on");
+  const [{ data: accounts }, { data: transactions }] = await Promise.all([
+    supabase.from("finance_accounts").select("starting_balance"),
+    supabase.from("finance_transactions").select("type, amount, occurred_on"),
+  ]);
 
   const monthPrefix = todayLocalDate().slice(0, 7);
-  let balance = 0;
+  let balance = (accounts ?? []).reduce((sum, a) => sum + a.starting_balance, 0);
   let monthExpense = 0;
 
   for (const tx of transactions ?? []) {

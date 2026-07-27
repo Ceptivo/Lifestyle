@@ -1,10 +1,17 @@
 import { Card } from "@/components/ui/Card";
-import { CATEGORY_ICON, CATEGORY_LABEL } from "@/lib/finance";
+import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/format";
-import type { FinanceCategory } from "@/lib/types";
 
-export function CategoryBreakdown({ totals }: { totals: Partial<Record<FinanceCategory, number>> }) {
-  const sorted = (Object.entries(totals) as [FinanceCategory, number][])
+type LookupEntry = { name: string; icon: string };
+
+export function CategoryBreakdown({
+  totals,
+  categoriesById,
+}: {
+  totals: Record<string, number>;
+  categoriesById: Record<string, LookupEntry>;
+}) {
+  const sorted = Object.entries(totals)
     .filter(([, total]) => total > 0)
     .sort((a, b) => b[1] - a[1]);
 
@@ -14,13 +21,13 @@ export function CategoryBreakdown({ totals }: { totals: Partial<Record<FinanceCa
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      {sorted.map(([category, total]) => {
-        const Icon = CATEGORY_ICON[category];
+      {sorted.map(([categoryId, total]) => {
+        const category = categoriesById[categoryId];
         return (
-          <Card key={category} className="px-4 py-3">
-            <Icon size={16} className="mb-2 text-pink" />
+          <Card key={categoryId} className="px-4 py-3">
+            <Icon name={category?.icon ?? "more-horizontal"} size={16} className="mb-2 text-pink" />
             <p className="text-lg font-bold text-charcoal">{formatCurrency(total)}</p>
-            <p className="text-xs text-charcoal-soft">{CATEGORY_LABEL[category]}</p>
+            <p className="text-xs text-charcoal-soft">{category?.name ?? "Uncategorized"}</p>
           </Card>
         );
       })}
