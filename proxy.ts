@@ -8,6 +8,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Vercel Cron hits this with only its own Authorization: Bearer
+  // $CRON_SECRET header (checked inside the route handler) — it never has
+  // a PIN session cookie, so the PIN gate must not intercept it.
+  if (request.nextUrl.pathname.startsWith("/api/cron/")) {
+    return NextResponse.next();
+  }
+
   const cookie = request.cookies.get(COOKIE_NAME)?.value;
   if (!isValidSessionCookie(cookie)) {
     return NextResponse.redirect(new URL("/login", request.url));

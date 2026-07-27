@@ -1,4 +1,6 @@
 export type FinanceType = "income" | "expense";
+export type SubscriptionCycle = "weekly" | "monthly" | "yearly";
+export type SubscriptionStatus = "active" | "paused" | "cancelled";
 
 export interface Database {
   public: {
@@ -53,6 +55,7 @@ export interface Database {
           type: FinanceType;
           account_id: string;
           category_id: string;
+          subscription_id: string | null;
           amount: number;
           description: string | null;
           occurred_on: string;
@@ -63,6 +66,7 @@ export interface Database {
           type: FinanceType;
           account_id: string;
           category_id: string;
+          subscription_id?: string | null;
           amount: number;
           description?: string | null;
           occurred_on?: string;
@@ -72,6 +76,7 @@ export interface Database {
           type?: FinanceType;
           account_id?: string;
           category_id?: string;
+          subscription_id?: string | null;
           amount?: number;
           description?: string | null;
           occurred_on?: string;
@@ -122,6 +127,43 @@ export interface Database {
           target_amount?: number;
           current_amount?: number;
           target_date?: string | null;
+        };
+        Relationships: [];
+      };
+      finance_subscriptions: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string;
+          amount: number;
+          cycle: SubscriptionCycle;
+          account_id: string;
+          category_id: string;
+          next_due_date: string;
+          status: SubscriptionStatus;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string;
+          amount: number;
+          cycle?: SubscriptionCycle;
+          account_id: string;
+          category_id: string;
+          next_due_date: string;
+          status?: SubscriptionStatus;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          icon?: string;
+          amount?: number;
+          cycle?: SubscriptionCycle;
+          account_id?: string;
+          category_id?: string;
+          next_due_date?: string;
+          status?: SubscriptionStatus;
         };
         Relationships: [];
       };

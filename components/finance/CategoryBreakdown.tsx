@@ -7,16 +7,18 @@ type LookupEntry = { name: string; icon: string };
 export function CategoryBreakdown({
   totals,
   categoriesById,
+  emptyMessage = "No expenses logged this month yet.",
 }: {
   totals: Record<string, number>;
   categoriesById: Record<string, LookupEntry>;
+  emptyMessage?: string;
 }) {
   const sorted = Object.entries(totals)
     .filter(([, total]) => total > 0)
     .sort((a, b) => b[1] - a[1]);
 
   if (!sorted.length) {
-    return <p className="text-center text-sm text-charcoal-soft">No expenses logged this month yet.</p>;
+    return <p className="text-center text-sm text-charcoal-soft">{emptyMessage}</p>;
   }
 
   return (

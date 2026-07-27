@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { GoalForm } from "@/components/finance/GoalForm";
 import { GoalList } from "@/components/finance/GoalList";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,9 @@ export default async function GoalsPage() {
           targetAmount: g.target_amount,
           currentAmount: g.current_amount,
           targetDate: g.target_date,
+          currentAmountFormatted: formatCurrency(g.current_amount),
+          targetAmountFormatted: formatCurrency(g.target_amount),
+          targetDateFormatted: g.target_date ? formatDate(g.target_date) : null,
         }))}
       />
     </div>

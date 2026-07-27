@@ -9,9 +9,12 @@ const items = [
   { href: "/finance/transactions", label: "Transactions" },
   { href: "/finance/analytics", label: "Analytics" },
   { href: "/finance/budgets", label: "Budgets" },
+  { href: "/finance/subscriptions", label: "Subscriptions" },
   { href: "/finance/goals", label: "Goals" },
+  { href: "/finance/forecast", label: "Forecast" },
   { href: "/finance/accounts", label: "Accounts" },
   { href: "/finance/categories", label: "Categories" },
+  { href: "/finance/profile", label: "Profile" },
 ];
 
 export function FinanceSubNav() {

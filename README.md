@@ -51,6 +51,7 @@ SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 APP_PIN=your-pin
 SESSION_SECRET=a-long-random-string   # e.g. `openssl rand -hex 32`
+CRON_SECRET=a-long-random-string      # e.g. `openssl rand -hex 32`
 ```
 
 ## 3. Run it locally
@@ -69,13 +70,17 @@ screen first.
    repo).
 2. In Vercel, **Add New → Project**, import the repo — Next.js is
    auto-detected.
-3. Add the four environment variables from step 2 under **Environment
+3. Add the five environment variables from step 2 under **Environment
    Variables**.
 4. Deploy.
 5. On your phone, open the URL and use **Add to Home Screen** (iOS Safari)
    or the install prompt (Android Chrome) to install it as an app.
 
 Every push to the branch Vercel is tracking redeploys automatically.
+
+`vercel.json` also registers a daily Vercel Cron job (`/api/cron/subscriptions`)
+that posts any due subscription payments automatically — no setup needed
+beyond the `CRON_SECRET` env var above.
 
 ## Project structure
 
@@ -84,13 +89,19 @@ app/
   login/                    PIN entry
   (app)/                    Authenticated shell (header + bottom nav)
     page.tsx                Home — a hub linking into each section
-    finance/                Finance dashboard
+    finance/                Finance: Overview, Transactions, Analytics,
+                             Budgets, Goals, Accounts, Categories,
+                             Subscriptions, Forecast, Profile
   actions/                  Server Actions (all writes go through these)
+  api/cron/subscriptions/   Daily job that posts due subscription payments
 proxy.ts                    PIN-gate route protection (Next 16's "middleware")
+vercel.json                 Registers the subscriptions cron schedule
 lib/
   supabase/server.ts        Server-only Supabase client (service role key)
   session.ts                Signed session cookie for the PIN gate
-  finance.ts                Categories, labels, icons shared by actions + UI
+  icons.ts                  Curated icon set shared by categories/accounts/goals
+  subscriptions.ts          Billing-cycle date math shared by the cron job
+                             and the manual "pay now" action
   types.ts                  Hand-written Supabase Database types
 supabase/migrations/        SQL schema
 public/                     manifest.json, icons, service worker (PWA)

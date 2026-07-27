@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
-import { formatCurrency, formatDate } from "@/lib/format";
 
 type Goal = {
   id: string;
@@ -16,6 +15,9 @@ type Goal = {
   targetAmount: number;
   currentAmount: number;
   targetDate: string | null;
+  currentAmountFormatted: string;
+  targetAmountFormatted: string;
+  targetDateFormatted: string | null;
 };
 
 function GoalCard({ goal }: { goal: Goal }) {
@@ -33,8 +35,8 @@ function GoalCard({ goal }: { goal: Goal }) {
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-charcoal">{goal.name}</p>
           <p className="text-xs text-charcoal-soft">
-            {formatCurrency(goal.currentAmount)} of {formatCurrency(goal.targetAmount)}
-            {goal.targetDate && ` · by ${formatDate(goal.targetDate)}`}
+            {goal.currentAmountFormatted} of {goal.targetAmountFormatted}
+            {goal.targetDateFormatted && ` · by ${goal.targetDateFormatted}`}
           </p>
         </div>
         <form action={deleteGoal.bind(null, goal.id)}>

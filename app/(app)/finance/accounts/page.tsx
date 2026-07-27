@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AccountForm } from "@/components/finance/AccountForm";
 import { AccountList } from "@/components/finance/AccountList";
+import { formatCurrency } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -24,13 +25,17 @@ export default async function AccountsPage() {
       </div>
 
       <AccountList
-        accounts={(accounts ?? []).map((a) => ({
-          id: a.id,
-          name: a.name,
-          icon: a.icon,
-          startingBalance: a.starting_balance,
-          balance: balances.get(a.id) ?? a.starting_balance,
-        }))}
+        accounts={(accounts ?? []).map((a) => {
+          const balance = balances.get(a.id) ?? a.starting_balance;
+          return {
+            id: a.id,
+            name: a.name,
+            icon: a.icon,
+            startingBalance: a.starting_balance,
+            balance,
+            balanceFormatted: formatCurrency(balance),
+          };
+        })}
       />
     </div>
   );

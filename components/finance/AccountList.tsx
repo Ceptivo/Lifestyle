@@ -8,9 +8,15 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
 import { IconPicker } from "@/components/ui/IconPicker";
 import { Icon } from "@/components/ui/Icon";
-import { formatCurrency } from "@/lib/format";
 
-type Account = { id: string; name: string; icon: string; startingBalance: number; balance: number };
+type Account = {
+  id: string;
+  name: string;
+  icon: string;
+  startingBalance: number;
+  balance: number;
+  balanceFormatted: string;
+};
 
 function AccountCard({ account }: { account: Account }) {
   const [editing, setEditing] = useState(false);
@@ -60,7 +66,7 @@ function AccountCard({ account }: { account: Account }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-charcoal">{account.name}</p>
-        <p className="text-base font-bold tabular-nums text-charcoal">{formatCurrency(account.balance)}</p>
+        <p className="text-base font-bold tabular-nums text-charcoal">{account.balanceFormatted}</p>
       </div>
       <button
         type="button"
