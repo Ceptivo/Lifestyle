@@ -17,12 +17,16 @@ type Category = { id: string; name: string; icon: string; type: FinanceType };
 export function AddTransactionForm({
   accounts,
   categories: initialCategories,
+  initialOpen = false,
+  initialType = "expense",
 }: {
   accounts: Account[];
   categories: Category[];
+  initialOpen?: boolean;
+  initialType?: FinanceType;
 }) {
-  const [open, setOpen] = useState(false);
-  const [type, setType] = useState<FinanceType>("expense");
+  const [open, setOpen] = useState(initialOpen);
+  const [type, setType] = useState<FinanceType>(initialType);
   const [categories, setCategories] = useState(initialCategories);
   const [categoryId, setCategoryId] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);

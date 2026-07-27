@@ -16,10 +16,12 @@ const TABS: { key: "all" | FinanceType; label: string }[] = [
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; add?: string }>;
 }) {
-  const { filter } = await searchParams;
+  const { filter, add } = await searchParams;
   const activeTab = TABS.some((t) => t.key === filter) ? (filter as (typeof TABS)[number]["key"]) : "all";
+  const quickAddOpen = add === "expense" || add === "income" || add === "other";
+  const quickAddType: FinanceType = add === "income" ? "income" : "expense";
 
   const supabase = createClient();
   const [{ data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
@@ -43,7 +45,12 @@ export default async function TransactionsPage({
   return (
     <div>
       <div className="mb-6">
-        <AddTransactionForm accounts={accounts ?? []} categories={categories ?? []} />
+        <AddTransactionForm
+          accounts={accounts ?? []}
+          categories={categories ?? []}
+          initialOpen={quickAddOpen}
+          initialType={quickAddType}
+        />
       </div>
 
       <div className="mb-4 flex items-center justify-between">
