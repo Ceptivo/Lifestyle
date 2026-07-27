@@ -49,6 +49,8 @@ import {
   Flame,
   Sparkles,
   HardDrive,
+  ListChecks,
+  Flag,
   type LucideIcon,
 } from "lucide-react";
 
@@ -103,6 +105,8 @@ export const ICONS: Record<string, LucideIcon> = {
   flame: Flame,
   sparkles: Sparkles,
   "hard-drive": HardDrive,
+  "list-checks": ListChecks,
+  flag: Flag,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);
