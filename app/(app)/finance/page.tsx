@@ -3,7 +3,11 @@ import { Receipt, PieChart, ListChecks, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { AccountsSummary } from "@/components/finance/AccountsSummary";
-import { formatCurrency, todayLocalDate } from "@/lib/format";
+import { BalanceTrendChart } from "@/components/charts/BalanceTrendChart";
+import { CategoryStackedBar } from "@/components/charts/CategoryStackedBar";
+import { MiniColumnChart } from "@/components/charts/MiniColumnChart";
+import { CATEGORICAL, OTHER_SLOT } from "@/lib/chart-colors";
+import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -14,26 +18,77 @@ const QUICK_LINKS = [
   { href: "/finance/goals", label: "Goals", icon: Flag },
 ];
 
+const TREND_WINDOW_DAYS = 30;
+const MONTHLY_CHART_COUNT = 6;
+
+function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function pctDelta(current: number, previous: number): number {
+  return previous !== 0 ? ((current - previous) / Math.abs(previous)) * 100 : NaN;
+}
+
 export default async function FinanceDashboardPage() {
   const supabase = createClient();
-  const [{ data: accounts }, { data: transactions }] = await Promise.all([
+  const [{ data: accounts }, { data: transactions }, { data: categories }] = await Promise.all([
     supabase.from("finance_accounts").select("id, name, icon, starting_balance").order("created_at"),
-    supabase.from("finance_transactions").select("type, amount, occurred_on, account_id"),
+    supabase.from("finance_transactions").select("type, amount, occurred_on, account_id, category_id"),
+    supabase.from("finance_categories").select("id, name, icon"),
   ]);
 
+  const today = new Date(todayLocalDate() + "T00:00:00");
   const monthPrefix = todayLocalDate().slice(0, 7);
+  const monthStart = `${monthPrefix}-01`;
+  const lastMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const lastMonthPrefix = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, "0")}`;
+
+  const windowStartDate = new Date(today);
+  windowStartDate.setDate(windowStartDate.getDate() - (TREND_WINDOW_DAYS - 1));
+  const windowStart = isoDate(windowStartDate);
+
+  const startingBalanceTotal = (accounts ?? []).reduce((sum, a) => sum + a.starting_balance, 0);
+  const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
 
   const accountBalances = new Map((accounts ?? []).map((a) => [a.id, a.starting_balance]));
   let monthIncome = 0;
   let monthExpense = 0;
+  let lastMonthIncome = 0;
+  let lastMonthExpense = 0;
+  let balanceAtMonthStart = startingBalanceTotal;
+  let balanceBeforeWindow = startingBalanceTotal;
+  const dayNet = new Map<string, number>();
+  const categoryTotals: Record<string, number> = {};
+
+  const monthKeys = Array.from({ length: MONTHLY_CHART_COUNT }, (_, i) => {
+    const d = new Date(today.getFullYear(), today.getMonth() - (MONTHLY_CHART_COUNT - 1 - i), 1);
+    return { key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, label: d.toLocaleDateString("en-US", { month: "short" }) };
+  });
+  const monthlyTotals = new Map(monthKeys.map((m) => [m.key, { income: 0, expense: 0 }]));
 
   for (const tx of transactions ?? []) {
     const delta = tx.type === "income" ? tx.amount : -tx.amount;
     accountBalances.set(tx.account_id, (accountBalances.get(tx.account_id) ?? 0) + delta);
 
+    if (tx.occurred_on < monthStart) balanceAtMonthStart += delta;
+    if (tx.occurred_on < windowStart) balanceBeforeWindow += delta;
+    else dayNet.set(tx.occurred_on, (dayNet.get(tx.occurred_on) ?? 0) + delta);
+
     if (tx.occurred_on.startsWith(monthPrefix)) {
       if (tx.type === "income") monthIncome += tx.amount;
-      else monthExpense += tx.amount;
+      else {
+        monthExpense += tx.amount;
+        categoryTotals[tx.category_id] = (categoryTotals[tx.category_id] ?? 0) + tx.amount;
+      }
+    } else if (tx.occurred_on.startsWith(lastMonthPrefix)) {
+      if (tx.type === "income") lastMonthIncome += tx.amount;
+      else lastMonthExpense += tx.amount;
+    }
+
+    const bucket = monthlyTotals.get(tx.occurred_on.slice(0, 7));
+    if (bucket) {
+      if (tx.type === "income") bucket.income += tx.amount;
+      else bucket.expense += tx.amount;
     }
   }
 
@@ -45,13 +100,94 @@ export default async function FinanceDashboardPage() {
     balance: accountBalances.get(a.id) ?? a.starting_balance,
   }));
 
+  const trendPoints: { date: string; balance: number; dateFormatted: string; balanceFormatted: string }[] = [];
+  let running = balanceBeforeWindow;
+  for (let i = 0; i < TREND_WINDOW_DAYS; i++) {
+    const d = new Date(windowStartDate);
+    d.setDate(d.getDate() + i);
+    const dateStr = isoDate(d);
+    running += dayNet.get(dateStr) ?? 0;
+    trendPoints.push({ date: dateStr, balance: running, dateFormatted: formatDate(dateStr), balanceFormatted: formatCurrency(running) });
+  }
+  const trendMax = Math.max(...trendPoints.map((p) => p.balance), 0.01);
+  const trendMin = Math.min(0, ...trendPoints.map((p) => p.balance));
+
+  const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+  const topCategories = sortedCategories.slice(0, CATEGORICAL.length - 1);
+  const otherTotal = sortedCategories.slice(CATEGORICAL.length - 1).reduce((sum, [, amt]) => sum + amt, 0);
+  const categorySegments = topCategories.map(([id, amt], i) => ({
+    categoryId: id,
+    name: categoriesById[id]?.name ?? "Uncategorized",
+    icon: categoriesById[id]?.icon ?? "more-horizontal",
+    amount: amt,
+    amountFormatted: formatCurrency(amt),
+    color: CATEGORICAL[i],
+  }));
+  if (otherTotal > 0) {
+    categorySegments.push({
+      categoryId: "other",
+      name: "Other",
+      icon: "more-horizontal",
+      amount: otherTotal,
+      amountFormatted: formatCurrency(otherTotal),
+      color: OTHER_SLOT,
+    });
+  }
+
   return (
     <div>
       <div className="mb-6 grid grid-cols-3 gap-2.5 sm:gap-3">
-        <StatCard label="Balance" value={formatCurrency(balance)} />
-        <StatCard label="Income" value={formatCurrency(monthIncome)} />
-        <StatCard label="Expenses" value={formatCurrency(monthExpense)} />
+        <StatCard
+          label="Balance"
+          value={formatCurrency(balance)}
+          delta={{ pct: pctDelta(balance, balanceAtMonthStart), goodDirection: "up" }}
+        />
+        <StatCard
+          label="Income"
+          value={formatCurrency(monthIncome)}
+          delta={{ pct: pctDelta(monthIncome, lastMonthIncome), goodDirection: "up" }}
+        />
+        <StatCard
+          label="Expenses"
+          value={formatCurrency(monthExpense)}
+          delta={{ pct: pctDelta(monthExpense, lastMonthExpense), goodDirection: "down" }}
+        />
       </div>
+
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
+        Balance — last 30 days
+      </h2>
+      <Card className="mb-6">
+        <BalanceTrendChart
+          points={trendPoints}
+          maxFormatted={formatCurrency(trendMax)}
+          minFormatted={formatCurrency(trendMin)}
+        />
+      </Card>
+
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
+        Spending by category — this month
+      </h2>
+      <Card className="mb-6">
+        <CategoryStackedBar segments={categorySegments} total={monthExpense} />
+      </Card>
+
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Income vs. expenses</h2>
+      <Card className="mb-6">
+        <MiniColumnChart
+          months={monthKeys.map((m) => {
+            const income = monthlyTotals.get(m.key)?.income ?? 0;
+            const expense = monthlyTotals.get(m.key)?.expense ?? 0;
+            return {
+              label: m.label,
+              income,
+              expense,
+              incomeFormatted: formatCurrency(income),
+              expenseFormatted: formatCurrency(expense),
+            };
+          })}
+        />
+      </Card>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Accounts</h2>
       <div className="mb-6">
