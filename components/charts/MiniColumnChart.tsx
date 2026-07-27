@@ -1,20 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { INCOME_COLOR, EXPENSE_COLOR } from "@/lib/chart-colors";
 
 type MonthTotal = { label: string; income: number; expense: number; incomeFormatted: string; expenseFormatted: string };
+type GridLine = { value: number; label: string };
 type Hovered = { monthIndex: number; type: "income" | "expense" } | null;
 
 const HEIGHT = 140;
 const BAR_W = 16;
 const GAP = 6;
 const GROUP_W = BAR_W * 2 + GAP + 20;
+const LABEL_W = 84;
 
-export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
+export function MiniColumnChart({ months, gridLines }: { months: MonthTotal[]; gridLines: GridLine[] }) {
   const [hovered, setHovered] = useState<Hovered>(null);
-  const width = months.length * GROUP_W;
-  const max = useMemo(() => Math.max(1, ...months.flatMap((m) => [m.income, m.expense])), [months]);
+  const chartWidth = months.length * GROUP_W;
+  const width = chartWidth + LABEL_W;
+  const max = Math.max(1, gridLines[0]?.value ?? 1);
 
   const baseline = HEIGHT - 20;
   const scale = (v: number) => (v / max) * (baseline - 10);
@@ -41,9 +44,26 @@ export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
 
       <div className="relative">
         <svg viewBox={`0 0 ${width} ${HEIGHT}`} className="w-full" style={{ height: HEIGHT }}>
-          <line x1={0} x2={width} y1={baseline} y2={baseline} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+          {gridLines.map((g, i) => {
+            const y = baseline - scale(g.value);
+            return (
+              <g key={i}>
+                <line
+                  x1={LABEL_W}
+                  x2={width}
+                  y1={y}
+                  y2={y}
+                  stroke={g.value === 0 ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.08)"}
+                  strokeWidth={1}
+                />
+                <text x={LABEL_W - 8} y={y + 4} textAnchor="end" fontSize={12} fill="#8e8e93">
+                  {g.label}
+                </text>
+              </g>
+            );
+          })}
           {months.map((m, i) => {
-            const groupX = i * GROUP_W + 10;
+            const groupX = LABEL_W + i * GROUP_W + 10;
             const incomeH = scale(m.income);
             const expenseH = scale(m.expense);
             const isIncomeHovered = hovered?.monthIndex === i && hovered.type === "income";
@@ -76,7 +96,7 @@ export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
                   x={groupX + BAR_W + GAP / 2}
                   y={HEIGHT - 4}
                   textAnchor="middle"
-                  fontSize={11}
+                  fontSize={12}
                   fill="#8e8e93"
                 >
                   {m.label.split(" ")[0]}
@@ -89,7 +109,7 @@ export function MiniColumnChart({ months }: { months: MonthTotal[] }) {
         {hovered && hoveredData && (
           <div
             className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-xl border border-border bg-paper px-3 py-2"
-            style={{ left: `${((hovered.monthIndex * GROUP_W + GROUP_W / 2) / width) * 100}%` }}
+            style={{ left: `${((LABEL_W + hovered.monthIndex * GROUP_W + GROUP_W / 2) / width) * 100}%` }}
           >
             <p className="text-xs text-charcoal-soft">
               {hoveredData.label} · {hovered.type === "income" ? "Income" : "Expenses"}

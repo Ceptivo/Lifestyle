@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/format";
@@ -26,11 +27,13 @@ export function CategoryBreakdown({
       {sorted.map(([categoryId, total]) => {
         const category = categoriesById[categoryId];
         return (
-          <Card key={categoryId} className="px-4 py-3">
-            <Icon name={category?.icon ?? "more-horizontal"} size={16} className="mb-2 text-pink" />
-            <p className="text-lg font-bold text-charcoal">{formatCurrency(total)}</p>
-            <p className="text-xs text-charcoal-soft">{category?.name ?? "Uncategorized"}</p>
-          </Card>
+          <Link key={categoryId} href={`/finance/transactions?category=${categoryId}`}>
+            <Card className="px-4 py-3">
+              <Icon name={category?.icon ?? "more-horizontal"} size={16} className="mb-2 text-pink" />
+              <p className="text-lg font-bold text-charcoal">{formatCurrency(total)}</p>
+              <p className="text-xs text-charcoal-soft">{category?.name ?? "Uncategorized"}</p>
+            </Card>
+          </Link>
         );
       })}
     </div>

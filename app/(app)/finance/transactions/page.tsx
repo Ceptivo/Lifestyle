@@ -16,12 +16,13 @@ const TABS: { key: "all" | FinanceType; label: string }[] = [
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; add?: string }>;
+  searchParams: Promise<{ filter?: string; add?: string; category?: string }>;
 }) {
-  const { filter, add } = await searchParams;
+  const { filter, add, category } = await searchParams;
   const activeTab = TABS.some((t) => t.key === filter) ? (filter as (typeof TABS)[number]["key"]) : "all";
   const quickAddOpen = add === "expense" || add === "income" || add === "other";
   const quickAddType: FinanceType = add === "income" ? "income" : "expense";
+  const categoryIds = category ? category.split(",").filter(Boolean) : null;
 
   const supabase = createClient();
   const [{ data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
@@ -39,8 +40,16 @@ export default async function TransactionsPage({
   const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
 
   const filteredTransactions = (transactions ?? []).filter(
-    (tx) => activeTab === "all" || tx.type === activeTab
+    (tx) => (activeTab === "all" || tx.type === activeTab) && (!categoryIds || categoryIds.includes(tx.category_id))
   );
+
+  const categoryFilterLabel =
+    categoryIds && categoryIds.length === 1
+      ? categoriesById[categoryIds[0]]?.name ?? "Uncategorized"
+      : categoryIds
+        ? "Other categories"
+        : null;
+  const clearCategoryHref = filter ? `/finance/transactions?filter=${filter}` : "/finance/transactions";
 
   return (
     <div>
@@ -56,6 +65,16 @@ export default async function TransactionsPage({
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Recent transactions</h2>
       </div>
+
+      {categoryFilterLabel && (
+        <Link
+          href={clearCategoryHref}
+          className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-pink-soft px-3 py-1.5 text-xs font-semibold text-pink-dark"
+        >
+          Category: {categoryFilterLabel}
+          <span aria-hidden>✕</span>
+        </Link>
+      )}
 
       <div className="mb-4 flex items-center gap-5 border-b border-border">
         {TABS.map((tab) => (

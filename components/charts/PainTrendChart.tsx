@@ -2,48 +2,31 @@
 
 import { useMemo, useRef, useState } from "react";
 
-type Point = { date: string; balance: number; dateFormatted: string; balanceFormatted: string };
-type GridLine = { value: number; label: string };
+type Point = { date: string; severity: number; dateFormatted: string; symptom: string };
 
 const WIDTH = 600;
-const PLOT_HEIGHT = 180;
+const PLOT_HEIGHT = 160;
 const AXIS_H = 20;
 const HEIGHT = PLOT_HEIGHT + AXIS_H;
 const PAD_X = 8;
-const PAD_TOP = 16;
+const PAD_TOP = 12;
 const PAD_BOTTOM = 8;
-const LABEL_X = PAD_X;
 
-export function BalanceTrendChart({
-  points,
-  gridLines,
-}: {
-  points: Point[];
-  gridLines: GridLine[];
-}) {
+export function PainTrendChart({ points }: { points: Point[] }) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const { linePath, areaPath, zeroY, scaleX, scaleY, min, max } = useMemo(() => {
-    const values = points.map((p) => p.balance);
-    const rawMin = Math.min(0, ...values);
-    const rawMax = Math.max(...values, 0.01);
-    const span = rawMax - rawMin || 1;
-
+  const { linePath, scaleX, scaleY } = useMemo(() => {
     const innerW = WIDTH - PAD_X * 2;
     const innerH = PLOT_HEIGHT - PAD_TOP - PAD_BOTTOM;
-
     const sx = (i: number) => (points.length <= 1 ? PAD_X : PAD_X + (i / (points.length - 1)) * innerW);
-    const sy = (v: number) => PAD_TOP + innerH - ((v - rawMin) / span) * innerH;
-
-    const line = points.map((p, i) => `${i === 0 ? "M" : "L"}${sx(i).toFixed(2)},${sy(p.balance).toFixed(2)}`).join(" ");
-    const area = `${line} L${sx(points.length - 1).toFixed(2)},${sy(rawMin).toFixed(2)} L${sx(0).toFixed(2)},${sy(rawMin).toFixed(2)} Z`;
-
-    return { linePath: line, areaPath: area, zeroY: sy(0), scaleX: sx, scaleY: sy, min: rawMin, max: rawMax };
+    const sy = (v: number) => PAD_TOP + innerH - (v / 10) * innerH;
+    const line = points.map((p, i) => `${i === 0 ? "M" : "L"}${sx(i).toFixed(2)},${sy(p.severity).toFixed(2)}`).join(" ");
+    return { linePath: line, scaleX: sx, scaleY: sy };
   }, [points]);
 
   if (points.length < 2) {
-    return <p className="text-center text-sm text-charcoal-soft">Not enough history yet for a trend.</p>;
+    return <p className="text-center text-sm text-charcoal-soft">Log a couple of entries to see a trend.</p>;
   }
 
   function handleMove(clientX: number) {
@@ -58,9 +41,8 @@ export function BalanceTrendChart({
   const active = hoverIndex ?? points.length - 1;
   const activePoint = points[active];
   const activeX = scaleX(active);
-  const activeY = scaleY(activePoint.balance);
+  const activeY = scaleY(activePoint.severity);
   const tooltipRight = activeX > WIDTH * 0.6;
-
   const xTickIndices = Array.from(new Set([0, Math.round((points.length - 1) / 2), points.length - 1]));
 
   return (
@@ -74,28 +56,21 @@ export function BalanceTrendChart({
         onPointerLeave={() => setHoverIndex(null)}
         onPointerDown={(e) => handleMove(e.clientX)}
       >
-        {gridLines.map((g, i) => {
-          const y = scaleY(Math.min(Math.max(g.value, min), max));
-          return (
-            <g key={i}>
-              <line x1={PAD_X} x2={WIDTH - PAD_X} y1={y} y2={y} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
-              <text x={LABEL_X} y={y - 4} textAnchor="start" fontSize={12} fill="#8e8e93">
-                {g.label}
-              </text>
-            </g>
-          );
-        })}
+        {[0, 5, 10].map((v) => (
+          <g key={v}>
+            <line x1={PAD_X} x2={WIDTH - PAD_X} y1={scaleY(v)} y2={scaleY(v)} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
+            <text x={WIDTH - PAD_X} y={scaleY(v) - 4} textAnchor="end" fontSize={12} fill="#8e8e93">
+              {v}
+            </text>
+          </g>
+        ))}
 
-        {min < 0 && (
-          <line x1={PAD_X} x2={WIDTH - PAD_X} y1={zeroY} y2={zeroY} stroke="rgba(255,255,255,0.16)" strokeWidth={1} />
-        )}
-        <path d={areaPath} fill="#c7f53b" fillOpacity={0.14} stroke="none" />
-        <path d={linePath} fill="none" stroke="#c7f53b" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+        <path d={linePath} fill="none" stroke="#ff7452" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
 
         {hoverIndex !== null && (
           <line x1={activeX} x2={activeX} y1={PAD_TOP} y2={PLOT_HEIGHT - PAD_BOTTOM} stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
         )}
-        <circle cx={activeX} cy={activeY} r={4} fill="#c7f53b" stroke="#19191c" strokeWidth={2} />
+        <circle cx={activeX} cy={activeY} r={4} fill="#ff7452" stroke="#19191c" strokeWidth={2} />
 
         {xTickIndices.map((i) => (
           <text
@@ -119,7 +94,9 @@ export function BalanceTrendChart({
         }}
       >
         <p className="text-xs text-charcoal-soft">{activePoint.dateFormatted}</p>
-        <p className="text-sm font-semibold tabular-nums text-charcoal">{activePoint.balanceFormatted}</p>
+        <p className="text-sm font-semibold tabular-nums text-charcoal">
+          {activePoint.symptom} · {activePoint.severity}/10
+        </p>
       </div>
     </div>
   );

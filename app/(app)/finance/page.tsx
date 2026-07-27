@@ -112,12 +112,27 @@ export default async function FinanceDashboardPage() {
   }
   const trendMax = Math.max(...trendPoints.map((p) => p.balance), 0.01);
   const trendMin = Math.min(0, ...trendPoints.map((p) => p.balance));
+  const trendMid = (trendMax + trendMin) / 2;
+  const balanceGridLines = [
+    { value: trendMax, label: formatCurrency(trendMax) },
+    { value: trendMid, label: formatCurrency(trendMid) },
+    { value: trendMin, label: formatCurrency(trendMin) },
+  ];
+
+  const columnMax = Math.max(1, ...monthKeys.flatMap((m) => [monthlyTotals.get(m.key)?.income ?? 0, monthlyTotals.get(m.key)?.expense ?? 0]));
+  const columnGridLines = [
+    { value: columnMax, label: formatCurrency(columnMax) },
+    { value: columnMax / 2, label: formatCurrency(columnMax / 2) },
+    { value: 0, label: formatCurrency(0) },
+  ];
 
   const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
   const topCategories = sortedCategories.slice(0, CATEGORICAL.length - 1);
-  const otherTotal = sortedCategories.slice(CATEGORICAL.length - 1).reduce((sum, [, amt]) => sum + amt, 0);
+  const otherEntries = sortedCategories.slice(CATEGORICAL.length - 1);
+  const otherTotal = otherEntries.reduce((sum, [, amt]) => sum + amt, 0);
   const categorySegments = topCategories.map(([id, amt], i) => ({
     categoryId: id,
+    categoryIds: [id],
     name: categoriesById[id]?.name ?? "Uncategorized",
     icon: categoriesById[id]?.icon ?? "more-horizontal",
     amount: amt,
@@ -127,6 +142,7 @@ export default async function FinanceDashboardPage() {
   if (otherTotal > 0) {
     categorySegments.push({
       categoryId: "other",
+      categoryIds: otherEntries.map(([id]) => id),
       name: "Other",
       icon: "more-horizontal",
       amount: otherTotal,
@@ -178,11 +194,7 @@ export default async function FinanceDashboardPage() {
         Balance — last 30 days
       </h2>
       <Card className="mb-6">
-        <BalanceTrendChart
-          points={trendPoints}
-          maxFormatted={formatCurrency(trendMax)}
-          minFormatted={formatCurrency(trendMin)}
-        />
+        <BalanceTrendChart points={trendPoints} gridLines={balanceGridLines} />
       </Card>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
@@ -195,6 +207,7 @@ export default async function FinanceDashboardPage() {
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Income vs. expenses</h2>
       <Card className="mb-6">
         <MiniColumnChart
+          gridLines={columnGridLines}
           months={monthKeys.map((m) => {
             const income = monthlyTotals.get(m.key)?.income ?? 0;
             const expense = monthlyTotals.get(m.key)?.expense ?? 0;

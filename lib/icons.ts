@@ -51,6 +51,13 @@ import {
   HardDrive,
   ListChecks,
   Flag,
+  Moon,
+  Activity,
+  Footprints,
+  Trophy,
+  CalendarDays,
+  Download,
+  User,
   type LucideIcon,
 } from "lucide-react";
 
@@ -107,6 +114,13 @@ export const ICONS: Record<string, LucideIcon> = {
   "hard-drive": HardDrive,
   "list-checks": ListChecks,
   flag: Flag,
+  moon: Moon,
+  activity: Activity,
+  footprints: Footprints,
+  trophy: Trophy,
+  "calendar-days": CalendarDays,
+  download: Download,
+  user: User,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);
