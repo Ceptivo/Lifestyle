@@ -30,8 +30,8 @@ function CredentialRow({ credential }: { credential: Credential }) {
           <Icon name={credential.icon} size={16} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-charcoal">{credential.serviceName}</p>
-          {credential.username && <p className="truncate text-xs text-charcoal-soft">{credential.username}</p>}
+          <p className="break-words hyphens-auto text-sm font-semibold text-charcoal">{credential.serviceName}</p>
+          {credential.username && <p className="break-words hyphens-auto text-xs text-charcoal-soft">{credential.username}</p>}
         </div>
         <form action={deleteCredential.bind(null, credential.id)}>
           <button type="submit" aria-label="Delete account" className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-danger">

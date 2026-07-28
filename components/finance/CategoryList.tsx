@@ -57,7 +57,7 @@ function CategoryCard({ category }: { category: Category }) {
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
         <Icon name={category.icon} size={16} />
       </span>
-      <p className="min-w-0 flex-1 truncate text-sm font-medium text-charcoal">{category.name}</p>
+      <p className="min-w-0 flex-1 break-words hyphens-auto text-sm font-medium text-charcoal">{category.name}</p>
       <button
         type="button"
         onClick={() => setEditing(true)}

@@ -28,7 +28,7 @@ export function MaintenanceList({ tasks }: { tasks: MaintenanceTask[] }) {
               <Icon name={t.icon} size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-charcoal">{t.title}</p>
+              <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{t.title}</p>
               <p className={cn("text-xs", t.overdue ? "font-semibold text-danger" : "text-charcoal-soft")}>
                 {t.overdue ? "Overdue · " : "Due "}
                 {t.dueDateFormatted}

@@ -113,7 +113,7 @@ function SubscriptionCard({
           <Icon name={subscription.icon} size={16} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-charcoal">{subscription.name}</p>
+          <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{subscription.name}</p>
           <p className="text-xs text-charcoal-soft">
             {subscription.amountFormatted} · {CYCLE_LABEL[subscription.cycle]}
             {paused ? " · Paused" : ` · Next ${subscription.nextDueDateFormatted}`}

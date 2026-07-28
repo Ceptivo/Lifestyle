@@ -37,7 +37,7 @@ export function CategoryTrend({
               <Icon name={category?.icon ?? "more-horizontal"} size={14} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
+              <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
               <p className="text-xs text-charcoal-soft">
                 {formatCurrency(entry.thisMonth)} this month · {formatCurrency(entry.lastMonth)} last month
               </p>

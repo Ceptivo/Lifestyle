@@ -22,8 +22,8 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <Icon name={trip.icon} size={16} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-charcoal">{trip.name}</p>
-            <p className="truncate text-xs text-charcoal-soft">
+            <p className="break-words hyphens-auto text-sm font-semibold text-charcoal">{trip.name}</p>
+            <p className="break-words hyphens-auto text-xs text-charcoal-soft">
               {trip.destination && `${trip.destination} · `}
               {trip.dateRangeLabel}
             </p>

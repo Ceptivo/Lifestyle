@@ -27,7 +27,7 @@ export function ActivityLogList({ activities }: { activities: Activity[] }) {
               <Icon name={a.icon} size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-charcoal">{a.title}</p>
+              <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{a.title}</p>
               <p className="text-xs text-charcoal-soft">
                 {a.performedOnFormatted} · {a.metaLine}
               </p>

@@ -33,7 +33,7 @@ export function DocumentList({ documents }: { documents: DocumentRow[] }) {
               <Icon name="file-text" size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-charcoal">{d.name}</p>
+              <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{d.name}</p>
               <p className={cn("text-xs", d.expired || d.expiringSoon ? "font-semibold text-danger" : "text-charcoal-soft")}>
                 {d.category}
                 {d.expiryLabel && ` · ${d.expired ? "Expired" : "Expires"} ${d.expiryLabel}`}

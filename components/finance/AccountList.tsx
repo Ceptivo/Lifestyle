@@ -65,7 +65,7 @@ function AccountCard({ account }: { account: Account }) {
         <Icon name={account.icon} size={16} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-charcoal">{account.name}</p>
+        <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{account.name}</p>
         <p className="text-base font-bold tabular-nums text-charcoal">{account.balanceFormatted}</p>
       </div>
       <button

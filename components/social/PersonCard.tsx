@@ -24,8 +24,8 @@ export function PersonCard({ person }: { person: PersonCardData }) {
             <Icon name={person.icon} size={16} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-charcoal">{person.name}</p>
-            <p className="truncate text-xs capitalize text-charcoal-soft">{person.relationshipType}</p>
+            <p className="break-words hyphens-auto text-sm font-semibold text-charcoal">{person.name}</p>
+            <p className="break-words hyphens-auto text-xs capitalize text-charcoal-soft">{person.relationshipType}</p>
           </div>
           {person.overdue && (
             <span className="shrink-0 rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-danger">

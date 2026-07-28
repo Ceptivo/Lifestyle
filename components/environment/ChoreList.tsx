@@ -33,7 +33,7 @@ function ChoreRow({ chore }: { chore: Chore }) {
         ✓
       </button>
       <div className="min-w-0 flex-1">
-        <p className={cn("truncate text-sm font-medium", chore.completed ? "text-charcoal-soft line-through" : "text-charcoal")}>{chore.title}</p>
+        <p className={cn("break-words hyphens-auto text-sm font-medium", chore.completed ? "text-charcoal-soft line-through" : "text-charcoal")}>{chore.title}</p>
         {chore.notes && <p className="text-xs text-charcoal-soft">{chore.notes}</p>}
         {chore.recurring && <p className="text-xs text-charcoal-soft">Repeats every {chore.intervalDays ?? "?"} days</p>}
       </div>

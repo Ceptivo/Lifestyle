@@ -35,11 +35,11 @@ export function StatCard({
   const DeltaIcon = delta && delta.pct >= 0 ? TrendingUp : TrendingDown;
 
   return (
-    <Card className="overflow-hidden px-3 py-3.5 sm:px-4 sm:py-4">
-      <p className="truncate text-[9px] font-semibold uppercase tracking-wider text-charcoal-soft sm:text-[10px]">
+    <Card className="min-w-0 px-3 py-3.5 sm:px-4 sm:py-4">
+      <p className="text-[9px] font-semibold uppercase leading-tight tracking-wider text-charcoal-soft sm:text-[10px]">
         {label}
       </p>
-      <p className="mt-1.5 truncate text-lg font-bold text-charcoal sm:text-2xl">{value}</p>
+      <p className="mt-1.5 break-words hyphens-auto text-base font-bold leading-tight text-charcoal sm:text-2xl">{value}</p>
       {delta && Number.isFinite(delta.pct) && (
         <p
           className={cn(

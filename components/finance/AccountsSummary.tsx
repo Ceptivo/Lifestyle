@@ -31,7 +31,7 @@ export function AccountsSummary({
                   <Icon name={account.icon} size={16} />
                 </span>
                 <p className="mt-2.5 truncate text-sm text-charcoal-soft">{account.name}</p>
-                <p className="truncate text-base font-bold tabular-nums text-charcoal">
+                <p className="break-words hyphens-auto text-base font-bold leading-tight tabular-nums text-charcoal">
                   {formatCurrency(account.balance)}
                 </p>
               </Card>

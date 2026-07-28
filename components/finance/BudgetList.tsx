@@ -33,7 +33,7 @@ export function BudgetList({
                   <Icon name={category?.icon ?? "more-horizontal"} size={16} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
+                  <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
                   <p className={cn("text-xs", over ? "text-danger" : "text-charcoal-soft")}>
                     {formatCurrency(budget.spent)} of {formatCurrency(budget.monthlyLimit)}
                   </p>

@@ -26,7 +26,7 @@ function Row({ item }: { item: PackingItem }) {
       >
         ✓
       </button>
-      <span className={cn("min-w-0 flex-1 truncate text-sm", item.packed ? "text-charcoal-soft line-through" : "text-charcoal")}>
+      <span className={cn("min-w-0 flex-1 break-words hyphens-auto text-sm", item.packed ? "text-charcoal-soft line-through" : "text-charcoal")}>
         {item.name}
       </span>
       <form action={deletePackingItem.bind(null, item.id)}>

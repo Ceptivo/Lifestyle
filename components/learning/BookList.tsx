@@ -43,7 +43,7 @@ function BookCard({ book }: { book: Book }) {
           <Icon name={book.icon} size={16} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-charcoal">{book.title}</p>
+          <p className="break-words hyphens-auto text-sm font-semibold text-charcoal">{book.title}</p>
           {book.author && <p className="text-xs text-charcoal-soft">{book.author}</p>}
           {book.reason && <p className="mt-1 text-xs italic text-charcoal-soft">&ldquo;{book.reason}&rdquo;</p>}
         </div>

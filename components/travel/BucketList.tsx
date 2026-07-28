@@ -34,7 +34,7 @@ function Row({ item }: { item: BucketListItem }) {
         <Icon name={item.icon} size={16} />
       </button>
       <div className="min-w-0 flex-1">
-        <p className={cn("truncate text-sm font-medium", item.achieved ? "text-charcoal-soft line-through" : "text-charcoal")}>{item.title}</p>
+        <p className={cn("break-words hyphens-auto text-sm font-medium", item.achieved ? "text-charcoal-soft line-through" : "text-charcoal")}>{item.title}</p>
         <p className="text-xs text-charcoal-soft">
           {[item.targetDateLabel, item.costLabel].filter(Boolean).join(" · ") || "No target date or estimate"}
         </p>

@@ -67,10 +67,10 @@ export function CategoryStackedBar({ segments, total }: { segments: Segment[]; t
                 >
                   <Icon name={s.icon} size={13} />
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm text-charcoal">{s.name}</span>
-                <span className="shrink-0 text-xs text-charcoal-soft">{pct.toFixed(0)}%</span>
-                <span className="w-20 shrink-0 text-right text-sm font-semibold tabular-nums text-charcoal">
-                  {s.amountFormatted}
+                <span className="min-w-0 flex-1 break-words text-sm text-charcoal">{s.name}</span>
+                <span className="shrink-0 text-right">
+                  <span className="block text-sm font-semibold tabular-nums text-charcoal">{s.amountFormatted}</span>
+                  <span className="block text-xs text-charcoal-soft">{pct.toFixed(0)}%</span>
                 </span>
               </Link>
             </li>

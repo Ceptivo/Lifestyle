@@ -29,8 +29,8 @@ function DayRow({ weekStartDate, dayOfWeek, plan }: { weekStartDate: string; day
               <Icon name={plan.icon} size={14} />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-charcoal">{plan.title}</p>
-              {plan.description && <p className="truncate text-xs text-charcoal-soft">{plan.description}</p>}
+              <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{plan.title}</p>
+              {plan.description && <p className="break-words hyphens-auto text-xs text-charcoal-soft">{plan.description}</p>}
             </div>
           </div>
         ) : (

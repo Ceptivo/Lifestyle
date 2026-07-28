@@ -36,7 +36,7 @@ export function TransactionList({
                 <Icon name={category?.icon ?? "more-horizontal"} size={16} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-charcoal">
+                <p className="break-words hyphens-auto text-sm font-medium text-charcoal">
                   {tx.description || category?.name || "Uncategorized"}
                 </p>
                 <p className="truncate text-xs text-charcoal-soft">
