@@ -26,3 +26,19 @@ export function formatWeekRangeLabel(mondayStr: string): string {
   const endLabel = end.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   return `${startLabel} – ${endLabel}`;
 }
+
+// Hours between a bedtime and wake time ("HH:MM" 24h strings), assuming the
+// wake time is on the next day whenever it isn't later than bedtime (covers
+// the normal overnight case; same-day naps would need bedtime < wakeTime).
+export function computeSleepDurationHours(bedtime: string, wakeTime: string): number | null {
+  if (!bedtime || !wakeTime) return null;
+  const [bh, bm] = bedtime.split(":").map(Number);
+  const [wh, wm] = wakeTime.split(":").map(Number);
+  if ([bh, bm, wh, wm].some((n) => Number.isNaN(n))) return null;
+
+  const startMinutes = bh * 60 + bm;
+  let endMinutes = wh * 60 + wm;
+  if (endMinutes <= startMinutes) endMinutes += 24 * 60;
+
+  return Math.round(((endMinutes - startMinutes) / 60) * 10) / 10;
+}

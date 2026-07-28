@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
 import { addSleepLog } from "@/app/actions/health";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Field";
 import { todayLocalDate } from "@/lib/format";
+import { computeSleepDurationHours } from "@/lib/health";
 
 const RATING_OPTIONS = [1, 2, 3, 4, 5];
 
@@ -31,11 +32,15 @@ function RatingPicker({ name, value, onChange }: { name: string; value: number |
 
 export function SleepLogForm() {
   const [open, setOpen] = useState(false);
+  const [bedtime, setBedtime] = useState("");
+  const [wakeTime, setWakeTime] = useState("");
   const [quality, setQuality] = useState<number | null>(null);
   const [mood, setMood] = useState<number | null>(null);
   const [energy, setEnergy] = useState<number | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+
+  const durationHours = useMemo(() => computeSleepDurationHours(bedtime, wakeTime), [bedtime, wakeTime]);
 
   if (!open) {
     return (
@@ -52,6 +57,8 @@ export function SleepLogForm() {
         startTransition(async () => {
           await addSleepLog(formData);
           formRef.current?.reset();
+          setBedtime("");
+          setWakeTime("");
           setQuality(null);
           setMood(null);
           setEnergy(null);
@@ -78,11 +85,17 @@ export function SleepLogForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <Input name="bedtime" type="time" placeholder="Bedtime" />
-        <Input name="wakeTime" type="time" placeholder="Wake time" />
+        <Input name="bedtime" type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)} placeholder="Bedtime" />
+        <Input name="wakeTime" type="time" value={wakeTime} onChange={(e) => setWakeTime(e.target.value)} placeholder="Wake time" />
       </div>
 
-      <Input name="durationHours" type="number" inputMode="decimal" step="0.1" min="0" max="24" placeholder="Hours slept" />
+      <div>
+        <Label>Hours slept</Label>
+        <input type="hidden" name="durationHours" value={durationHours ?? ""} />
+        <div className="rounded-xl border border-border bg-cream px-4 py-2.5 text-sm text-charcoal">
+          {durationHours != null ? `${durationHours}h` : "Set bedtime and wake time to calculate"}
+        </div>
+      </div>
 
       <div>
         <Label>Sleep quality (1-5)</Label>
