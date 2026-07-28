@@ -78,8 +78,8 @@ export function BottomNav() {
         </div>
 
         <div className="flex items-center justify-around rounded-full border border-border bg-paper px-2 py-2 shadow-lg">
-          {items.slice(0, 1).map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
+          {items.slice(0, 2).map(({ href, label, icon: Icon }) => {
+            const active = href === "/" ? pathname === href : pathname.startsWith(href);
             return (
               <Link
                 key={href}
@@ -105,7 +105,7 @@ export function BottomNav() {
             <Plus size={26} strokeWidth={2.5} className={cn("transition-transform duration-200", open && "rotate-45")} />
           </button>
 
-          {items.slice(1).map(({ href, label, icon: Icon }) => {
+          {items.slice(2).map(({ href, label, icon: Icon }) => {
             const active = pathname.startsWith(href);
             return (
               <Link
