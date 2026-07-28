@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { deleteBudget } from "@/app/actions/finance-budgets";
 import { Card } from "@/components/ui/Card";
@@ -29,15 +30,20 @@ export function BudgetList({
           <li key={budget.id}>
             <Card className="px-4 py-3.5">
               <div className="mb-2 flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                  <Icon name={category?.icon ?? "more-horizontal"} size={16} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
-                  <p className={cn("text-xs", over ? "text-danger" : "text-charcoal-soft")}>
-                    {formatCurrency(budget.spent)} of {formatCurrency(budget.monthlyLimit)}
-                  </p>
-                </div>
+                <Link
+                  href={`/finance/transactions?category=${budget.categoryId}&from=budgets`}
+                  className="flex min-w-0 flex-1 items-center gap-3"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
+                    <Icon name={category?.icon ?? "more-horizontal"} size={16} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{category?.name ?? "Uncategorized"}</p>
+                    <p className={cn("text-xs", over ? "text-danger" : "text-charcoal-soft")}>
+                      {formatCurrency(budget.spent)} of {formatCurrency(budget.monthlyLimit)}
+                    </p>
+                  </div>
+                </Link>
                 <form action={deleteBudget.bind(null, budget.id)}>
                   <button
                     type="submit"

@@ -10,6 +10,7 @@ import { mondayOf } from "@/lib/health";
 import { daysBetween, nextOccurrence } from "@/lib/social";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { sortReportItems, type ReportItem } from "@/lib/daily-report";
+import { financialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
 
 export const revalidate = 60;
 
@@ -74,11 +75,9 @@ export default async function HomePage() {
   }
 
   // --- Finance: balance, this-month figures, trailing averages ------------
-  const monthPrefix = today.slice(0, 7);
-  const monthKeys = Array.from({ length: HISTORY_MONTHS }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - (HISTORY_MONTHS - 1 - i), 1);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-  });
+  const monthPrefix = financialMonthKey(today);
+  const { start: monthStart, end: monthEnd } = financialMonthRange(monthPrefix);
+  const monthKeys = Array.from({ length: HISTORY_MONTHS }, (_, i) => shiftFinancialMonthKey(monthPrefix, -(HISTORY_MONTHS - 1 - i)));
   const priorMonthKeys = monthKeys.filter((k) => k !== monthPrefix);
 
   const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, c.name]));
@@ -91,9 +90,9 @@ export default async function HomePage() {
 
   for (const tx of transactions ?? []) {
     balance += tx.type === "income" ? tx.amount : -tx.amount;
-    if (tx.type === "expense" && tx.occurred_on.startsWith(monthPrefix)) monthExpense += tx.amount;
+    if (tx.type === "expense" && tx.occurred_on >= monthStart && tx.occurred_on <= monthEnd) monthExpense += tx.amount;
 
-    const txMonth = tx.occurred_on.slice(0, 7);
+    const txMonth = financialMonthKey(tx.occurred_on);
     if (monthlyIncome.has(txMonth)) {
       if (tx.type === "income") monthlyIncome.set(txMonth, (monthlyIncome.get(txMonth) ?? 0) + tx.amount);
       else {

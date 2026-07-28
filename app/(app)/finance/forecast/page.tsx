@@ -3,20 +3,24 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { projectOccurrencesInRange } from "@/lib/subscriptions";
-import { formatCurrency, formatCurrencyCompact, todayLocalDate } from "@/lib/format";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import {
+  currentFinancialMonthKey,
+  financialMonthEndExclusive,
+  financialMonthLabel,
+  financialMonthRange,
+  shiftFinancialMonthKey,
+} from "@/lib/financial-month";
 
 export const revalidate = 60;
 
 function monthRange(offsetFromCurrent: number): { start: string; end: string; label: string } {
-  const today = new Date(todayLocalDate() + "T00:00:00");
-  const start = new Date(today.getFullYear(), today.getMonth() + offsetFromCurrent, 1);
-  const end = new Date(today.getFullYear(), today.getMonth() + offsetFromCurrent + 1, 1);
-  const toISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const key = shiftFinancialMonthKey(currentFinancialMonthKey(), offsetFromCurrent);
   return {
-    start: toISO(start),
-    end: toISO(end),
-    label: start.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+    start: financialMonthRange(key).start,
+    end: financialMonthEndExclusive(key),
+    label: financialMonthLabel(key),
   };
 }
 

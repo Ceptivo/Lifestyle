@@ -6,6 +6,7 @@ import { monthlyEquivalent } from "@/lib/subscriptions";
 import { generateInsights } from "@/lib/insights";
 import { formatCurrency, formatCurrencyCompact, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { currentFinancialMonthKey, financialMonthKey, shiftFinancialMonthKey } from "@/lib/financial-month";
 
 export const revalidate = 60;
 
@@ -29,14 +30,12 @@ export default async function ProfilePage() {
     supabase.from("finance_budgets").select("category_id, monthly_limit"),
   ]);
 
-  const today = new Date(todayLocalDate() + "T00:00:00");
-  const monthPrefix = todayLocalDate().slice(0, 7);
+  const monthPrefix = currentFinancialMonthKey();
   const categoryNameById = Object.fromEntries((categories ?? []).map((c) => [c.id, c.name]));
 
-  const monthKeys = Array.from({ length: HISTORY_MONTHS }, (_, i) => {
-    const d = new Date(today.getFullYear(), today.getMonth() - (HISTORY_MONTHS - 1 - i), 1);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-  });
+  const monthKeys = Array.from({ length: HISTORY_MONTHS }, (_, i) =>
+    shiftFinancialMonthKey(monthPrefix, -(HISTORY_MONTHS - 1 - i))
+  );
   const priorMonthKeys = monthKeys.filter((k) => k !== monthPrefix);
 
   const monthlyIncome = new Map(monthKeys.map((k) => [k, 0]));
@@ -54,7 +53,7 @@ export default async function ProfilePage() {
     if (tx.type === "income") lifetimeIncome += tx.amount;
     else lifetimeExpense += tx.amount;
 
-    const txMonth = tx.occurred_on.slice(0, 7);
+    const txMonth = financialMonthKey(tx.occurred_on);
     if (monthlyIncome.has(txMonth)) {
       if (tx.type === "income") {
         monthlyIncome.set(txMonth, (monthlyIncome.get(txMonth) ?? 0) + tx.amount);

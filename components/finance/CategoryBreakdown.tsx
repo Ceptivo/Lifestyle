@@ -27,7 +27,7 @@ export function CategoryBreakdown({
       {sorted.map(([categoryId, total]) => {
         const category = categoriesById[categoryId];
         return (
-          <Link key={categoryId} href={`/finance/transactions?category=${categoryId}`}>
+          <Link key={categoryId} href={`/finance/transactions?category=${categoryId}&from=analytics`}>
             <Card className="px-4 py-3">
               <Icon name={category?.icon ?? "more-horizontal"} size={16} className="mb-2 text-pink" />
               <p className="text-lg font-bold text-charcoal">{formatCurrency(total)}</p>

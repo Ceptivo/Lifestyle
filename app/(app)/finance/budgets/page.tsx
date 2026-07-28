@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/Card";
 import { BudgetForm } from "@/components/finance/BudgetForm";
 import { BudgetList } from "@/components/finance/BudgetList";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
-import { formatCurrency, todayLocalDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { currentFinancialMonthKey, financialMonthRange } from "@/lib/financial-month";
 
 export const revalidate = 60;
 
@@ -17,11 +18,11 @@ export default async function BudgetsPage() {
   ]);
 
   const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
-  const monthPrefix = todayLocalDate().slice(0, 7);
+  const { start: monthStart, end: monthEnd } = financialMonthRange(currentFinancialMonthKey());
 
   const spentByCategory: Record<string, number> = {};
   for (const tx of transactions ?? []) {
-    if (tx.type === "expense" && tx.occurred_on.startsWith(monthPrefix)) {
+    if (tx.type === "expense" && tx.occurred_on >= monthStart && tx.occurred_on <= monthEnd) {
       spentByCategory[tx.category_id] = (spentByCategory[tx.category_id] ?? 0) + tx.amount;
     }
   }

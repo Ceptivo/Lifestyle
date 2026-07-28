@@ -4,19 +4,22 @@ import { CategoryTrend } from "@/components/finance/CategoryTrend";
 import { MonthlyTrend } from "@/components/finance/MonthlyTrend";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { todayLocalDate } from "@/lib/format";
+import {
+  currentFinancialMonthKey,
+  financialMonthKey,
+  financialMonthLabel,
+  financialMonthRange,
+  shiftFinancialMonthKey,
+} from "@/lib/financial-month";
 
 export const revalidate = 60;
 
 function lastMonths(count: number): { key: string; label: string }[] {
-  const today = new Date(todayLocalDate() + "T00:00:00");
-  const result: { key: string; label: string }[] = [];
-  for (let i = count - 1; i >= 0; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const label = d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-    result.push({ key, label });
-  }
-  return result;
+  const current = currentFinancialMonthKey();
+  return Array.from({ length: count }, (_, i) => {
+    const key = shiftFinancialMonthKey(current, -(count - 1 - i));
+    return { key, label: financialMonthLabel(key) };
+  });
 }
 
 export default async function AnalyticsPage() {
@@ -27,11 +30,12 @@ export default async function AnalyticsPage() {
   ]);
 
   const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
-  const monthPrefix = todayLocalDate().slice(0, 7);
+  const monthKey = currentFinancialMonthKey();
+  const { start: monthStart, end: monthEnd } = financialMonthRange(monthKey);
+  const lastMonthKey = shiftFinancialMonthKey(monthKey, -1);
+  const { start: lastMonthStart, end: lastMonthEnd } = financialMonthRange(lastMonthKey);
 
   const today = new Date(todayLocalDate() + "T00:00:00");
-  const lastMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const lastMonthPrefix = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, "0")}`;
   const ninetyDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const categoryTotals: Record<string, number> = {};
@@ -42,10 +46,10 @@ export default async function AnalyticsPage() {
 
   for (const tx of transactions ?? []) {
     if (tx.type === "expense") {
-      if (tx.occurred_on.startsWith(monthPrefix)) {
+      if (tx.occurred_on >= monthStart && tx.occurred_on <= monthEnd) {
         categoryTotals[tx.category_id] = (categoryTotals[tx.category_id] ?? 0) + tx.amount;
       }
-      if (tx.occurred_on.startsWith(lastMonthPrefix)) {
+      if (tx.occurred_on >= lastMonthStart && tx.occurred_on <= lastMonthEnd) {
         lastMonthCategoryTotals[tx.category_id] = (lastMonthCategoryTotals[tx.category_id] ?? 0) + tx.amount;
       }
       if (tx.occurred_on >= ninetyDaysAgo) {
@@ -53,8 +57,7 @@ export default async function AnalyticsPage() {
       }
     }
 
-    const txMonth = tx.occurred_on.slice(0, 7);
-    const bucket = monthTotals.get(txMonth);
+    const bucket = monthTotals.get(financialMonthKey(tx.occurred_on));
     if (bucket) {
       if (tx.type === "income") bucket.income += tx.amount;
       else bucket.expense += tx.amount;

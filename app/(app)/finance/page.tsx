@@ -10,6 +10,13 @@ import { MiniColumnChart } from "@/components/charts/MiniColumnChart";
 import { RingProgress } from "@/components/charts/RingProgress";
 import { CATEGORICAL, OTHER_SLOT } from "@/lib/chart-colors";
 import { formatCurrency, formatCurrencyCompact, formatDate, todayLocalDate } from "@/lib/format";
+import {
+  currentFinancialMonthKey,
+  financialMonthKey,
+  financialMonthLabel,
+  financialMonthRange,
+  shiftFinancialMonthKey,
+} from "@/lib/financial-month";
 
 export const revalidate = 60;
 
@@ -46,10 +53,10 @@ export default async function FinanceDashboardPage() {
   ]);
 
   const today = new Date(todayLocalDate() + "T00:00:00");
-  const monthPrefix = todayLocalDate().slice(0, 7);
-  const monthStart = `${monthPrefix}-01`;
-  const lastMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const lastMonthPrefix = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, "0")}`;
+  const monthKey = currentFinancialMonthKey();
+  const { start: monthStart, end: monthEnd } = financialMonthRange(monthKey);
+  const lastMonthKey = shiftFinancialMonthKey(monthKey, -1);
+  const { start: lastMonthStart, end: lastMonthEnd } = financialMonthRange(lastMonthKey);
 
   const windowStartDate = new Date(today);
   windowStartDate.setDate(windowStartDate.getDate() - (TREND_WINDOW_DAYS - 1));
@@ -69,8 +76,8 @@ export default async function FinanceDashboardPage() {
   const categoryTotals: Record<string, number> = {};
 
   const monthKeys = Array.from({ length: MONTHLY_CHART_COUNT }, (_, i) => {
-    const d = new Date(today.getFullYear(), today.getMonth() - (MONTHLY_CHART_COUNT - 1 - i), 1);
-    return { key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, label: d.toLocaleDateString("en-US", { month: "short" }) };
+    const key = shiftFinancialMonthKey(monthKey, -(MONTHLY_CHART_COUNT - 1 - i));
+    return { key, label: financialMonthLabel(key) };
   });
   const monthlyTotals = new Map(monthKeys.map((m) => [m.key, { income: 0, expense: 0 }]));
 
@@ -82,18 +89,18 @@ export default async function FinanceDashboardPage() {
     if (tx.occurred_on < windowStart) balanceBeforeWindow += delta;
     else dayNet.set(tx.occurred_on, (dayNet.get(tx.occurred_on) ?? 0) + delta);
 
-    if (tx.occurred_on.startsWith(monthPrefix)) {
+    if (tx.occurred_on >= monthStart && tx.occurred_on <= monthEnd) {
       if (tx.type === "income") monthIncome += tx.amount;
       else {
         monthExpense += tx.amount;
         categoryTotals[tx.category_id] = (categoryTotals[tx.category_id] ?? 0) + tx.amount;
       }
-    } else if (tx.occurred_on.startsWith(lastMonthPrefix)) {
+    } else if (tx.occurred_on >= lastMonthStart && tx.occurred_on <= lastMonthEnd) {
       if (tx.type === "income") lastMonthIncome += tx.amount;
       else lastMonthExpense += tx.amount;
     }
 
-    const bucket = monthlyTotals.get(tx.occurred_on.slice(0, 7));
+    const bucket = monthlyTotals.get(financialMonthKey(tx.occurred_on));
     if (bucket) {
       if (tx.type === "income") bucket.income += tx.amount;
       else bucket.expense += tx.amount;

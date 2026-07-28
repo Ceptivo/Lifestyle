@@ -81,6 +81,15 @@ export function SubscriptionForm({ accounts, categories }: { accounts: Account[]
         ))}
       </Select>
 
+      <Select name="destinationAccountId" defaultValue="">
+        <option value="">Not a transfer</option>
+        {accounts.map((a) => (
+          <option key={a.id} value={a.id}>
+            Transfer into {a.name}
+          </option>
+        ))}
+      </Select>
+
       <Input name="nextDueDate" type="date" defaultValue={todayLocalDate()} required />
 
       <Button type="submit" disabled={isPending} className="w-full">

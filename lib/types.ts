@@ -142,6 +142,7 @@ export interface Database {
           cycle: SubscriptionCycle;
           account_id: string;
           category_id: string;
+          destination_account_id: string | null;
           next_due_date: string;
           status: SubscriptionStatus;
           created_at: string;
@@ -154,6 +155,7 @@ export interface Database {
           cycle?: SubscriptionCycle;
           account_id: string;
           category_id: string;
+          destination_account_id?: string | null;
           next_due_date: string;
           status?: SubscriptionStatus;
           created_at?: string;
@@ -165,6 +167,7 @@ export interface Database {
           cycle?: SubscriptionCycle;
           account_id?: string;
           category_id?: string;
+          destination_account_id?: string | null;
           next_due_date?: string;
           status?: SubscriptionStatus;
         };

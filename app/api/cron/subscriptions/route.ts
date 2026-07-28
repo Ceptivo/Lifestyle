@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   const { data: due, error } = await supabase
     .from("finance_subscriptions")
-    .select("id, account_id, category_id, amount, name, cycle, next_due_date")
+    .select("id, account_id, category_id, destination_account_id, amount, name, cycle, next_due_date")
     .eq("status", "active")
     .lte("next_due_date", today);
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       await postSubscriptionPayment(supabase, current);
       const { data: refreshed, error: refetchError } = await supabase
         .from("finance_subscriptions")
-        .select("id, account_id, category_id, amount, name, cycle, next_due_date")
+        .select("id, account_id, category_id, destination_account_id, amount, name, cycle, next_due_date")
         .eq("id", current.id)
         .single();
       if (refetchError) throw new Error(refetchError.message);

@@ -26,6 +26,7 @@ type Subscription = {
   cycle: SubscriptionCycle;
   accountId: string;
   categoryId: string;
+  destinationAccountId: string | null;
   nextDueDate: string;
   status: SubscriptionStatus;
   amountFormatted: string;
@@ -48,6 +49,7 @@ function SubscriptionCard({
   const [isPaying, startPayTransition] = useTransition();
   const [isToggling, startToggleTransition] = useTransition();
   const paused = subscription.status === "paused";
+  const destinationAccount = accounts.find((a) => a.id === subscription.destinationAccountId);
 
   if (editing) {
     return (
@@ -97,6 +99,14 @@ function SubscriptionCard({
               </option>
             ))}
           </Select>
+          <Select name="destinationAccountId" defaultValue={subscription.destinationAccountId ?? ""}>
+            <option value="">Not a transfer</option>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                Transfer into {a.name}
+              </option>
+            ))}
+          </Select>
           <Input name="nextDueDate" type="date" defaultValue={subscription.nextDueDate} required />
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? "Saving…" : "Save"}
@@ -118,6 +128,9 @@ function SubscriptionCard({
             {subscription.amountFormatted} · {CYCLE_LABEL[subscription.cycle]}
             {paused ? " · Paused" : ` · Next ${subscription.nextDueDateFormatted}`}
           </p>
+          {destinationAccount && (
+            <p className="text-xs text-pink-dark">→ Transfer into {destinationAccount.name}</p>
+          )}
         </div>
         <button
           type="button"

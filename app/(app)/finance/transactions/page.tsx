@@ -14,16 +14,31 @@ const TABS: { key: "all" | FinanceType; label: string }[] = [
   { key: "income", label: "Income" },
 ];
 
+const BACK_TARGETS: Record<string, { href: string; label: string }> = {
+  budgets: { href: "/finance/budgets", label: "Back to Budgets" },
+  analytics: { href: "/finance/analytics", label: "Back to Analytics" },
+};
+
+function withParams(params: Record<string, string | undefined>): string {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value) qs.set(key, value);
+  }
+  const s = qs.toString();
+  return `/finance/transactions${s ? `?${s}` : ""}`;
+}
+
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; add?: string; category?: string }>;
+  searchParams: Promise<{ filter?: string; add?: string; category?: string; from?: string }>;
 }) {
-  const { filter, add, category } = await searchParams;
+  const { filter, add, category, from } = await searchParams;
   const activeTab = TABS.some((t) => t.key === filter) ? (filter as (typeof TABS)[number]["key"]) : "all";
   const quickAddOpen = add === "expense" || add === "income" || add === "other";
   const quickAddType: FinanceType = add === "income" ? "income" : "expense";
   const categoryIds = category ? category.split(",").filter(Boolean) : null;
+  const backTarget = (from && BACK_TARGETS[from]) || { href: "/finance", label: "Back to Finance" };
 
   const supabase = createClient();
   const [{ data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
@@ -50,11 +65,11 @@ export default async function TransactionsPage({
       : categoryIds
         ? "Other categories"
         : null;
-  const clearCategoryHref = filter ? `/finance/transactions?filter=${filter}` : "/finance/transactions";
+  const clearCategoryHref = withParams({ filter, from });
 
   return (
     <div>
-      <FinanceBackLink />
+      <FinanceBackLink href={backTarget.href} label={backTarget.label} />
       <h1 className="mb-6 text-2xl font-bold text-charcoal">Transactions</h1>
 
       <div className="mb-6">
@@ -84,7 +99,7 @@ export default async function TransactionsPage({
         {TABS.map((tab) => (
           <Link
             key={tab.key}
-            href={tab.key === "all" ? "/finance/transactions" : `/finance/transactions?filter=${tab.key}`}
+            href={withParams({ filter: tab.key === "all" ? undefined : tab.key, category, from })}
             className={cn(
               "-mb-px border-b-2 pb-2.5 text-sm transition-colors",
               activeTab === tab.key
