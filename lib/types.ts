@@ -3,6 +3,7 @@ export type SubscriptionCycle = "weekly" | "monthly" | "yearly";
 export type SubscriptionStatus = "active" | "paused" | "cancelled";
 export type HealthSource = "manual" | "samsung_health";
 export type GoalStatus = "planned" | "in_progress" | "done";
+export type ReadingStatus = "want_to_read" | "reading" | "finished";
 
 export interface Database {
   public: {
@@ -477,6 +478,304 @@ export interface Database {
           description?: string | null;
           target_date?: string | null;
           status?: GoalStatus;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      learning_reading_list: {
+        Row: {
+          id: string;
+          title: string;
+          author: string | null;
+          status: ReadingStatus;
+          progress_pct: number;
+          reason: string | null;
+          started_date: string | null;
+          finished_date: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          author?: string | null;
+          status?: ReadingStatus;
+          progress_pct?: number;
+          reason?: string | null;
+          started_date?: string | null;
+          finished_date?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          author?: string | null;
+          status?: ReadingStatus;
+          progress_pct?: number;
+          reason?: string | null;
+          started_date?: string | null;
+          finished_date?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      learning_skills: {
+        Row: { id: string; name: string; icon: string; created_at: string };
+        Insert: { id?: string; name: string; icon?: string; created_at?: string };
+        Update: { name?: string; icon?: string };
+        Relationships: [];
+      };
+      learning_skill_sessions: {
+        Row: { id: string; skill_id: string; session_date: string; notes: string | null; created_at: string };
+        Insert: { id?: string; skill_id: string; session_date?: string; notes?: string | null; created_at?: string };
+        Update: { session_date?: string; notes?: string | null };
+        Relationships: [];
+      };
+      home_maintenance_tasks: {
+        Row: {
+          id: string;
+          title: string;
+          notes: string | null;
+          interval_days: number | null;
+          next_due_date: string;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          notes?: string | null;
+          interval_days?: number | null;
+          next_due_date?: string;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          notes?: string | null;
+          interval_days?: number | null;
+          next_due_date?: string;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      home_chores: {
+        Row: {
+          id: string;
+          title: string;
+          notes: string | null;
+          recurring: boolean;
+          interval_days: number | null;
+          completed: boolean;
+          last_completed_date: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          notes?: string | null;
+          recurring?: boolean;
+          interval_days?: number | null;
+          completed?: boolean;
+          last_completed_date?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          notes?: string | null;
+          recurring?: boolean;
+          interval_days?: number | null;
+          completed?: boolean;
+          last_completed_date?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      travel_trips: {
+        Row: {
+          id: string;
+          name: string;
+          destination: string | null;
+          start_date: string;
+          end_date: string | null;
+          savings_goal_amount: number;
+          savings_current_amount: number;
+          icon: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          destination?: string | null;
+          start_date: string;
+          end_date?: string | null;
+          savings_goal_amount?: number;
+          savings_current_amount?: number;
+          icon?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          destination?: string | null;
+          start_date?: string;
+          end_date?: string | null;
+          savings_goal_amount?: number;
+          savings_current_amount?: number;
+          icon?: string;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
+      travel_packing_items: {
+        Row: { id: string; trip_id: string; name: string; category: string | null; packed: boolean; created_at: string };
+        Insert: { id?: string; trip_id: string; name: string; category?: string | null; packed?: boolean; created_at?: string };
+        Update: { name?: string; category?: string | null; packed?: boolean };
+        Relationships: [];
+      };
+      travel_itinerary_items: {
+        Row: {
+          id: string;
+          trip_id: string;
+          item_date: string;
+          item_time: string | null;
+          title: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          trip_id: string;
+          item_date: string;
+          item_time?: string | null;
+          title: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: { item_date?: string; item_time?: string | null; title?: string; notes?: string | null };
+        Relationships: [];
+      };
+      travel_bucket_list: {
+        Row: {
+          id: string;
+          title: string;
+          target_date: string | null;
+          estimated_cost: number | null;
+          notes: string | null;
+          achieved: boolean;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          target_date?: string | null;
+          estimated_cost?: number | null;
+          notes?: string | null;
+          achieved?: boolean;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          target_date?: string | null;
+          estimated_cost?: number | null;
+          notes?: string | null;
+          achieved?: boolean;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      personal_documents: {
+        Row: {
+          id: string;
+          name: string;
+          category: string;
+          expiry_date: string | null;
+          storage_path: string;
+          file_name: string;
+          file_size: number | null;
+          content_type: string | null;
+          uploaded_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          category?: string;
+          expiry_date?: string | null;
+          storage_path: string;
+          file_name: string;
+          file_size?: number | null;
+          content_type?: string | null;
+          uploaded_at?: string;
+        };
+        Update: { name?: string; category?: string; expiry_date?: string | null };
+        Relationships: [];
+      };
+      personal_credentials: {
+        Row: {
+          id: string;
+          service_name: string;
+          username: string | null;
+          encrypted_password: string;
+          url: string | null;
+          notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          service_name: string;
+          username?: string | null;
+          encrypted_password: string;
+          url?: string | null;
+          notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          service_name?: string;
+          username?: string | null;
+          encrypted_password?: string;
+          url?: string | null;
+          notes?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      personal_admin_tasks: {
+        Row: {
+          id: string;
+          title: string;
+          category: string;
+          due_date: string;
+          recurring: boolean;
+          last_completed_date: string | null;
+          notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          category?: string;
+          due_date: string;
+          recurring?: boolean;
+          last_completed_date?: string | null;
+          notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          category?: string;
+          due_date?: string;
+          recurring?: boolean;
+          last_completed_date?: string | null;
+          notes?: string | null;
           icon?: string;
         };
         Relationships: [];

@@ -58,6 +58,8 @@ import {
   CalendarDays,
   Download,
   User,
+  FileText,
+  KeyRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -121,6 +123,8 @@ export const ICONS: Record<string, LucideIcon> = {
   "calendar-days": CalendarDays,
   download: Download,
   user: User,
+  "file-text": FileText,
+  key: KeyRound,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

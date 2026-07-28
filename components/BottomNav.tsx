@@ -3,14 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Wallet, HeartPulse, Users, Plus, ArrowDown, ArrowUp, MoreHorizontal } from "lucide-react";
+import { Home, Wallet, HeartPulse, Plus, ArrowDown, ArrowUp, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const items = [
   { href: "/", label: "Home", icon: Home },
   { href: "/finance", label: "Finance", icon: Wallet },
   { href: "/health", label: "Health", icon: HeartPulse },
-  { href: "/social", label: "Social", icon: Users },
+  { href: "/more", label: "More", icon: MoreHorizontal },
 ];
 
 const QUICK_ADDS = [
