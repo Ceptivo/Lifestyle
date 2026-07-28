@@ -273,56 +273,62 @@ export default async function HomePage() {
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Your spaces</h2>
-      <div className="space-y-4">
-        <Link href="/finance">
-          <Card className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                <Wallet size={20} />
-              </span>
-              <div className="min-w-0">
-                <p className="font-medium text-charcoal">Finance</p>
-                <p className="truncate text-xs text-charcoal-soft">{formatCurrency(monthExpense)} spent this month</p>
+      <ul className="space-y-4">
+        <li>
+          <Link href="/finance">
+            <Card className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
+                  <Wallet size={20} />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-medium text-charcoal">Finance</p>
+                  <p className="truncate text-xs text-charcoal-soft">{formatCurrency(monthExpense)} spent this month</p>
+                </div>
               </div>
-            </div>
-            <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{formatCurrency(balance)}</p>
-          </Card>
-        </Link>
+              <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{formatCurrency(balance)}</p>
+            </Card>
+          </Link>
+        </li>
 
-        <Link href="/health">
-          <Card className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                <HeartPulse size={20} />
-              </span>
-              <div className="min-w-0">
-                <p className="font-medium text-charcoal">Health</p>
-                <p className="truncate text-xs text-charcoal-soft">
-                  {nextRace ? `${nextRace.name} in ${daysBetween(today, nextRace.event_date)}d` : "Training, sleep & journal"}
-                </p>
+        <li>
+          <Link href="/health">
+            <Card className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
+                  <HeartPulse size={20} />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-medium text-charcoal">Health</p>
+                  <p className="truncate text-xs text-charcoal-soft">
+                    {nextRace ? `${nextRace.name} in ${daysBetween(today, nextRace.event_date)}d` : "Training, sleep & journal"}
+                  </p>
+                </div>
               </div>
-            </div>
-            <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{avgSleep != null ? `${avgSleep.toFixed(1)}h` : "—"}</p>
-          </Card>
-        </Link>
+              <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{avgSleep != null ? `${avgSleep.toFixed(1)}h` : "—"}</p>
+            </Card>
+          </Link>
+        </li>
 
-        <Link href="/social">
-          <Card className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                <Users size={20} />
-              </span>
-              <div className="min-w-0">
-                <p className="font-medium text-charcoal">Social</p>
-                <p className="truncate text-xs text-charcoal-soft">
-                  {overduePeople.length > 0 ? `${overduePeople.length} to reach out to` : "You're all caught up"}
-                </p>
+        <li>
+          <Link href="/social">
+            <Card className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
+                  <Users size={20} />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-medium text-charcoal">Social</p>
+                  <p className="truncate text-xs text-charcoal-soft">
+                    {overduePeople.length > 0 ? `${overduePeople.length} to reach out to` : "You're all caught up"}
+                  </p>
+                </div>
               </div>
-            </div>
-            <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{(people ?? []).length}</p>
-          </Card>
-        </Link>
-      </div>
+              <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{(people ?? []).length}</p>
+            </Card>
+          </Link>
+        </li>
+      </ul>
     </div>
   );
 }

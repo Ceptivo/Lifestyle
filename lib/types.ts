@@ -105,6 +105,23 @@ export interface Database {
         };
         Relationships: [];
       };
+      finance_budget_notes: {
+        Row: {
+          id: string;
+          content: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          content?: string;
+          updated_at?: string;
+        };
+        Update: {
+          content?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       finance_goals: {
         Row: {
           id: string;

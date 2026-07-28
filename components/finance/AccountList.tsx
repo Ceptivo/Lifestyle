@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { Pencil, Trash2, X } from "lucide-react";
-import { updateAccount, deleteAccount, setAccountBalance } from "@/app/actions/finance-accounts";
+import { updateAccount, deleteAccount } from "@/app/actions/finance-accounts";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
@@ -13,7 +13,6 @@ type Account = {
   id: string;
   name: string;
   icon: string;
-  startingBalance: number;
   balance: number;
   balanceFormatted: string;
 };
@@ -23,7 +22,6 @@ function AccountCard({ account }: { account: Account }) {
   const [icon, setIcon] = useState(account.icon);
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
-  const [isOverwriting, startOverwriteTransition] = useTransition();
 
   if (editing) {
     return (
@@ -51,36 +49,11 @@ function AccountCard({ account }: { account: Account }) {
           </div>
           <Input name="name" defaultValue={account.name} required />
           <IconPicker name="icon" value={icon} onChange={setIcon} />
-          <div>
-            <Input name="startingBalance" type="number" inputMode="decimal" step="0.01" defaultValue={account.startingBalance} />
-            <p className="mt-1 text-xs text-charcoal-soft">Opening balance — shifts the current balance by the difference.</p>
-          </div>
+          <Input name="balance" type="number" inputMode="decimal" step="0.01" defaultValue={account.balance} />
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? "Saving…" : "Save"}
           </Button>
         </form>
-
-        <div className="mt-4 border-t border-border pt-4">
-          <form
-            action={(formData) => {
-              startOverwriteTransition(async () => {
-                await setAccountBalance(account.id, formData);
-              });
-            }}
-            className="space-y-2"
-          >
-            <p className="text-sm font-medium text-charcoal">Overwrite current balance</p>
-            <p className="text-xs text-charcoal-soft">
-              Set the balance to an exact amount, ignoring the transaction history.
-            </p>
-            <div className="flex items-center gap-2">
-              <Input name="newBalance" type="number" inputMode="decimal" step="0.01" defaultValue={account.balance} className="flex-1" />
-              <Button type="submit" variant="secondary" disabled={isOverwriting}>
-                {isOverwriting ? "Saving…" : "Overwrite"}
-              </Button>
-            </div>
-          </form>
-        </div>
       </Card>
     );
   }

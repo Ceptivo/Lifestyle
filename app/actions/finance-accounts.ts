@@ -7,14 +7,14 @@ import { DEFAULT_ICON } from "@/lib/icons";
 export async function addAccount(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const icon = String(formData.get("icon") ?? DEFAULT_ICON);
-  const startingBalance = Math.round(Number(formData.get("startingBalance") ?? 0) * 100) / 100;
+  const balance = Math.round(Number(formData.get("balance") ?? 0) * 100) / 100;
 
   if (!name) return;
 
   const supabase = createClient();
   const { error } = await supabase
     .from("finance_accounts")
-    .insert({ name, icon, starting_balance: startingBalance || 0 });
+    .insert({ name, icon, starting_balance: balance || 0 });
 
   if (error) throw new Error(error.message);
 
@@ -22,33 +22,17 @@ export async function addAccount(formData: FormData) {
   revalidatePath("/");
 }
 
+// The "balance" field here is the account's *current* balance the user
+// wants to see, not the opening balance — whatever they type is what shows
+// up. Since balance = starting_balance + sum(transactions), this works
+// backwards to the starting_balance that makes that true, leaving
+// transaction history untouched.
 export async function updateAccount(id: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const icon = String(formData.get("icon") ?? DEFAULT_ICON);
-  const startingBalance = Math.round(Number(formData.get("startingBalance") ?? 0) * 100) / 100;
+  const targetBalance = Math.round(Number(formData.get("balance") ?? 0) * 100) / 100;
 
   if (!name) return;
-
-  const supabase = createClient();
-  const { error } = await supabase
-    .from("finance_accounts")
-    .update({ name, icon, starting_balance: startingBalance || 0 })
-    .eq("id", id);
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/finance", "layout");
-  revalidatePath("/");
-}
-
-// Overwrites the account's *current* (computed) balance to an exact value,
-// rather than adding to it — e.g. to correct drift against a real-world
-// statement. Since balance = starting_balance + sum(transactions), this
-// works by nudging starting_balance by the difference, leaving transaction
-// history untouched.
-export async function setAccountBalance(id: string, formData: FormData) {
-  const targetBalance = Math.round(Number(formData.get("newBalance")) * 100) / 100;
-  if (!Number.isFinite(targetBalance)) return;
 
   const supabase = createClient();
   const { data: account, error: accountError } = await supabase
@@ -70,8 +54,9 @@ export async function setAccountBalance(id: string, formData: FormData) {
 
   const { error } = await supabase
     .from("finance_accounts")
-    .update({ starting_balance: newStartingBalance })
+    .update({ name, icon, starting_balance: newStartingBalance })
     .eq("id", id);
+
   if (error) throw new Error(error.message);
 
   revalidatePath("/finance", "layout");

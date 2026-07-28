@@ -71,7 +71,7 @@ export function BalanceTrendChart({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="w-full touch-none"
+        className="w-full touch-pan-y"
         style={{ height: HEIGHT }}
         onPointerMove={(e) => handleMove(e.clientX)}
         onPointerLeave={() => setHoverIndex(null)}

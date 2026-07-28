@@ -50,7 +50,7 @@ export function StatCard({
           )}
         >
           <DeltaIcon size={11} className="shrink-0" />
-          {Math.abs(delta.pct).toFixed(0)}% vs last month
+          {Math.abs(delta.pct).toFixed(0)}%
         </p>
       )}
     </Card>

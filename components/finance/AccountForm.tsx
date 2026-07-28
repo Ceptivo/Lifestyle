@@ -50,11 +50,11 @@ export function AccountForm() {
       <Input name="name" placeholder="Account name" required />
       <IconPicker name="icon" value={icon} onChange={setIcon} />
       <Input
-        name="startingBalance"
+        name="balance"
         type="number"
         inputMode="decimal"
         step="0.01"
-        placeholder="Starting balance (optional, defaults to 0)"
+        placeholder="Balance (optional, defaults to 0)"
       />
 
       <Button type="submit" disabled={isPending} className="w-full">

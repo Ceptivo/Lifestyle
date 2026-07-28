@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { BudgetForm } from "@/components/finance/BudgetForm";
 import { BudgetList } from "@/components/finance/BudgetList";
+import { BudgetPlanNotes } from "@/components/finance/BudgetPlanNotes";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/cn";
@@ -9,12 +10,15 @@ import { currentFinancialMonthKey, financialMonthRange } from "@/lib/financial-m
 
 export const revalidate = 60;
 
+const NOTES_ID = "00000000-0000-0000-0000-000000000001";
+
 export default async function BudgetsPage() {
   const supabase = createClient();
-  const [{ data: budgets }, { data: categories }, { data: transactions }] = await Promise.all([
+  const [{ data: budgets }, { data: categories }, { data: transactions }, { data: notes }] = await Promise.all([
     supabase.from("finance_budgets").select("id, category_id, monthly_limit"),
     supabase.from("finance_categories").select("id, name, icon, type"),
     supabase.from("finance_transactions").select("type, amount, category_id, occurred_on"),
+    supabase.from("finance_budget_notes").select("content").eq("id", NOTES_ID).maybeSingle(),
   ]);
 
   const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
@@ -40,7 +44,7 @@ export default async function BudgetsPage() {
   return (
     <div>
       <FinanceBackLink />
-      <h1 className="mb-6 text-2xl font-bold text-charcoal">Budgets</h1>
+      <BudgetPlanNotes initialContent={notes?.content ?? ""} />
 
       {totalBudgeted > 0 && (
         <Card className="mb-6">

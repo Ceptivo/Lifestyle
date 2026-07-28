@@ -204,6 +204,11 @@ export default async function FinanceDashboardPage() {
         <RingProgress pct={savingsRate} value={formatCurrencyCompact(monthSaved)} label="Saved" />
       </Card>
 
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Accounts</h2>
+      <div className="mb-6">
+        <AccountsSummary accounts={accountsWithBalance} />
+      </div>
+
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
         Balance — last 30 days
       </h2>
@@ -235,11 +240,6 @@ export default async function FinanceDashboardPage() {
           })}
         />
       </Card>
-
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Accounts</h2>
-      <div className="mb-6">
-        <AccountsSummary accounts={accountsWithBalance} />
-      </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

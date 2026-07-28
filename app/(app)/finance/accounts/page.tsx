@@ -30,12 +30,11 @@ export default async function AccountsPage() {
 
       <AccountList
         accounts={(accounts ?? []).map((a) => {
-          const balance = balances.get(a.id) ?? a.starting_balance;
+          const balance = Math.round((balances.get(a.id) ?? a.starting_balance) * 100) / 100;
           return {
             id: a.id,
             name: a.name,
             icon: a.icon,
-            startingBalance: a.starting_balance,
             balance,
             balanceFormatted: formatCurrency(balance),
           };
