@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const QUICK_LINKS = [
   { href: "/travel/trips", label: "Trips", icon: Plane },

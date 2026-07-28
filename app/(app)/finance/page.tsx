@@ -10,7 +10,7 @@ import { RingProgress } from "@/components/charts/RingProgress";
 import { CATEGORICAL, OTHER_SLOT } from "@/lib/chart-colors";
 import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const QUICK_LINKS = [
   { href: "/finance/transactions", label: "Transactions", icon: Receipt },

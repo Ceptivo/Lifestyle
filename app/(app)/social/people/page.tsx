@@ -4,7 +4,7 @@ import { PersonCard, type PersonCardData } from "@/components/social/PersonCard"
 import { todayLocalDate } from "@/lib/format";
 import { addDays, daysBetween } from "@/lib/social";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function PeoplePage() {
   const supabase = createClient();

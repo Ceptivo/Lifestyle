@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BookForm } from "@/components/learning/BookForm";
 import { BookList, type Book } from "@/components/learning/BookList";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ReadingListPage() {
   const supabase = createClient();

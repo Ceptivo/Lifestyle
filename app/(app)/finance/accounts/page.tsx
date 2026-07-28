@@ -3,7 +3,7 @@ import { AccountForm } from "@/components/finance/AccountForm";
 import { AccountList } from "@/components/finance/AccountList";
 import { formatCurrency } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function AccountsPage() {
   const supabase = createClient();

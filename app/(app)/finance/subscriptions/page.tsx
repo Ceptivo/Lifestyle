@@ -5,7 +5,7 @@ import { SubscriptionList } from "@/components/finance/SubscriptionList";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function SubscriptionsPage() {
   const supabase = createClient();

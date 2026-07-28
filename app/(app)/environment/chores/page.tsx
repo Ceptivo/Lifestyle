@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ChoreForm } from "@/components/environment/ChoreForm";
 import { ChoreList, type Chore } from "@/components/environment/ChoreList";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ChoresPage() {
   const supabase = createClient();

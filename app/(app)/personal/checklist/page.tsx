@@ -3,7 +3,7 @@ import { AdminTaskForm } from "@/components/personal/AdminTaskForm";
 import { AdminTaskList, type AdminTask } from "@/components/personal/AdminTaskList";
 import { formatDate, todayLocalDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ChecklistPage() {
   const supabase = createClient();

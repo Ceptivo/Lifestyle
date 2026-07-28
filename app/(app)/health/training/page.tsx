@@ -9,7 +9,7 @@ import { RaceList } from "@/components/health/RaceList";
 import { todayLocalDate, formatDate } from "@/lib/format";
 import { mondayOf, addDays, formatWeekRangeLabel } from "@/lib/health";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function TrainingPage({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
   const { week } = await searchParams;

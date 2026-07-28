@@ -11,7 +11,7 @@ import { daysBetween, nextOccurrence } from "@/lib/social";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { sortReportItems, type ReportItem } from "@/lib/daily-report";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const USER_NAME = "Luke";
 const HISTORY_MONTHS = 3;

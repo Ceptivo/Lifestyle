@@ -8,7 +8,7 @@ import { generateInsights } from "@/lib/insights";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const HISTORY_MONTHS = 3;
 

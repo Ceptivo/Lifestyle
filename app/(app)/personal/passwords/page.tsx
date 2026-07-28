@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CredentialForm } from "@/components/personal/CredentialForm";
 import { CredentialList, type Credential } from "@/components/personal/CredentialList";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function PasswordsPage() {
   const supabase = createClient();

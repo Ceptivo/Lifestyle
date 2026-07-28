@@ -3,7 +3,7 @@ import { BucketListForm } from "@/components/travel/BucketListForm";
 import { BucketList, type BucketListItem } from "@/components/travel/BucketList";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function BucketListPage() {
   const supabase = createClient();

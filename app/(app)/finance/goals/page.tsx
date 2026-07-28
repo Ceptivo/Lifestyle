@@ -3,7 +3,7 @@ import { GoalForm } from "@/components/finance/GoalForm";
 import { GoalList } from "@/components/finance/GoalList";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function GoalsPage() {
   const supabase = createClient();

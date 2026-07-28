@@ -3,7 +3,7 @@ import { DocumentForm } from "@/components/personal/DocumentForm";
 import { DocumentList, type DocumentRow } from "@/components/personal/DocumentList";
 import { formatDate, todayLocalDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const EXPIRING_SOON_DAYS = 30;
 

@@ -3,7 +3,7 @@ import { SharedGoalForm } from "@/components/social/SharedGoalForm";
 import { SharedGoalList, type SharedGoal } from "@/components/social/SharedGoalList";
 import { formatDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function SocialGoalsPage() {
   const supabase = createClient();

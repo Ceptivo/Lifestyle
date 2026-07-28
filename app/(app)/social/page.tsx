@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import { todayLocalDate, formatDate } from "@/lib/format";
 import { daysBetween, nextOccurrence } from "@/lib/social";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const QUICK_LINKS = [
   { href: "/social/people", label: "People", icon: Users },

@@ -4,7 +4,7 @@ import { CategoryTrend } from "@/components/finance/CategoryTrend";
 import { MonthlyTrend } from "@/components/finance/MonthlyTrend";
 import { todayLocalDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 function lastMonths(count: number): { key: string; label: string }[] {
   const today = new Date(todayLocalDate() + "T00:00:00");

@@ -3,7 +3,7 @@ import { SkillForm } from "@/components/learning/SkillForm";
 import { SkillCard, type Skill } from "@/components/learning/SkillCard";
 import { formatDate, formatRelativeTime } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function SkillsPage() {
   const supabase = createClient();

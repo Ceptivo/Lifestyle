@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import { todayLocalDate, formatDate } from "@/lib/format";
 import { mondayOf, addDays, DAY_LABELS } from "@/lib/health";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const QUICK_LINKS = [
   { href: "/health/training", label: "Training", icon: Dumbbell },

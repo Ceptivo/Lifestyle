@@ -5,7 +5,7 @@ import { TransactionList } from "@/components/finance/TransactionList";
 import { cn } from "@/lib/cn";
 import type { FinanceType } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const TABS: { key: "all" | FinanceType; label: string }[] = [
   { key: "all", label: "All" },

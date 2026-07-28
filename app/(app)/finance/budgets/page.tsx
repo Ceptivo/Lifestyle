@@ -5,7 +5,7 @@ import { BudgetList } from "@/components/finance/BudgetList";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function BudgetsPage() {
   const supabase = createClient();

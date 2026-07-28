@@ -3,7 +3,7 @@ import { TripForm } from "@/components/travel/TripForm";
 import { TripCard, type TripCardData } from "@/components/travel/TripCard";
 import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 function daysBetween(fromISO: string, toISO: string): number {
   const from = new Date(fromISO + "T00:00:00");

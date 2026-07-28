@@ -6,7 +6,7 @@ import { SleepCorrelationChart } from "@/components/charts/SleepCorrelationChart
 import { bucketSleepData, generateSleepInsight } from "@/lib/health-insights";
 import { formatDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function SleepPage() {
   const supabase = createClient();

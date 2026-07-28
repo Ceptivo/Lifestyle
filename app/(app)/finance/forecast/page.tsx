@@ -5,7 +5,7 @@ import { projectOccurrencesInRange } from "@/lib/subscriptions";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 function monthRange(offsetFromCurrent: number): { start: string; end: string; label: string } {
   const today = new Date(todayLocalDate() + "T00:00:00");
