@@ -35,19 +35,21 @@ export function StatCard({
   const DeltaIcon = delta && delta.pct >= 0 ? TrendingUp : TrendingDown;
 
   return (
-    <Card className="min-w-0 px-3 py-3.5 sm:px-4 sm:py-4">
-      <p className="text-[9px] font-semibold uppercase leading-tight tracking-wider text-charcoal-soft sm:text-[10px]">
+    <Card className="min-w-0 px-2.5 py-3.5 sm:px-4 sm:py-4">
+      <p className="truncate text-[9px] font-semibold uppercase leading-tight tracking-wider text-charcoal-soft sm:text-[10px]">
         {label}
       </p>
-      <p className="mt-1.5 break-words hyphens-auto text-base font-bold leading-tight text-charcoal sm:text-2xl">{value}</p>
+      <p className="mt-1.5 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-bold leading-tight tabular-nums text-charcoal sm:text-2xl">
+        {value}
+      </p>
       {delta && Number.isFinite(delta.pct) && (
         <p
           className={cn(
-            "mt-1 flex items-center gap-0.5 text-[10px] font-semibold sm:text-xs",
+            "mt-1 flex items-center gap-0.5 whitespace-nowrap text-[10px] font-semibold sm:text-xs",
             isGood ? "text-emerald-600" : "text-danger"
           )}
         >
-          <DeltaIcon size={11} />
+          <DeltaIcon size={11} className="shrink-0" />
           {Math.abs(delta.pct).toFixed(0)}% vs last month
         </p>
       )}

@@ -1,8 +1,9 @@
 import { AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { projectOccurrencesInRange } from "@/lib/subscriptions";
-import { formatCurrency, todayLocalDate } from "@/lib/format";
+import { formatCurrency, formatCurrencyCompact, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
 export const revalidate = 60;
@@ -67,10 +68,13 @@ export default async function ForecastPage() {
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Forecast</h1>
+
       <div className="mb-6 grid grid-cols-3 gap-2.5 sm:gap-3">
-        <StatCard label="Balance today" value={formatCurrency(currentBalance)} />
-        <StatCard label="Avg. monthly in" value={formatCurrency(avgMonthlyIncome)} />
-        <StatCard label="Avg. monthly out" value={formatCurrency(avgMonthlyNonSubExpense)} />
+        <StatCard label="Balance today" value={formatCurrencyCompact(currentBalance)} />
+        <StatCard label="Avg. monthly in" value={formatCurrencyCompact(avgMonthlyIncome)} />
+        <StatCard label="Avg. monthly out" value={formatCurrencyCompact(avgMonthlyNonSubExpense)} />
       </div>
 
       <p className="mb-6 text-xs text-charcoal-soft">

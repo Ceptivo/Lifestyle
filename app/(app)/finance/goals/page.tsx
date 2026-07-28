@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { GoalForm } from "@/components/finance/GoalForm";
 import { GoalList } from "@/components/finance/GoalList";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export const revalidate = 60;
@@ -14,6 +15,9 @@ export default async function GoalsPage() {
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Goals</h1>
+
       <div className="mb-6">
         <GoalForm />
       </div>

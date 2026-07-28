@@ -61,7 +61,10 @@ export function BalanceTrendChart({
   const activeY = scaleY(activePoint.balance);
   const tooltipRight = activeX > WIDTH * 0.6;
 
-  const xTickIndices = Array.from(new Set([0, Math.round((points.length - 1) / 2), points.length - 1]));
+  const xTickCount = Math.min(5, points.length);
+  const xTickIndices = Array.from(
+    new Set(Array.from({ length: xTickCount }, (_, i) => Math.round((i / (xTickCount - 1)) * (points.length - 1))))
+  );
 
   return (
     <div className="relative">

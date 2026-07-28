@@ -1,5 +1,5 @@
-const SIZE = 84;
-const STROKE = 9;
+const SIZE = 100;
+const STROKE = 8;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -33,8 +33,8 @@ export function RingProgress({
           strokeDashoffset={offset}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <p className="text-sm font-bold text-charcoal">{value}</p>
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
+        <p className="whitespace-nowrap text-[11px] font-bold leading-tight tabular-nums text-charcoal">{value}</p>
         <p className="text-[10px] text-charcoal-soft">{label}</p>
       </div>
     </div>

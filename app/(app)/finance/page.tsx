@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { Receipt, PieChart, ListChecks, Flag } from "lucide-react";
+import { Receipt, PieChart, ListChecks, Flag, TrendingUp, Wallet, Repeat, Tag, UserCog } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
+import { PageHeading } from "@/components/ui/PageHeading";
 import { AccountsSummary } from "@/components/finance/AccountsSummary";
 import { BalanceTrendChart } from "@/components/charts/BalanceTrendChart";
 import { CategoryStackedBar } from "@/components/charts/CategoryStackedBar";
 import { MiniColumnChart } from "@/components/charts/MiniColumnChart";
 import { RingProgress } from "@/components/charts/RingProgress";
 import { CATEGORICAL, OTHER_SLOT } from "@/lib/chart-colors";
-import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
+import { formatCurrency, formatCurrencyCompact, formatDate, todayLocalDate } from "@/lib/format";
 
 export const revalidate = 60;
 
@@ -16,9 +17,15 @@ const QUICK_LINKS = [
   { href: "/finance/transactions", label: "Transactions", icon: Receipt },
   { href: "/finance/analytics", label: "Analytics", icon: PieChart },
   { href: "/finance/budgets", label: "Budgets", icon: ListChecks },
+  { href: "/finance/subscriptions", label: "Subscriptions", icon: Repeat },
   { href: "/finance/goals", label: "Goals", icon: Flag },
+  { href: "/finance/forecast", label: "Forecast", icon: TrendingUp },
+  { href: "/finance/accounts", label: "Accounts", icon: Wallet },
+  { href: "/finance/categories", label: "Categories", icon: Tag },
+  { href: "/finance/profile", label: "Profile", icon: UserCog },
 ];
 
+const GRID_LINE_STEPS = 4;
 const TREND_WINDOW_DAYS = 30;
 const MONTHLY_CHART_COUNT = 6;
 
@@ -112,12 +119,10 @@ export default async function FinanceDashboardPage() {
   }
   const trendMax = Math.max(...trendPoints.map((p) => p.balance), 0.01);
   const trendMin = Math.min(0, ...trendPoints.map((p) => p.balance));
-  const trendMid = (trendMax + trendMin) / 2;
-  const balanceGridLines = [
-    { value: trendMax, label: formatCurrency(trendMax) },
-    { value: trendMid, label: formatCurrency(trendMid) },
-    { value: trendMin, label: formatCurrency(trendMin) },
-  ];
+  const balanceGridLines = Array.from({ length: GRID_LINE_STEPS + 1 }, (_, i) => {
+    const value = trendMax - (i / GRID_LINE_STEPS) * (trendMax - trendMin);
+    return { value, label: formatCurrencyCompact(value) };
+  });
 
   const columnMax = Math.max(1, ...monthKeys.flatMap((m) => [monthlyTotals.get(m.key)?.income ?? 0, monthlyTotals.get(m.key)?.expense ?? 0]));
   const columnGridLines = [
@@ -161,20 +166,22 @@ export default async function FinanceDashboardPage() {
 
   return (
     <div>
+      <PageHeading title="Finance" subtitle="Track what comes in and what goes out." />
+
       <div className="mb-6 grid grid-cols-3 gap-2.5 sm:gap-3">
         <StatCard
           label="Balance"
-          value={formatCurrency(balance)}
+          value={formatCurrencyCompact(balance)}
           delta={{ pct: pctDelta(balance, balanceAtMonthStart), goodDirection: "up" }}
         />
         <StatCard
           label="Income"
-          value={formatCurrency(monthIncome)}
+          value={formatCurrencyCompact(monthIncome)}
           delta={{ pct: pctDelta(monthIncome, lastMonthIncome), goodDirection: "up" }}
         />
         <StatCard
           label="Expenses"
-          value={formatCurrency(monthExpense)}
+          value={formatCurrencyCompact(monthExpense)}
           delta={{ pct: pctDelta(monthExpense, lastMonthExpense), goodDirection: "down" }}
         />
       </div>
@@ -187,13 +194,13 @@ export default async function FinanceDashboardPage() {
             View Details
           </Link>
         </div>
-        <RingProgress pct={savingsRate} value={formatCurrency(monthSaved)} label="Saved" />
+        <RingProgress pct={savingsRate} value={formatCurrencyCompact(monthSaved)} label="Saved" />
       </Card>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
         Balance — last 30 days
       </h2>
-      <Card className="mb-6">
+      <Card className="mb-6 px-2 py-4 sm:px-3">
         <BalanceTrendChart points={trendPoints} gridLines={balanceGridLines} />
       </Card>
 
@@ -228,14 +235,14 @@ export default async function FinanceDashboardPage() {
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {QUICK_LINKS.map(({ href, label, icon: Icon }) => (
           <Link key={href} href={href}>
             <Card className="flex items-center gap-3 px-4 py-3.5">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
                 <Icon size={16} />
               </span>
-              <p className="font-medium text-charcoal">{label}</p>
+              <p className="min-w-0 truncate font-medium text-charcoal">{label}</p>
             </Card>
           </Link>
         ))}

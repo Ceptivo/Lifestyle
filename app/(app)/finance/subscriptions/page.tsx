@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard } from "@/components/ui/Card";
 import { SubscriptionForm } from "@/components/finance/SubscriptionForm";
 import { SubscriptionList } from "@/components/finance/SubscriptionList";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -24,6 +25,9 @@ export default async function SubscriptionsPage() {
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Subscriptions</h1>
+
       <div className="mb-6">
         <StatCard label="Monthly commitment" value={formatCurrency(monthlyCommitment)} />
       </div>

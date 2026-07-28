@@ -15,7 +15,7 @@ export default function MorePage() {
   return (
     <div>
       <PageHeading title="More" subtitle="Everything else, all in one place." />
-      <div className="space-y-2.5">
+      <div className="space-y-4">
         {SECTIONS.map(({ href, label, subtitle, icon: Icon }) => (
           <Link key={href} href={href}>
             <Card className="flex items-center gap-3">

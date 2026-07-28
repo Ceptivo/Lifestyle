@@ -1,11 +1,10 @@
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { InsightList } from "@/components/finance/InsightList";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { generateInsights } from "@/lib/insights";
-import { formatCurrency, todayLocalDate } from "@/lib/format";
+import { formatCurrency, formatCurrencyCompact, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
 export const revalidate = 60;
@@ -126,19 +125,17 @@ export default async function ProfilePage() {
 
   return (
     <div>
-      <Link href="/finance" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-charcoal-soft hover:text-charcoal">
-        <ChevronLeft size={16} />
-        Back to Overview
-      </Link>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Profile</h1>
 
       <div className="mb-6 grid grid-cols-2 gap-2.5 sm:gap-3">
-        <StatCard label="Net worth" value={formatCurrency(netWorth)} />
+        <StatCard label="Net worth" value={formatCurrencyCompact(netWorth)} />
         <StatCard label="Savings rate" value={monthIncome > 0 ? `${savingsRate.toFixed(0)}%` : "—"} />
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-2.5 sm:gap-3">
-        <StatCard label="Lifetime income" value={formatCurrency(lifetimeIncome)} />
-        <StatCard label="Lifetime expenses" value={formatCurrency(lifetimeExpense)} />
+        <StatCard label="Lifetime income" value={formatCurrencyCompact(lifetimeIncome)} />
+        <StatCard label="Lifetime expenses" value={formatCurrencyCompact(lifetimeExpense)} />
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Insights & advice</h2>

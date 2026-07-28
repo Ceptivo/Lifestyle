@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CategoryBreakdown } from "@/components/finance/CategoryBreakdown";
 import { CategoryTrend } from "@/components/finance/CategoryTrend";
 import { MonthlyTrend } from "@/components/finance/MonthlyTrend";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { todayLocalDate } from "@/lib/format";
 
 export const revalidate = 60;
@@ -75,6 +76,9 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Analytics</h1>
+
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
         Spending by category — this month
       </h2>

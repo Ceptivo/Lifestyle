@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { BudgetForm } from "@/components/finance/BudgetForm";
 import { BudgetList } from "@/components/finance/BudgetList";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
@@ -37,6 +38,9 @@ export default async function BudgetsPage() {
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Budgets</h1>
+
       {totalBudgeted > 0 && (
         <Card className="mb-6">
           <div className="mb-2 flex items-center justify-between">

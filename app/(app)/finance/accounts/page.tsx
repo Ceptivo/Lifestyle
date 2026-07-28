@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AccountForm } from "@/components/finance/AccountForm";
 import { AccountList } from "@/components/finance/AccountList";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { formatCurrency } from "@/lib/format";
 
 export const revalidate = 60;
@@ -20,6 +21,9 @@ export default async function AccountsPage() {
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Accounts</h1>
+
       <div className="mb-6">
         <AccountForm />
       </div>

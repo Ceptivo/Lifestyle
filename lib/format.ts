@@ -6,6 +6,16 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+// Rounds to whole Rand — for tight spaces (stat cards, ring labels) where the
+// cents aren't worth the extra width.
+export function formatCurrencyCompact(amount: number): string {
+  return new Intl.NumberFormat("en-ZA", {
+    style: "currency",
+    currency: "ZAR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",

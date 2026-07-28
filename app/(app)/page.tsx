@@ -274,7 +274,7 @@ export default async function HomePage() {
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Your spaces</h2>
-      <div className="space-y-2.5">
+      <div className="space-y-4">
         <Link href="/finance">
           <Card className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AddTransactionForm } from "@/components/finance/AddTransactionForm";
 import { TransactionList } from "@/components/finance/TransactionList";
+import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { cn } from "@/lib/cn";
 import type { FinanceType } from "@/lib/types";
 
@@ -53,6 +54,9 @@ export default async function TransactionsPage({
 
   return (
     <div>
+      <FinanceBackLink />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Transactions</h1>
+
       <div className="mb-6">
         <AddTransactionForm
           accounts={accounts ?? []}
