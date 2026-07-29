@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 
 type QuickLink = { href: string; label: string; icon: string };
 
-export function FinanceMenuDrawer({ links }: { links: QuickLink[] }) {
+export function FinanceMenuDrawer({ links, title = "Finance" }: { links: QuickLink[]; title?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -16,7 +16,7 @@ export function FinanceMenuDrawer({ links }: { links: QuickLink[] }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open finance menu"
+        aria-label={`Open ${title.toLowerCase()} menu`}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-charcoal-soft hover:bg-cream hover:text-charcoal"
       >
         <Menu size={22} />
@@ -38,10 +38,10 @@ export function FinanceMenuDrawer({ links }: { links: QuickLink[] }) {
         )}
         role="dialog"
         aria-modal="true"
-        aria-label="Finance menu"
+        aria-label={`${title} menu`}
       >
         <div className="mb-5 flex items-center justify-between">
-          <p className="text-lg font-bold text-charcoal">Finance</p>
+          <p className="text-lg font-bold text-charcoal">{title}</p>
           <button
             type="button"
             onClick={() => setOpen(false)}

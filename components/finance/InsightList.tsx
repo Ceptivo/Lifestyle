@@ -10,13 +10,17 @@ const STATUS_STYLES = {
   tip: { chip: "bg-white/5", text: "text-charcoal-soft", StatusIcon: Lightbulb, label: "Worth a look" },
 } as const;
 
-export function InsightList({ insights }: { insights: Insight[] }) {
+export function InsightList({
+  insights,
+  emptyMessage = "Log a few weeks of transactions and I’ll start surfacing personalized insights here.",
+}: {
+  insights: Insight[];
+  emptyMessage?: string;
+}) {
   if (!insights.length) {
     return (
       <Card>
-        <p className="text-center text-sm text-charcoal-soft">
-          Log a few weeks of transactions and I&rsquo;ll start surfacing personalized insights here.
-        </p>
+        <p className="text-center text-sm text-charcoal-soft">{emptyMessage}</p>
       </Card>
     );
   }

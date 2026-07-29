@@ -1,16 +1,31 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { InsightList } from "@/components/finance/InsightList";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { monthlyEquivalent } from "@/lib/subscriptions";
-import { generateInsights } from "@/lib/insights";
+import { generateInsights, type InsightStatus } from "@/lib/insights";
 import { todayLocalDate } from "@/lib/format";
 import { currentFinancialMonthKey, financialMonthKey, shiftFinancialMonthKey } from "@/lib/financial-month";
+import { cn } from "@/lib/cn";
 
 export const revalidate = 60;
 
 const HISTORY_MONTHS = 3;
 
-export default async function AllInsightsPage() {
+const TABS: { key: "all" | InsightStatus; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "warning", label: "Needs Attention" },
+  { key: "tip", label: "Worth a Look" },
+  { key: "good", label: "On Track" },
+];
+
+export default async function AllInsightsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
+  const activeTab = TABS.some((t) => t.key === status) ? (status as (typeof TABS)[number]["key"]) : "all";
   const supabase = createClient();
   const [{ data: accounts }, { data: transactions }, { data: categories }, { data: subscriptions }, { data: goals }, { data: budgets }] =
     await Promise.all([
@@ -104,12 +119,41 @@ export default async function AllInsightsPage() {
     today: todayLocalDate(),
   });
 
+  const filteredInsights = activeTab === "all" ? insights : insights.filter((i) => i.status === activeTab);
+
   return (
     <div>
       <FinanceBackLink href="/finance/profile" label="Back to Profile" />
       <h1 className="mb-6 text-2xl font-bold text-charcoal">All Insights</h1>
 
-      <InsightList insights={insights} />
+      <div className="mb-4 flex items-center gap-2 overflow-x-auto">
+        {TABS.map((tab) => {
+          const count = tab.key === "all" ? insights.length : insights.filter((i) => i.status === tab.key).length;
+          return (
+            <Link
+              key={tab.key}
+              href={tab.key === "all" ? "/finance/profile/insights" : `/finance/profile/insights?status=${tab.key}`}
+              className={cn(
+                "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+                activeTab === tab.key
+                  ? "bg-pink text-ink"
+                  : "bg-cream text-charcoal-soft hover:text-charcoal"
+              )}
+            >
+              {tab.label} ({count})
+            </Link>
+          );
+        })}
+      </div>
+
+      <InsightList
+        insights={filteredInsights}
+        emptyMessage={
+          activeTab === "all"
+            ? undefined
+            : `No insights in "${TABS.find((t) => t.key === activeTab)?.label}" right now.`
+        }
+      />
     </div>
   );
 }

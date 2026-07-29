@@ -24,6 +24,31 @@ export function formatDate(iso: string): string {
   });
 }
 
+function ordinalSuffix(day: number): string {
+  if (day >= 11 && day <= 13) return "th";
+  switch (day % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+// "24th July" — a day-grouping heading, not a full timestamp. Only appends
+// the year when it isn't the current one, since these headings sit above a
+// list of same-day items where the year is otherwise redundant.
+export function formatDateHeading(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  const day = d.getDate();
+  const month = d.toLocaleDateString("en-US", { month: "long" });
+  const yearSuffix = d.getFullYear() !== new Date().getFullYear() ? `, ${d.getFullYear()}` : "";
+  return `${day}${ordinalSuffix(day)} ${month}${yearSuffix}`;
+}
+
 export function formatRelativeTime(iso: string): string {
   const date = new Date(iso);
   const diffMs = date.getTime() - Date.now();

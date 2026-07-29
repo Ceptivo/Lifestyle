@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 const TABS: { key: "all" | FinanceType; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "expense", label: "Spending" },
+  { key: "expense", label: "Expenses" },
   { key: "income", label: "Income" },
 ];
 
@@ -119,7 +119,7 @@ export default async function TransactionsPage({
         emptyMessage={
           activeTab === "all"
             ? "No transactions yet. Add the first one."
-            : `No ${activeTab === "income" ? "income" : "spending"} logged yet.`
+            : `No ${activeTab === "income" ? "income" : "expenses"} logged yet.`
         }
       />
     </div>
