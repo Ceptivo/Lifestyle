@@ -88,44 +88,44 @@ function AccountCard({ account }: { account: Account }) {
   );
 }
 
-// Accounts using this icon (the picker's up-and-to-the-right arrow) are
-// treated as investment accounts and grouped under their own heading.
+// Accounts using these icons are grouped under their own heading instead
+// of the plain list — the picker's piggy bank for savings, and its
+// up-and-to-the-right arrow for investments.
+const SAVINGS_ICON = "piggy-bank";
 const INVESTMENT_ICON = "trending-up";
+
+function AccountGroup({ heading, accounts }: { heading?: string; accounts: Account[] }) {
+  if (!accounts.length) return null;
+  return (
+    <div>
+      {heading && (
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-charcoal-soft">{heading}</h3>
+      )}
+      <ul className="space-y-2">
+        {accounts.map((account) => (
+          <li key={account.id}>
+            <AccountCard account={account} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function AccountList({ accounts }: { accounts: Account[] }) {
   if (!accounts.length) {
     return <p className="text-center text-sm text-charcoal-soft">No accounts yet. Add your first one.</p>;
   }
 
-  const normalAccounts = accounts.filter((a) => a.icon !== INVESTMENT_ICON);
+  const normalAccounts = accounts.filter((a) => a.icon !== SAVINGS_ICON && a.icon !== INVESTMENT_ICON);
+  const savingsAccounts = accounts.filter((a) => a.icon === SAVINGS_ICON);
   const investmentAccounts = accounts.filter((a) => a.icon === INVESTMENT_ICON);
 
   return (
     <div className="space-y-5">
-      {normalAccounts.length > 0 && (
-        <ul className="space-y-2">
-          {normalAccounts.map((account) => (
-            <li key={account.id}>
-              <AccountCard account={account} />
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {investmentAccounts.length > 0 && (
-        <div>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-            Investment Accounts
-          </h3>
-          <ul className="space-y-2">
-            {investmentAccounts.map((account) => (
-              <li key={account.id}>
-                <AccountCard account={account} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <AccountGroup accounts={normalAccounts} />
+      <AccountGroup heading="Saving Accounts" accounts={savingsAccounts} />
+      <AccountGroup heading="Investment Accounts" accounts={investmentAccounts} />
     </div>
   );
 }
