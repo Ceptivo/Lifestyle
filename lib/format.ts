@@ -93,10 +93,7 @@ export function todayLocalDate(): string {
 
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
 
-// Today's weekday name; falls back to "monday" on weekends for
-// Monday-Friday-only features like restaurant daily specials.
-export function todayWeekdayOrMonday(): "monday" | "tuesday" | "wednesday" | "thursday" | "friday" {
+export function todayWeekday(): (typeof WEEKDAY_NAMES)[number] {
   const dayIndex = new Date(todayLocalDate() + "T00:00:00").getDay();
-  const name = WEEKDAY_NAMES[dayIndex];
-  return name === "sunday" || name === "saturday" ? "monday" : name;
+  return WEEKDAY_NAMES[dayIndex];
 }

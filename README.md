@@ -1,4 +1,4 @@
-# Lifestyle
+# Lukestyle
 
 A personal, single-user Progressive Web App — one place for the different
 parts of life that used to live in separate apps and spreadsheets.

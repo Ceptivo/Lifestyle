@@ -12,7 +12,7 @@ const SECTIONS = [
   { href: "/work", label: "Work", subtitle: "Task tracker, notes", icon: Briefcase },
   { href: "/university", label: "University", subtitle: "Study material, exams, report card", icon: GraduationCap },
   { href: "/activities", label: "Activities to do", subtitle: "Ideas with cost estimates and locations", icon: Compass },
-  { href: "/restaurant-savers", label: "Restaurant Savers", subtitle: "Daily food specials, Monday to Friday", icon: UtensilsCrossed },
+  { href: "/restaurant-savers", label: "Restaurant Savers", subtitle: "Daily food specials, every day", icon: UtensilsCrossed },
 ];
 
 export default function MorePage() {

@@ -64,7 +64,7 @@ export function PinGate() {
     return (
       <div className="w-full max-w-xs text-center">
         <p className="text-2xl font-bold text-white">
-          Lifestyle<span className="text-pink">.</span>
+          Lukestyle<span className="text-pink">.</span>
         </p>
       </div>
     );
@@ -74,7 +74,7 @@ export function PinGate() {
     <>
       <div className="w-full max-w-xs">
         <p className="mb-1 text-center text-2xl font-bold text-white">
-          Lifestyle<span className="text-pink">.</span>
+          Lukestyle<span className="text-pink">.</span>
         </p>
         <p className="mb-8 text-center text-sm text-white/50">Enter your PIN to continue</p>
 

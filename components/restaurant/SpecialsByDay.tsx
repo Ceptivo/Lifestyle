@@ -14,6 +14,8 @@ const DAY_TABS: { value: DayOfWeek; label: string }[] = [
   { value: "wednesday", label: "Wed" },
   { value: "thursday", label: "Thu" },
   { value: "friday", label: "Fri" },
+  { value: "saturday", label: "Sat" },
+  { value: "sunday", label: "Sun" },
 ];
 
 export type SpecialItem = {

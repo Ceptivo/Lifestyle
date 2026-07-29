@@ -9,13 +9,13 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Lifestyle",
+  title: "Lukestyle",
   description: "A personal all-in-one app.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Lifestyle",
+    title: "Lukestyle",
   },
   icons: {
     icon: [

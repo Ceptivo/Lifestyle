@@ -5,7 +5,7 @@ export type HealthSource = "manual" | "samsung_health";
 export type GoalStatus = "planned" | "in_progress" | "done";
 export type ReadingStatus = "want_to_read" | "reading" | "finished";
 export type TaskPriority = "low" | "medium" | "high";
-export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 
 export interface Database {
   public: {

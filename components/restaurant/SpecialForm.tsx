@@ -13,6 +13,8 @@ const DAY_OPTIONS: { value: DayOfWeek; label: string }[] = [
   { value: "wednesday", label: "Wednesday" },
   { value: "thursday", label: "Thursday" },
   { value: "friday", label: "Friday" },
+  { value: "saturday", label: "Saturday" },
+  { value: "sunday", label: "Sunday" },
 ];
 
 export function SpecialForm({ defaultDay }: { defaultDay: DayOfWeek }) {

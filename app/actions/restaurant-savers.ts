@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { DayOfWeek } from "@/lib/types";
 
-const DAYS: DayOfWeek[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+const DAYS: DayOfWeek[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 export async function addSpecial(formData: FormData) {
   const dayOfWeek = String(formData.get("dayOfWeek") ?? "");

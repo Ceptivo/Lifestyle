@@ -3,7 +3,7 @@ import { BackLink } from "@/components/ui/BackLink";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SpecialForm } from "@/components/restaurant/SpecialForm";
 import { SpecialsByDay, type SpecialItem } from "@/components/restaurant/SpecialsByDay";
-import { formatCurrency, todayWeekdayOrMonday } from "@/lib/format";
+import { formatCurrency, todayWeekday } from "@/lib/format";
 
 export const revalidate = 60;
 
@@ -24,12 +24,12 @@ export default async function RestaurantSaversPage() {
     notes: s.notes,
   }));
 
-  const today = todayWeekdayOrMonday();
+  const today = todayWeekday();
 
   return (
     <div>
       <BackLink href="/more" label="Back to More" />
-      <PageHeading title="Restaurant Savers" subtitle="Daily food specials, Monday to Friday." />
+      <PageHeading title="Restaurant Savers" subtitle="Daily food specials, every day of the week." />
       <div className="mb-6">
         <SpecialForm defaultDay={today} />
       </div>

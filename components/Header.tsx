@@ -14,7 +14,7 @@ export function Header() {
           <User size={18} />
         </Link>
         <p className="text-lg font-bold leading-tight text-white">
-          Lifestyle<span className="text-pink">.</span>
+          Lukestyle<span className="text-pink">.</span>
         </p>
       </div>
       <form action={lock}>

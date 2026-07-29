@@ -1,4 +1,4 @@
-const CACHE_NAME = "lifestyle-v1";
+const CACHE_NAME = "lukestyle-v1";
 const OFFLINE_URL = "/";
 
 self.addEventListener("install", () => {
