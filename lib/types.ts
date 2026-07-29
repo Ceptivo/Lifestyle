@@ -905,6 +905,12 @@ export interface Database {
         };
         Relationships: [];
       };
+      profile_improvement_notes: {
+        Row: { id: string; content: string; created_at: string };
+        Insert: { id?: string; content: string; created_at?: string };
+        Update: { content?: string };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

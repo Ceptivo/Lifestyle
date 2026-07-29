@@ -49,6 +49,19 @@ export function formatDateHeading(iso: string): string {
   return `${day}${ordinalSuffix(day)} ${month}${yearSuffix}`;
 }
 
+// Date + time, e.g. "29 Jul 2026, 14:32" — for timestamped log entries
+// where both the day and the moment matter.
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString("en-ZA", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export function formatRelativeTime(iso: string): string {
   const date = new Date(iso);
   const diffMs = date.getTime() - Date.now();

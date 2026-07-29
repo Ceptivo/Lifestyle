@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Lock, User } from "lucide-react";
 import { lock } from "@/app/actions/auth";
 
@@ -5,9 +6,13 @@ export function Header() {
   return (
     <header className="safe-top sticky top-0 z-10 flex items-center justify-between bg-ink px-5 py-4">
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-white">
+        <Link
+          href="/profile"
+          aria-label="Open profile"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/10"
+        >
           <User size={18} />
-        </span>
+        </Link>
         <p className="text-lg font-bold leading-tight text-white">
           Lifestyle<span className="text-pink">.</span>
         </p>
