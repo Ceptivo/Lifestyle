@@ -1044,6 +1044,28 @@ export interface Database {
         };
         Relationships: [];
       };
+      lunch_options: {
+        Row: {
+          id: string;
+          name: string;
+          notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          notes?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
