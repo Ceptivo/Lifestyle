@@ -11,15 +11,15 @@ import { currentFinancialMonthKey, financialMonthRange, shiftFinancialMonthKey }
 export const revalidate = 60;
 
 const QUICK_LINKS = [
-  { href: "/finance/transactions", label: "Transactions", icon: "receipt" },
+  { href: "/finance/profile", label: "Profile", icon: "user-cog" },
   { href: "/finance/analytics", label: "Analytics", icon: "pie-chart" },
-  { href: "/finance/budgets", label: "Budgets", icon: "list-checks" },
+  { href: "/finance/transactions", label: "Transactions", icon: "receipt" },
   { href: "/finance/subscriptions", label: "Subscriptions", icon: "repeat" },
-  { href: "/finance/goals", label: "Goals", icon: "flag" },
   { href: "/finance/forecast", label: "Forecast", icon: "trending-up" },
+  { href: "/finance/budgets", label: "Budgets", icon: "list-checks" },
+  { href: "/finance/goals", label: "Goals", icon: "flag" },
   { href: "/finance/accounts", label: "Accounts", icon: "wallet" },
   { href: "/finance/categories", label: "Categories", icon: "tag" },
-  { href: "/finance/profile", label: "Profile", icon: "user-cog" },
 ];
 
 function pctDelta(current: number, previous: number): number {
