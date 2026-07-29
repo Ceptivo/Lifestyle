@@ -5,14 +5,14 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { COOKIE_NAME, createSessionCookie } from "@/lib/session";
 
-export async function unlock(formData: FormData) {
+export async function unlock(formData: FormData): Promise<{ error: boolean } | void> {
   const pin = String(formData.get("pin") ?? "").trim();
   const expected = process.env.APP_PIN;
   if (!expected) throw new Error("APP_PIN is not set");
 
   const matches = pin.length === expected.length && timingSafeEqual(Buffer.from(pin), Buffer.from(expected));
   if (!matches) {
-    redirect("/login?error=1");
+    return { error: true };
   }
 
   const session = createSessionCookie();
