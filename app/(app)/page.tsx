@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wallet, HeartPulse, Users } from "lucide-react";
+import { Target } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ReportList } from "@/components/home/ReportList";
@@ -150,8 +150,6 @@ export default async function HomePage() {
   // --- Sleep insight ---------------------------------------------------------
   const sleepEntries = (sleepLogs ?? []).map((l) => ({ durationHours: l.duration_hours, moodNextDay: l.mood_next_day, energyNextDay: l.energy_next_day }));
   const sleepInsight = generateSleepInsight(sleepEntries);
-  const recentSleep = sleepEntries.map((e) => e.durationHours).filter((v): v is number => v != null).slice(0, 7);
-  const avgSleep = recentSleep.length ? recentSleep.reduce((sum, v) => sum + v, 0) / recentSleep.length : null;
   const todaySleepLogged = (sleepLogs ?? []).some((l) => l.sleep_date === today);
 
   // --- Social: overdue people + upcoming occasions --------------------------
@@ -294,63 +292,18 @@ export default async function HomePage() {
         <ReportList items={reportItems} />
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Your spaces</h2>
-      <ul className="space-y-4">
-        <li>
-          <Link href="/finance">
-            <Card className="flex items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                  <Wallet size={20} />
-                </span>
-                <div className="min-w-0">
-                  <p className="font-medium text-charcoal">Finance</p>
-                  <p className="truncate text-xs text-charcoal-soft">{formatCurrency(monthExpense)} spent this month</p>
-                </div>
-              </div>
-              <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{formatCurrency(balance)}</p>
-            </Card>
-          </Link>
-        </li>
-
-        <li>
-          <Link href="/health">
-            <Card className="flex items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                  <HeartPulse size={20} />
-                </span>
-                <div className="min-w-0">
-                  <p className="font-medium text-charcoal">Health</p>
-                  <p className="truncate text-xs text-charcoal-soft">
-                    {nextRace ? `${nextRace.name} in ${daysBetween(today, nextRace.event_date)}d` : "Training, sleep & journal"}
-                  </p>
-                </div>
-              </div>
-              <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{avgSleep != null ? `${avgSleep.toFixed(1)}h` : "—"}</p>
-            </Card>
-          </Link>
-        </li>
-
-        <li>
-          <Link href="/social">
-            <Card className="flex items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                  <Users size={20} />
-                </span>
-                <div className="min-w-0">
-                  <p className="font-medium text-charcoal">Social</p>
-                  <p className="truncate text-xs text-charcoal-soft">
-                    {overduePeople.length > 0 ? `${overduePeople.length} to reach out to` : "You're all caught up"}
-                  </p>
-                </div>
-              </div>
-              <p className="shrink-0 text-lg font-bold tabular-nums text-charcoal">{(people ?? []).length}</p>
-            </Card>
-          </Link>
-        </li>
-      </ul>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">All in One</h2>
+      <Link href="/goals">
+        <Card className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
+            <Target size={20} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-medium text-charcoal">Goals</p>
+            <p className="truncate text-xs text-charcoal-soft">Finance, Health, Work, University & more</p>
+          </div>
+        </Card>
+      </Link>
     </div>
   );
 }

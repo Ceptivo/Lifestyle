@@ -8,6 +8,7 @@ const items = [
   { href: "/university", label: "Study Material" },
   { href: "/university/exams", label: "Exams" },
   { href: "/university/grades", label: "Report Card" },
+  { href: "/university/goals", label: "Goals" },
 ];
 
 export function UniversitySubNav() {

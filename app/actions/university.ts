@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { GoalStatus } from "@/lib/types";
+
+const GOAL_STATUSES: GoalStatus[] = ["planned", "in_progress", "done"];
 
 // --- Study material --------------------------------------------------------
 
@@ -90,6 +93,49 @@ export async function addGrade(formData: FormData) {
 export async function deleteGrade(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("university_grades").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/university", "layout");
+}
+
+// --- Goals -------------------------------------------------------------------
+
+export async function addUniversityGoal(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const targetDate = String(formData.get("targetDate") ?? "");
+  const icon = String(formData.get("icon") ?? "target");
+
+  if (!name) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("university_goals").insert({
+    name,
+    description: description || null,
+    target_date: targetDate || null,
+    icon,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/university", "layout");
+}
+
+export async function updateUniversityGoalStatus(id: string, status: string) {
+  if (!(GOAL_STATUSES as string[]).includes(status)) return;
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("university_goals")
+    .update({ status: status as GoalStatus })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/university", "layout");
+}
+
+export async function deleteUniversityGoal(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("university_goals").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/university", "layout");
