@@ -1,25 +1,23 @@
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { TrainingWeekPlan } from "@/components/health/TrainingWeekPlan";
+import { WeekTrainingSummary } from "@/components/health/WeekTrainingSummary";
 import { ActivityForm } from "@/components/health/ActivityForm";
 import { ActivityLogList } from "@/components/health/ActivityLogList";
 import { BackLink } from "@/components/ui/BackLink";
 import { todayLocalDate, formatDate } from "@/lib/format";
-import { mondayOf, addDays, formatWeekRangeLabel } from "@/lib/health";
+import { mondayOf, addDays } from "@/lib/health";
 
 export const revalidate = 60;
 
-export default async function TrainingPage({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
-  const { week } = await searchParams;
+export default async function TrainingPage() {
   const today = todayLocalDate();
-  const weekStart = week && /^\d{4}-\d{2}-\d{2}$/.test(week) ? mondayOf(week) : mondayOf(today);
-  const prevWeek = addDays(weekStart, -7);
-  const nextWeek = addDays(weekStart, 7);
+  const weekStart = mondayOf(today);
+  const weekEnd = addDays(weekStart, 6);
 
   const supabase = createClient();
-  const [{ data: weekRow }, { data: activities }] = await Promise.all([
-    supabase.from("health_training_weeks").select("id").eq("week_start_date", weekStart).maybeSingle(),
+  const [{ data: planRows }, { data: weekActivities }, { data: activities }] = await Promise.all([
+    supabase.from("health_training_plan").select("day_of_week, title, description, icon"),
+    supabase.from("health_activities").select("performed_on").gte("performed_on", weekStart).lte("performed_on", weekEnd),
     supabase
       .from("health_activities")
       .select("id, title, activity_type, performed_on, duration_minutes, distance_km, calories, source, icon")
@@ -28,16 +26,13 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
       .limit(30),
   ]);
 
-  let plans: Record<number, { dayOfWeek: number; title: string; description: string | null; icon: string } | null> = {};
-  if (weekRow) {
-    const { data: items } = await supabase
-      .from("health_training_plan_items")
-      .select("day_of_week, title, description, icon")
-      .eq("week_id", weekRow.id);
-    plans = Object.fromEntries(
-      (items ?? []).map((i) => [i.day_of_week, { dayOfWeek: i.day_of_week, title: i.title, description: i.description, icon: i.icon }])
+  const plans: Record<number, { dayOfWeek: number; title: string; description: string | null; icon: string } | null> =
+    Object.fromEntries(
+      (planRows ?? []).map((p) => [p.day_of_week, { dayOfWeek: p.day_of_week, title: p.title, description: p.description, icon: p.icon }])
     );
-  }
+
+  const sessionCount = (weekActivities ?? []).length;
+  const trainedDays = new Set((weekActivities ?? []).map((a) => (new Date(a.performed_on + "T00:00:00").getDay() + 6) % 7));
 
   const activityRows = (activities ?? []).map((a) => {
     const metaParts = [a.activity_type];
@@ -61,25 +56,12 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
       <h1 className="mb-6 text-2xl font-bold text-charcoal">Training</h1>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Weekly plan</h2>
-      <div className="mb-3 flex items-center justify-between">
-        <Link
-          href={`/health/training?week=${prevWeek}`}
-          aria-label="Previous week"
-          className="rounded-full p-2 text-charcoal-soft hover:bg-cream hover:text-charcoal"
-        >
-          <ChevronLeft size={18} />
-        </Link>
-        <p className="text-sm font-medium text-charcoal">{formatWeekRangeLabel(weekStart)}</p>
-        <Link
-          href={`/health/training?week=${nextWeek}`}
-          aria-label="Next week"
-          className="rounded-full p-2 text-charcoal-soft hover:bg-cream hover:text-charcoal"
-        >
-          <ChevronRight size={18} />
-        </Link>
-      </div>
       <div className="mb-6">
-        <TrainingWeekPlan weekStartDate={weekStart} plans={plans} />
+        <TrainingWeekPlan plans={plans} />
+      </div>
+
+      <div className="mb-6">
+        <WeekTrainingSummary sessionCount={sessionCount} trainedDays={trainedDays} />
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Activity log</h2>

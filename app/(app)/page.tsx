@@ -7,7 +7,6 @@ import { generateInsights } from "@/lib/insights";
 import { computeForecast } from "@/lib/forecast";
 import { generateSleepInsight } from "@/lib/health-insights";
 import { monthlyEquivalent } from "@/lib/subscriptions";
-import { mondayOf } from "@/lib/health";
 import { daysBetween, nextOccurrence } from "@/lib/social";
 import { formatCurrency, todayLocalDate } from "@/lib/format";
 import { sortReportItems, type ReportItem } from "@/lib/daily-report";
@@ -61,19 +60,13 @@ export default async function HomePage() {
     supabase.from("social_occasions").select("*"),
   ]);
 
-  const weekStart = mondayOf(today);
-  const { data: currentWeek } = await supabase.from("health_training_weeks").select("id").eq("week_start_date", weekStart).maybeSingle();
-  let todayPlanTitle: string | null = null;
-  if (currentWeek) {
-    const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
-    const { data: item } = await supabase
-      .from("health_training_plan_items")
-      .select("title")
-      .eq("week_id", currentWeek.id)
-      .eq("day_of_week", todayDayOfWeek)
-      .maybeSingle();
-    todayPlanTitle = item?.title ?? null;
-  }
+  const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
+  const { data: todayPlanRow } = await supabase
+    .from("health_training_plan")
+    .select("title")
+    .eq("day_of_week", todayDayOfWeek)
+    .maybeSingle();
+  const todayPlanTitle = todayPlanRow?.title ?? null;
 
   // --- Finance: balance, this-month figures, trailing averages ------------
   const monthPrefix = financialMonthKey(today);

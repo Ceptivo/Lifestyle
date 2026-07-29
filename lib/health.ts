@@ -19,14 +19,6 @@ export function addDays(dateStr: string, days: number): string {
   return isoDate(d);
 }
 
-export function formatWeekRangeLabel(mondayStr: string): string {
-  const start = new Date(mondayStr + "T00:00:00");
-  const end = new Date(addDays(mondayStr, 6) + "T00:00:00");
-  const startLabel = start.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const endLabel = end.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  return `${startLabel} – ${endLabel}`;
-}
-
 // Hours between a bedtime and wake time ("HH:MM" 24h strings), assuming the
 // wake time is on the next day whenever it isn't later than bedtime (covers
 // the normal overnight case; same-day naps would need bedtime < wakeTime).

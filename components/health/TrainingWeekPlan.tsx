@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pencil, X } from "lucide-react";
-import { saveTrainingDay } from "@/app/actions/health";
+import { saveTrainingPlanDay } from "@/app/actions/health";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
@@ -12,7 +12,7 @@ import { DAY_LABELS } from "@/lib/health";
 
 type DayPlan = { dayOfWeek: number; title: string; description: string | null; icon: string } | null;
 
-function DayRow({ weekStartDate, dayOfWeek, plan }: { weekStartDate: string; dayOfWeek: number; plan: DayPlan }) {
+function DayRow({ dayOfWeek, plan }: { dayOfWeek: number; plan: DayPlan }) {
   const [editing, setEditing] = useState(false);
   const [icon, setIcon] = useState(plan?.icon ?? "dumbbell");
   const [isPending, startTransition] = useTransition();
@@ -52,7 +52,7 @@ function DayRow({ weekStartDate, dayOfWeek, plan }: { weekStartDate: string; day
     <form
       action={(formData) => {
         startTransition(async () => {
-          await saveTrainingDay(formData);
+          await saveTrainingPlanDay(formData);
           setEditing(false);
         });
       }}
@@ -69,7 +69,6 @@ function DayRow({ weekStartDate, dayOfWeek, plan }: { weekStartDate: string; day
           <X size={16} />
         </button>
       </div>
-      <input type="hidden" name="weekStartDate" value={weekStartDate} />
       <input type="hidden" name="dayOfWeek" value={dayOfWeek} />
       <Input name="title" defaultValue={plan?.title ?? ""} placeholder="e.g. Legs + 2km run" />
       <Input name="description" defaultValue={plan?.description ?? ""} placeholder="Notes (optional)" />
@@ -83,11 +82,11 @@ function DayRow({ weekStartDate, dayOfWeek, plan }: { weekStartDate: string; day
   );
 }
 
-export function TrainingWeekPlan({ weekStartDate, plans }: { weekStartDate: string; plans: Record<number, DayPlan> }) {
+export function TrainingWeekPlan({ plans }: { plans: Record<number, DayPlan> }) {
   return (
     <Card className="divide-y divide-border">
       {Array.from({ length: 7 }, (_, dayOfWeek) => (
-        <DayRow key={dayOfWeek} weekStartDate={weekStartDate} dayOfWeek={dayOfWeek} plan={plans[dayOfWeek] ?? null} />
+        <DayRow key={dayOfWeek} dayOfWeek={dayOfWeek} plan={plans[dayOfWeek] ?? null} />
       ))}
     </Card>
   );

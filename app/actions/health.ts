@@ -13,59 +13,31 @@ function numberOrNull(value: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-// --- Training weeks & plan items --------------------------------------
+// --- Training plan template --------------------------------------------
+//
+// A single reusable weekly template (one row per day_of_week 0-6) rather
+// than a distinct plan per calendar week — editing a day updates the
+// template for every week going forward.
 
-export async function getOrCreateTrainingWeek(weekStartDate: string): Promise<string> {
-  const supabase = createClient();
-  const { data: existing } = await supabase
-    .from("health_training_weeks")
-    .select("id")
-    .eq("week_start_date", weekStartDate)
-    .maybeSingle();
-  if (existing) return existing.id;
-
-  const { data: created, error } = await supabase
-    .from("health_training_weeks")
-    .insert({ week_start_date: weekStartDate })
-    .select("id")
-    .single();
-  if (error) throw new Error(error.message);
-  return created.id;
-}
-
-export async function saveTrainingDay(formData: FormData) {
-  const weekStartDate = String(formData.get("weekStartDate") ?? "");
+export async function saveTrainingPlanDay(formData: FormData) {
   const dayOfWeek = Number(formData.get("dayOfWeek"));
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const icon = String(formData.get("icon") ?? DEFAULT_ICON);
 
-  if (!weekStartDate || Number.isNaN(dayOfWeek)) return;
+  if (Number.isNaN(dayOfWeek)) return;
 
   const supabase = createClient();
 
   if (!title) {
-    // Nothing to clear if the week was never created.
-    const { data: week } = await supabase
-      .from("health_training_weeks")
-      .select("id")
-      .eq("week_start_date", weekStartDate)
-      .maybeSingle();
-    if (!week) return;
-
-    const { error } = await supabase
-      .from("health_training_plan_items")
-      .delete()
-      .eq("week_id", week.id)
-      .eq("day_of_week", dayOfWeek);
+    const { error } = await supabase.from("health_training_plan").delete().eq("day_of_week", dayOfWeek);
     if (error) throw new Error(error.message);
   } else {
-    const weekId = await getOrCreateTrainingWeek(weekStartDate);
     const { error } = await supabase
-      .from("health_training_plan_items")
+      .from("health_training_plan")
       .upsert(
-        { week_id: weekId, day_of_week: dayOfWeek, title, description: description || null, icon },
-        { onConflict: "week_id,day_of_week" }
+        { day_of_week: dayOfWeek, title, description: description || null, icon, updated_at: new Date().toISOString() },
+        { onConflict: "day_of_week" }
       );
     if (error) throw new Error(error.message);
   }

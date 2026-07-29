@@ -218,45 +218,26 @@ export interface Database {
         };
         Relationships: [];
       };
-      health_training_weeks: {
+      health_training_plan: {
         Row: {
-          id: string;
-          week_start_date: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          week_start_date: string;
-          created_at?: string;
-        };
-        Update: {
-          week_start_date?: string;
-        };
-        Relationships: [];
-      };
-      health_training_plan_items: {
-        Row: {
-          id: string;
-          week_id: string;
           day_of_week: number;
           title: string;
           description: string | null;
           icon: string;
-          created_at: string;
+          updated_at: string;
         };
         Insert: {
-          id?: string;
-          week_id: string;
           day_of_week: number;
           title: string;
           description?: string | null;
           icon?: string;
-          created_at?: string;
+          updated_at?: string;
         };
         Update: {
           title?: string;
           description?: string | null;
           icon?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

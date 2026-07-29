@@ -25,7 +25,7 @@ export default async function HealthOverviewPage() {
   const sleepWindowStart = addDays(today, -6);
   const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
 
-  const [{ data: weekActivities }, { data: sleepLogs }, { data: nextRace }, { data: currentWeek }, { data: recentActivities }] =
+  const [{ data: weekActivities }, { data: sleepLogs }, { data: nextRace }, { data: planRow }, { data: recentActivities }] =
     await Promise.all([
       supabase.from("health_activities").select("duration_minutes").gte("performed_on", weekStart).lte("performed_on", weekEnd),
       supabase.from("health_sleep_logs").select("sleep_date, duration_hours").gte("sleep_date", sleepWindowStart).lte("sleep_date", today),
@@ -36,7 +36,7 @@ export default async function HealthOverviewPage() {
         .order("event_date", { ascending: true })
         .limit(1)
         .maybeSingle(),
-      supabase.from("health_training_weeks").select("id").eq("week_start_date", weekStart).maybeSingle(),
+      supabase.from("health_training_plan").select("title, description, icon").eq("day_of_week", todayDayOfWeek).maybeSingle(),
       supabase
         .from("health_activities")
         .select("id, title, activity_type, performed_on, duration_minutes, distance_km, icon")
@@ -56,16 +56,7 @@ export default async function HealthOverviewPage() {
     daysToRace = Math.round((new Date(nextRace.event_date + "T00:00:00").getTime() - new Date(today + "T00:00:00").getTime()) / 86400000);
   }
 
-  let todayPlan: { title: string; description: string | null; icon: string } | null = null;
-  if (currentWeek) {
-    const { data: item } = await supabase
-      .from("health_training_plan_items")
-      .select("title, description, icon")
-      .eq("week_id", currentWeek.id)
-      .eq("day_of_week", todayDayOfWeek)
-      .maybeSingle();
-    todayPlan = item ?? null;
-  }
+  const todayPlan = planRow ?? null;
 
   const reminders: { id: string; icon: string; title: string; body: string; href: string; alert: boolean }[] = [];
   reminders.push({
