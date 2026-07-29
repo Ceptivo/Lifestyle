@@ -49,3 +49,16 @@ export function financialMonthLabel(key: string): string {
   const [y, m] = key.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
+
+// Where a given day-of-month (1-31) actually falls within a financial-month
+// key's date range — e.g. day 9 falls in the *ending* calendar month, day
+// 28 falls in the *starting* one. Used to place recurring items (bills,
+// subscriptions) on the calendar within the current financial-month cycle.
+export function occurrenceInMonth(dayOfMonth: number, key: string): string {
+  const { start, end } = financialMonthRange(key);
+  const [startYear, startMonth] = start.split("-").map(Number);
+  const [endYear, endMonth] = end.split("-").map(Number);
+  const [year, month] = dayOfMonth >= START_DAY ? [startYear, startMonth] : [endYear, endMonth];
+  const d = new Date(year, month - 1, dayOfMonth);
+  return toISO(d);
+}
