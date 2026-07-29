@@ -4,6 +4,7 @@ export type SubscriptionStatus = "active" | "paused" | "cancelled";
 export type HealthSource = "manual" | "samsung_health";
 export type GoalStatus = "planned" | "in_progress" | "done";
 export type ReadingStatus = "want_to_read" | "reading" | "finished";
+export type TaskPriority = "low" | "medium" | "high";
 
 export interface Database {
   public: {
@@ -780,6 +781,127 @@ export interface Database {
           last_completed_date?: string | null;
           notes?: string | null;
           icon?: string;
+        };
+        Relationships: [];
+      };
+      work_tasks: {
+        Row: {
+          id: string;
+          title: string;
+          notes: string | null;
+          done: boolean;
+          due_date: string | null;
+          priority: TaskPriority;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          notes?: string | null;
+          done?: boolean;
+          due_date?: string | null;
+          priority?: TaskPriority;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          notes?: string | null;
+          done?: boolean;
+          due_date?: string | null;
+          priority?: TaskPriority;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      work_notes: {
+        Row: { id: string; title: string; content: string; created_at: string };
+        Insert: { id?: string; title: string; content?: string; created_at?: string };
+        Update: { title?: string; content?: string };
+        Relationships: [];
+      };
+      university_study_materials: {
+        Row: {
+          id: string;
+          title: string;
+          subject: string;
+          notes: string | null;
+          url: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          subject: string;
+          notes?: string | null;
+          url?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          subject?: string;
+          notes?: string | null;
+          url?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      university_exams: {
+        Row: {
+          id: string;
+          subject: string;
+          title: string;
+          exam_date: string;
+          notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject: string;
+          title: string;
+          exam_date: string;
+          notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          subject?: string;
+          title?: string;
+          exam_date?: string;
+          notes?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      university_grades: {
+        Row: {
+          id: string;
+          subject: string;
+          term: string;
+          assessment: string;
+          mark: number;
+          max_mark: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject: string;
+          term: string;
+          assessment: string;
+          mark: number;
+          max_mark?: number;
+          created_at?: string;
+        };
+        Update: {
+          subject?: string;
+          term?: string;
+          assessment?: string;
+          mark?: number;
+          max_mark?: number;
         };
         Relationships: [];
       };

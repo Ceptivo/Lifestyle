@@ -52,10 +52,19 @@ export default async function TransactionsPage({
       .limit(200),
   ]);
 
+  // Stable sort on top of the DB order: within the same day, income lands
+  // before expenses (money in, then money out) while created_at order is
+  // preserved as the tiebreak within each type.
+  const orderedTransactions = [...(transactions ?? [])].sort((a, b) => {
+    if (a.occurred_on !== b.occurred_on) return a.occurred_on < b.occurred_on ? 1 : -1;
+    if (a.type !== b.type) return a.type === "income" ? -1 : 1;
+    return 0;
+  });
+
   const accountsById = Object.fromEntries((accounts ?? []).map((a) => [a.id, { name: a.name, icon: "wallet" }]));
   const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
 
-  const filteredTransactions = (transactions ?? []).filter(
+  const filteredTransactions = orderedTransactions.filter(
     (tx) => (activeTab === "all" || tx.type === activeTab) && (!categoryIds || categoryIds.includes(tx.category_id))
   );
 

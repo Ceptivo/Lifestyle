@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, BookOpen, Wrench, Plane, ShieldCheck } from "lucide-react";
+import { Users, BookOpen, Wrench, Plane, ShieldCheck, Briefcase, GraduationCap } from "lucide-react";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { Card } from "@/components/ui/Card";
 
@@ -9,6 +9,8 @@ const SECTIONS = [
   { href: "/environment", label: "Home & Environment", subtitle: "Maintenance, chores", icon: Wrench },
   { href: "/travel", label: "Travel & Experiences", subtitle: "Trips, packing, bucket list", icon: Plane },
   { href: "/personal", label: "Personal Admin", subtitle: "Documents, passwords, checklist", icon: ShieldCheck },
+  { href: "/work", label: "Work", subtitle: "Task tracker, notes", icon: Briefcase },
+  { href: "/university", label: "University", subtitle: "Study material, exams, report card", icon: GraduationCap },
 ];
 
 export default function MorePage() {

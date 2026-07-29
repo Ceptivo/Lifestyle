@@ -67,6 +67,10 @@ import {
   UserCog,
   AlertTriangle,
   Lightbulb,
+  ClipboardList,
+  NotebookPen,
+  Link2,
+  Award,
   type LucideIcon,
 } from "lucide-react";
 
@@ -139,6 +143,10 @@ export const ICONS: Record<string, LucideIcon> = {
   "user-cog": UserCog,
   "alert-triangle": AlertTriangle,
   lightbulb: Lightbulb,
+  "clipboard-list": ClipboardList,
+  "notebook-pen": NotebookPen,
+  link: Link2,
+  award: Award,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

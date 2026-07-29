@@ -19,11 +19,15 @@ export function AddTransactionForm({
   categories: initialCategories,
   initialOpen = false,
   initialType = "expense",
+  onClose,
+  onSaved,
 }: {
   accounts: Account[];
   categories: Category[];
   initialOpen?: boolean;
   initialType?: FinanceType;
+  onClose?: () => void;
+  onSaved?: () => void;
 }) {
   const [open, setOpen] = useState(initialOpen);
   const [type, setType] = useState<FinanceType>(initialType);
@@ -79,7 +83,9 @@ export function AddTransactionForm({
           await addTransaction(formData);
           formRef.current?.reset();
           setCategoryId("");
-          setOpen(false);
+          if (onClose) onClose();
+          else setOpen(false);
+          onSaved?.();
         });
       }}
       className="space-y-3 rounded-2xl border border-border bg-paper p-4"
@@ -101,7 +107,7 @@ export function AddTransactionForm({
         </div>
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={() => (onClose ? onClose() : setOpen(false))}
           aria-label="Close"
           className="p-1 text-charcoal-soft hover:text-charcoal"
         >
