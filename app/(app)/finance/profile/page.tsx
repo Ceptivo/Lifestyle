@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { InsightList } from "@/components/finance/InsightList";
@@ -105,6 +106,10 @@ export default async function ProfilePage() {
   }));
   const budgetsWithinLimit = budgetsWithSpend.filter((b) => b.spent <= b.limit).length;
 
+  const accountsByBalanceDesc = [...(accounts ?? [])].sort(
+    (a, b) => (balances.get(b.id) ?? b.starting_balance) - (balances.get(a.id) ?? a.starting_balance)
+  );
+
   const insights = generateInsights({
     netWorth,
     avgMonthlyIncome,
@@ -139,7 +144,15 @@ export default async function ProfilePage() {
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Insights & advice</h2>
       <div className="mb-6">
-        <InsightList insights={insights} />
+        <InsightList insights={insights.slice(0, 1)} />
+        {insights.length > 1 && (
+          <Link
+            href="/finance/profile/insights"
+            className="mt-3 block rounded-full border border-border py-2.5 text-center text-sm font-semibold text-charcoal-soft hover:bg-cream hover:text-charcoal"
+          >
+            View more insights
+          </Link>
+        )}
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Commitments</h2>
@@ -171,7 +184,7 @@ export default async function ProfilePage() {
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Accounts</h2>
       <Card className="space-y-2">
-        {(accounts ?? []).map((a) => (
+        {accountsByBalanceDesc.map((a) => (
           <div key={a.id} className="flex items-center justify-between">
             <p className="text-sm text-charcoal-soft">{a.name}</p>
             <p className="text-sm font-semibold tabular-nums text-charcoal">
