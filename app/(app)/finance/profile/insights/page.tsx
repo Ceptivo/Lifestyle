@@ -1,22 +1,21 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { InsightList } from "@/components/finance/InsightList";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
+import { FinanceMenuDrawer } from "@/components/finance/FinanceMenuDrawer";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { generateInsights, type InsightStatus } from "@/lib/insights";
 import { todayLocalDate } from "@/lib/format";
 import { currentFinancialMonthKey, financialMonthKey, shiftFinancialMonthKey } from "@/lib/financial-month";
-import { cn } from "@/lib/cn";
 
 export const revalidate = 60;
 
 const HISTORY_MONTHS = 3;
 
-const TABS: { key: "all" | InsightStatus; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "warning", label: "Needs Attention" },
-  { key: "tip", label: "Worth a Look" },
-  { key: "good", label: "On Track" },
+const TABS: { key: "all" | InsightStatus; label: string; icon: string }[] = [
+  { key: "all", label: "All", icon: "pie-chart" },
+  { key: "warning", label: "Needs Attention", icon: "alert-triangle" },
+  { key: "tip", label: "Worth a Look", icon: "lightbulb" },
+  { key: "good", label: "On Track", icon: "trending-up" },
 ];
 
 export default async function AllInsightsPage({
@@ -120,30 +119,24 @@ export default async function AllInsightsPage({
   });
 
   const filteredInsights = activeTab === "all" ? insights : insights.filter((i) => i.status === activeTab);
+  const activeTabMeta = TABS.find((t) => t.key === activeTab)!;
+  const drawerLinks = TABS.map((tab) => {
+    const count = tab.key === "all" ? insights.length : insights.filter((i) => i.status === tab.key).length;
+    return {
+      href: tab.key === "all" ? "/finance/profile/insights" : `/finance/profile/insights?status=${tab.key}`,
+      label: `${tab.label} (${count})`,
+      icon: tab.icon,
+    };
+  });
 
   return (
     <div>
       <FinanceBackLink href="/finance/profile" label="Back to Profile" />
-      <h1 className="mb-6 text-2xl font-bold text-charcoal">All Insights</h1>
-
-      <div className="mb-4 flex items-center gap-2 overflow-x-auto">
-        {TABS.map((tab) => {
-          const count = tab.key === "all" ? insights.length : insights.filter((i) => i.status === tab.key).length;
-          return (
-            <Link
-              key={tab.key}
-              href={tab.key === "all" ? "/finance/profile/insights" : `/finance/profile/insights?status=${tab.key}`}
-              className={cn(
-                "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
-                activeTab === tab.key
-                  ? "bg-pink text-ink"
-                  : "bg-cream text-charcoal-soft hover:text-charcoal"
-              )}
-            >
-              {tab.label} ({count})
-            </Link>
-          );
-        })}
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <h1 className="text-2xl font-bold text-charcoal">
+          {activeTab === "all" ? "All Insights" : activeTabMeta.label}
+        </h1>
+        <FinanceMenuDrawer links={drawerLinks} title="Insights" />
       </div>
 
       <InsightList

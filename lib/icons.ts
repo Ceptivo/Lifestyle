@@ -65,6 +65,8 @@ import {
   PieChart,
   Tag,
   UserCog,
+  AlertTriangle,
+  Lightbulb,
   type LucideIcon,
 } from "lucide-react";
 
@@ -135,6 +137,8 @@ export const ICONS: Record<string, LucideIcon> = {
   "pie-chart": PieChart,
   tag: Tag,
   "user-cog": UserCog,
+  "alert-triangle": AlertTriangle,
+  lightbulb: Lightbulb,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

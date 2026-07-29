@@ -3,8 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { InsightList } from "@/components/finance/InsightList";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
+import { FinanceMenuDrawer } from "@/components/finance/FinanceMenuDrawer";
 import { monthlyEquivalent } from "@/lib/subscriptions";
-import { generateInsights } from "@/lib/insights";
+import { generateInsights, type InsightStatus } from "@/lib/insights";
 import { formatCurrency, formatCurrencyCompact, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { currentFinancialMonthKey, financialMonthKey, shiftFinancialMonthKey } from "@/lib/financial-month";
@@ -12,6 +13,13 @@ import { currentFinancialMonthKey, financialMonthKey, shiftFinancialMonthKey } f
 export const revalidate = 60;
 
 const HISTORY_MONTHS = 3;
+
+const INSIGHT_TABS: { key: "all" | InsightStatus; label: string; icon: string }[] = [
+  { key: "all", label: "All", icon: "pie-chart" },
+  { key: "warning", label: "Needs Attention", icon: "alert-triangle" },
+  { key: "tip", label: "Worth a Look", icon: "lightbulb" },
+  { key: "good", label: "On Track", icon: "trending-up" },
+];
 
 export default async function ProfilePage() {
   const supabase = createClient();
@@ -142,7 +150,20 @@ export default async function ProfilePage() {
         <StatCard label="Lifetime expenses" value={formatCurrencyCompact(lifetimeExpense)} />
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Insights & advice</h2>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Insights & advice</h2>
+        <FinanceMenuDrawer
+          links={INSIGHT_TABS.map((tab) => {
+            const count = tab.key === "all" ? insights.length : insights.filter((i) => i.status === tab.key).length;
+            return {
+              href: tab.key === "all" ? "/finance/profile/insights" : `/finance/profile/insights?status=${tab.key}`,
+              label: `${tab.label} (${count})`,
+              icon: tab.icon,
+            };
+          })}
+          title="Insights"
+        />
+      </div>
       <div className="mb-6">
         <InsightList insights={insights.slice(0, 1)} />
         {insights.length > 1 && (
