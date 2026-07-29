@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { JournalEntryForm } from "@/components/health/JournalEntryForm";
 import { JournalEntryList } from "@/components/health/JournalEntryList";
+import { SymptomHeatmap } from "@/components/health/SymptomHeatmap";
 import { PainTrendChart } from "@/components/charts/PainTrendChart";
 import { BackLink } from "@/components/ui/BackLink";
 import { checkEntryForConcern, generatePossibleConditions, NOT_A_DIAGNOSIS_NOTICE } from "@/lib/journal-insights";
@@ -22,6 +23,14 @@ export default async function JournalPage() {
   const trendPoints = [...(entries ?? [])]
     .reverse()
     .map((e) => ({ date: e.entry_date, severity: e.severity, dateFormatted: formatDate(e.entry_date), symptom: e.symptom }));
+
+  const monthStart = `${today.slice(0, 7)}-01`;
+  const severityByDate = new Map<string, number>();
+  for (const e of entries ?? []) {
+    if (!e.entry_date.startsWith(today.slice(0, 7))) continue;
+    const prev = severityByDate.get(e.entry_date) ?? 0;
+    if (e.severity > prev) severityByDate.set(e.entry_date, e.severity);
+  }
 
   const entryRows = (entries ?? []).map((e) => {
     const concern = checkEntryForConcern({
@@ -108,6 +117,11 @@ export default async function JournalPage() {
           </Card>
         </>
       )}
+
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Symptom heatmap</h2>
+      <Card className="mb-6">
+        <SymptomHeatmap monthStart={monthStart} severityByDate={severityByDate} />
+      </Card>
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Severity over time</h2>
