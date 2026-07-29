@@ -3,9 +3,10 @@ import { Receipt, PieChart, ListChecks, Flag, TrendingUp, Wallet, Repeat, Tag, U
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { PageHeading } from "@/components/ui/PageHeading";
-import { AccountsSummary } from "@/components/finance/AccountsSummary";
+import { AccountForm } from "@/components/finance/AccountForm";
+import { AccountList } from "@/components/finance/AccountList";
 import { RingProgress } from "@/components/charts/RingProgress";
-import { formatCurrencyCompact } from "@/lib/format";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/format";
 import { currentFinancialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
 
 export const revalidate = 60;
@@ -63,12 +64,16 @@ export default async function FinanceDashboardPage() {
   }
 
   const balance = [...accountBalances.values()].reduce((sum, b) => sum + b, 0);
-  const accountsWithBalance = (accounts ?? []).map((a) => ({
-    id: a.id,
-    name: a.name,
-    icon: a.icon,
-    balance: accountBalances.get(a.id) ?? a.starting_balance,
-  }));
+  const accountsWithBalance = (accounts ?? []).map((a) => {
+    const accountBalance = accountBalances.get(a.id) ?? a.starting_balance;
+    return {
+      id: a.id,
+      name: a.name,
+      icon: a.icon,
+      balance: accountBalance,
+      balanceFormatted: formatCurrency(accountBalance),
+    };
+  });
 
   const monthSaved = monthIncome - monthExpense;
   const savingsRate = monthIncome > 0 ? (monthSaved / monthIncome) * 100 : 0;
@@ -113,7 +118,10 @@ export default async function FinanceDashboardPage() {
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Accounts</h2>
       <div className="mb-6">
-        <AccountsSummary accounts={accountsWithBalance} />
+        <AccountList accounts={accountsWithBalance} />
+        <div className="mt-3">
+          <AccountForm />
+        </div>
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
