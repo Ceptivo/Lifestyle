@@ -71,19 +71,20 @@ export default async function TrainingPage() {
         <TrainingSummaryPanel activities={panelActivities} today={today} weekStart={weekStart} monthStart={monthStart} />
       </div>
 
+      <div className="mb-6">
+        <WeekTrainingSummary sessionCount={sessionCount} trainedDays={trainedDays} />
+      </div>
+
+      <div className="mb-6">
+        <ActivityForm />
+      </div>
+
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Weekly plan</h2>
       <div className="mb-6">
         <TrainingWeekPlan items={planItems} />
       </div>
 
-      <div className="mb-6">
-        <WeekTrainingSummary sessionCount={sessionCount} trainedDays={trainedDays} />
-      </div>
-
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Activity log</h2>
-      <div className="mb-4">
-        <ActivityForm />
-      </div>
       <ActivityLogList activities={activityRows} />
     </div>
   );
