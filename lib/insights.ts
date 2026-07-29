@@ -32,6 +32,11 @@ export type InsightInput = {
   budgets: { categoryName: string; limit: number; spent: number }[];
   goals: { name: string; currentAmount: number; targetAmount: number; targetDate: string | null }[];
   today: string;
+  forecast?: {
+    firstNegativeLabel: string | null;
+    monthlyNet: number;
+    biggestSubscription: { name: string; amount: number } | null;
+  };
 };
 
 function monthsBetween(fromISO: string, toISO: string): number {
@@ -232,6 +237,32 @@ export function generateInsights(input: InsightInput): Insight[] {
         icon: "flag",
         title: `"${goal.name}" needs ~${formatCurrencyShort(perMonth)}/month`,
         body: `To reach ${formatCurrencyShort(goal.targetAmount)} by the target date, you'd need to add about ${formatCurrencyShort(perMonth)}/month from here — ${formatCurrencyShort(remaining)} to go over roughly ${monthsLeft.toFixed(1)} months.`,
+      });
+    }
+  }
+
+  // --- Forecast trend ---------------------------------------------------
+  if (input.forecast) {
+    const { firstNegativeLabel, monthlyNet, biggestSubscription } = input.forecast;
+    if (firstNegativeLabel) {
+      insights.push({
+        id: "forecast",
+        status: "warning",
+        icon: "trending-down",
+        title: `Forecast turns negative by ${firstNegativeLabel}`,
+        body: `At the current pace you're short about ${formatCurrencyShort(Math.abs(monthlyNet))}/month, projected to push the balance negative by ${firstNegativeLabel}.${
+          biggestSubscription
+            ? ` ${biggestSubscription.name} (${formatCurrencyShort(biggestSubscription.amount)}/month) is the biggest recurring cost worth reviewing first.`
+            : ""
+        } See the Forecast tab for the full breakdown and steps to turn it around.`,
+      });
+    } else if (monthlyNet > 0) {
+      insights.push({
+        id: "forecast",
+        status: "good",
+        icon: "trending-up",
+        title: `Forecast is trending up ~${formatCurrencyShort(monthlyNet)}/month`,
+        body: `Based on recent income, spending, and upcoming subscriptions, the balance is projected to keep growing by about ${formatCurrencyShort(monthlyNet)}/month over the next 6 months. See the Forecast tab for the full breakdown.`,
       });
     }
   }

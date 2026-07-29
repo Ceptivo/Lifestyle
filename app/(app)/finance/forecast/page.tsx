@@ -1,36 +1,17 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
-import { projectOccurrencesInRange } from "@/lib/subscriptions";
+import { computeForecast } from "@/lib/forecast";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/format";
 import { cn } from "@/lib/cn";
-import {
-  currentFinancialMonthKey,
-  financialMonthEndExclusive,
-  financialMonthLabel,
-  financialMonthRange,
-  shiftFinancialMonthKey,
-} from "@/lib/financial-month";
 
 export const revalidate = 60;
-
-function monthRange(offsetFromCurrent: number): { start: string; end: string; label: string } {
-  const key = shiftFinancialMonthKey(currentFinancialMonthKey(), offsetFromCurrent);
-  return {
-    start: financialMonthRange(key).start,
-    end: financialMonthEndExclusive(key),
-    label: financialMonthLabel(key),
-  };
-}
 
 export default async function ForecastPage() {
   const supabase = createClient();
 
-  const baseline = monthRange(-3);
-  const baselineEnd = monthRange(-1).end; // start of current month
-
-  const [{ data: accounts }, { data: allTransactions }, { data: subscriptions }] = await Promise.all([
+  const [{ data: accounts }, { data: transactions }, { data: subscriptions }] = await Promise.all([
     supabase.from("finance_accounts").select("starting_balance"),
     supabase.from("finance_transactions").select("type, amount, occurred_on, subscription_id"),
     supabase
@@ -39,36 +20,8 @@ export default async function ForecastPage() {
       .eq("status", "active"),
   ]);
 
-  let currentBalance = (accounts ?? []).reduce((sum, a) => sum + a.starting_balance, 0);
-  let baselineIncome = 0;
-  let baselineExpense = 0;
-
-  for (const tx of allTransactions ?? []) {
-    currentBalance += tx.type === "income" ? tx.amount : -tx.amount;
-
-    if (tx.occurred_on >= baseline.start && tx.occurred_on < baselineEnd) {
-      if (tx.type === "income") baselineIncome += tx.amount;
-      else if (!tx.subscription_id) baselineExpense += tx.amount;
-    }
-  }
-
-  const avgMonthlyIncome = baselineIncome / 3;
-  const avgMonthlyNonSubExpense = baselineExpense / 3;
-
-  const months = Array.from({ length: 6 }, (_, i) => monthRange(i + 1));
-  let running = currentBalance;
-  const projection = months.map((m) => {
-    const subscriptionTotal = (subscriptions ?? []).reduce((sum, s) => {
-      const occurrences = projectOccurrencesInRange(s.next_due_date, s.cycle, m.start, m.end);
-      return sum + occurrences.length * s.amount;
-    }, 0);
-
-    running = running + avgMonthlyIncome - avgMonthlyNonSubExpense - subscriptionTotal;
-
-    return { label: m.label, subscriptionTotal, balance: running };
-  });
-
-  const firstNegative = projection.find((p) => p.balance < 0);
+  const forecast = computeForecast(accounts ?? [], transactions ?? [], subscriptions ?? []);
+  const { currentBalance, avgMonthlyIncome, avgMonthlyNonSubExpense, projection, firstNegative, steps } = forecast;
 
   return (
     <div>
@@ -96,7 +49,7 @@ export default async function ForecastPage() {
       )}
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">6-month projection</h2>
-      <Card className="space-y-3">
+      <Card className="mb-6 space-y-3">
         {projection.map((p) => (
           <div key={p.label} className="flex items-center justify-between">
             <div>
@@ -113,6 +66,30 @@ export default async function ForecastPage() {
           </div>
         ))}
       </Card>
+
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
+        {firstNegative ? "How to avoid going negative" : "Keep the forecast climbing"}
+      </h2>
+      <ul className="space-y-2">
+        {steps.map((step, i) => (
+          <li key={step.title}>
+            <Card className="flex gap-3">
+              <span
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                  firstNegative ? "bg-danger-soft text-danger" : "bg-pink-soft text-pink-dark"
+                )}
+              >
+                {i === 0 && !firstNegative ? <TrendingUp size={16} /> : i + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-charcoal">{step.title}</p>
+                <p className="mt-0.5 text-sm text-charcoal-soft">{step.body}</p>
+              </div>
+            </Card>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

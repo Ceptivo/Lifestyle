@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ReportList } from "@/components/home/ReportList";
 import { generateInsights } from "@/lib/insights";
+import { computeForecast } from "@/lib/forecast";
 import { generateSleepInsight } from "@/lib/health-insights";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { mondayOf } from "@/lib/health";
@@ -48,7 +49,7 @@ export default async function HomePage() {
     { data: occasions },
   ] = await Promise.all([
     supabase.from("finance_accounts").select("starting_balance"),
-    supabase.from("finance_transactions").select("type, amount, occurred_on, category_id"),
+    supabase.from("finance_transactions").select("type, amount, occurred_on, category_id, subscription_id"),
     supabase.from("finance_categories").select("id, name"),
     supabase.from("finance_budgets").select("category_id, monthly_limit"),
     supabase.from("finance_subscriptions").select("id, name, amount, next_due_date, cycle").eq("status", "active"),
@@ -124,6 +125,8 @@ export default async function HomePage() {
 
   const monthlySubscriptionCommitment = (subscriptions ?? []).reduce((sum, s) => sum + monthlyEquivalent(s.amount, s.cycle), 0);
 
+  const forecast = computeForecast(accounts ?? [], transactions ?? [], subscriptions ?? []);
+
   const financeInsights = generateInsights({
     netWorth: balance,
     avgMonthlyIncome,
@@ -134,6 +137,13 @@ export default async function HomePage() {
     budgets: budgetsWithSpend,
     goals: (goals ?? []).map((g) => ({ name: g.name, currentAmount: g.current_amount, targetAmount: g.target_amount, targetDate: g.target_date })),
     today,
+    forecast: {
+      firstNegativeLabel: forecast.firstNegative?.label ?? null,
+      monthlyNet: forecast.monthlyNet,
+      biggestSubscription: forecast.biggestSubscription
+        ? { name: forecast.biggestSubscription.name, amount: forecast.biggestSubscription.amount }
+        : null,
+    },
   });
   const topFinanceInsight = financeInsights.find((i) => i.id !== "budgets");
 

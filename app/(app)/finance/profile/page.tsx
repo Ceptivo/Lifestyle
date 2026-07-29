@@ -6,6 +6,7 @@ import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { FinanceMenuDrawer } from "@/components/finance/FinanceMenuDrawer";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { generateInsights, type InsightStatus } from "@/lib/insights";
+import { computeForecast } from "@/lib/forecast";
 import { formatCurrency, formatCurrencyCompact, todayLocalDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { currentFinancialMonthKey, financialMonthKey, shiftFinancialMonthKey } from "@/lib/financial-month";
@@ -32,9 +33,9 @@ export default async function ProfilePage() {
     { data: budgets },
   ] = await Promise.all([
     supabase.from("finance_accounts").select("id, name, starting_balance"),
-    supabase.from("finance_transactions").select("type, amount, category_id, account_id, occurred_on"),
+    supabase.from("finance_transactions").select("type, amount, category_id, account_id, occurred_on, subscription_id"),
     supabase.from("finance_categories").select("id, name"),
-    supabase.from("finance_subscriptions").select("amount, cycle").eq("status", "active"),
+    supabase.from("finance_subscriptions").select("id, name, amount, cycle, next_due_date").eq("status", "active"),
     supabase.from("finance_goals").select("name, current_amount, target_amount, target_date"),
     supabase.from("finance_budgets").select("category_id, monthly_limit"),
   ]);
@@ -118,6 +119,8 @@ export default async function ProfilePage() {
     (a, b) => (balances.get(b.id) ?? b.starting_balance) - (balances.get(a.id) ?? a.starting_balance)
   );
 
+  const forecast = computeForecast(accounts ?? [], transactions ?? [], subscriptions ?? []);
+
   const insights = generateInsights({
     netWorth,
     avgMonthlyIncome,
@@ -133,6 +136,13 @@ export default async function ProfilePage() {
       targetDate: g.target_date,
     })),
     today: todayLocalDate(),
+    forecast: {
+      firstNegativeLabel: forecast.firstNegative?.label ?? null,
+      monthlyNet: forecast.monthlyNet,
+      biggestSubscription: forecast.biggestSubscription
+        ? { name: forecast.biggestSubscription.name, amount: forecast.biggestSubscription.amount }
+        : null,
+    },
   });
 
   return (
