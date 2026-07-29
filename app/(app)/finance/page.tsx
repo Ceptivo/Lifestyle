@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Receipt, PieChart, ListChecks, Flag, TrendingUp, Wallet, Repeat, Tag, UserCog } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
-import { PageHeading } from "@/components/ui/PageHeading";
+import { Icon } from "@/components/ui/Icon";
 import { AccountForm } from "@/components/finance/AccountForm";
 import { AccountList } from "@/components/finance/AccountList";
+import { FinanceMenuDrawer } from "@/components/finance/FinanceMenuDrawer";
 import { RingProgress } from "@/components/charts/RingProgress";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/format";
 import { currentFinancialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
@@ -12,15 +12,15 @@ import { currentFinancialMonthKey, financialMonthRange, shiftFinancialMonthKey }
 export const revalidate = 60;
 
 const QUICK_LINKS = [
-  { href: "/finance/transactions", label: "Transactions", icon: Receipt },
-  { href: "/finance/analytics", label: "Analytics", icon: PieChart },
-  { href: "/finance/budgets", label: "Budgets", icon: ListChecks },
-  { href: "/finance/subscriptions", label: "Subscriptions", icon: Repeat },
-  { href: "/finance/goals", label: "Goals", icon: Flag },
-  { href: "/finance/forecast", label: "Forecast", icon: TrendingUp },
-  { href: "/finance/accounts", label: "Accounts", icon: Wallet },
-  { href: "/finance/categories", label: "Categories", icon: Tag },
-  { href: "/finance/profile", label: "Profile", icon: UserCog },
+  { href: "/finance/transactions", label: "Transactions", icon: "receipt" },
+  { href: "/finance/analytics", label: "Analytics", icon: "pie-chart" },
+  { href: "/finance/budgets", label: "Budgets", icon: "list-checks" },
+  { href: "/finance/subscriptions", label: "Subscriptions", icon: "repeat" },
+  { href: "/finance/goals", label: "Goals", icon: "flag" },
+  { href: "/finance/forecast", label: "Forecast", icon: "trending-up" },
+  { href: "/finance/accounts", label: "Accounts", icon: "wallet" },
+  { href: "/finance/categories", label: "Categories", icon: "tag" },
+  { href: "/finance/profile", label: "Profile", icon: "user-cog" },
 ];
 
 function pctDelta(current: number, previous: number): number {
@@ -85,7 +85,13 @@ export default async function FinanceDashboardPage() {
 
   return (
     <div>
-      <PageHeading title="Finance" subtitle="Track what comes in and what goes out." />
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-charcoal">Finance</h1>
+          <p className="mt-1 text-sm text-charcoal-soft">Track what comes in and what goes out.</p>
+        </div>
+        <FinanceMenuDrawer links={QUICK_LINKS} />
+      </div>
 
       <div className="mb-6 grid grid-cols-3 gap-2.5 sm:gap-3">
         <StatCard
@@ -126,11 +132,11 @@ export default async function FinanceDashboardPage() {
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {QUICK_LINKS.map(({ href, label, icon: Icon }) => (
+        {QUICK_LINKS.map(({ href, label, icon }) => (
           <Link key={href} href={href}>
             <Card className="flex items-center gap-3 px-4 py-3.5">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                <Icon size={16} />
+                <Icon name={icon} size={16} />
               </span>
               <p className="min-w-0 truncate font-medium text-charcoal">{label}</p>
             </Card>

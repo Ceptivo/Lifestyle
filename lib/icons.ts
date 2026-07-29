@@ -60,6 +60,9 @@ import {
   User,
   FileText,
   KeyRound,
+  PieChart,
+  Tag,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 
@@ -125,6 +128,9 @@ export const ICONS: Record<string, LucideIcon> = {
   user: User,
   "file-text": FileText,
   key: KeyRound,
+  "pie-chart": PieChart,
+  tag: Tag,
+  "user-cog": UserCog,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);
