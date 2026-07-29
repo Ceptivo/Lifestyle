@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
-import { Icon } from "@/components/ui/Icon";
 import { AccountForm } from "@/components/finance/AccountForm";
 import { AccountList } from "@/components/finance/AccountList";
 import { FinanceMenuDrawer } from "@/components/finance/FinanceMenuDrawer";
@@ -130,19 +129,6 @@ export default async function FinanceDashboardPage() {
         </div>
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {QUICK_LINKS.map(({ href, label, icon }) => (
-          <Link key={href} href={href}>
-            <Card className="flex items-center gap-3 px-4 py-3.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                <Icon name={icon} size={16} />
-              </span>
-              <p className="min-w-0 truncate font-medium text-charcoal">{label}</p>
-            </Card>
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }
