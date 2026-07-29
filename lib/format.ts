@@ -90,3 +90,13 @@ export function todayLocalDate(): string {
   const offsetMs = now.getTimezoneOffset() * 60 * 1000;
   return new Date(now.getTime() - offsetMs).toISOString().slice(0, 10);
 }
+
+const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
+
+// Today's weekday name; falls back to "monday" on weekends for
+// Monday-Friday-only features like restaurant daily specials.
+export function todayWeekdayOrMonday(): "monday" | "tuesday" | "wednesday" | "thursday" | "friday" {
+  const dayIndex = new Date(todayLocalDate() + "T00:00:00").getDay();
+  const name = WEEKDAY_NAMES[dayIndex];
+  return name === "sunday" || name === "saturday" ? "monday" : name;
+}

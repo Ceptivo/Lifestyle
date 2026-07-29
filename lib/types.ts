@@ -5,6 +5,7 @@ export type HealthSource = "manual" | "samsung_health";
 export type GoalStatus = "planned" | "in_progress" | "done";
 export type ReadingStatus = "want_to_read" | "reading" | "finished";
 export type TaskPriority = "low" | "medium" | "high";
+export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
 
 export interface Database {
   public: {
@@ -994,6 +995,68 @@ export interface Database {
           description?: string | null;
           target_date?: string | null;
           status?: GoalStatus;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      activities_todo: {
+        Row: {
+          id: string;
+          name: string;
+          location: string | null;
+          cost_estimate: number | null;
+          notes: string | null;
+          done: boolean;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          location?: string | null;
+          cost_estimate?: number | null;
+          notes?: string | null;
+          done?: boolean;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          location?: string | null;
+          cost_estimate?: number | null;
+          notes?: string | null;
+          done?: boolean;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      restaurant_specials: {
+        Row: {
+          id: string;
+          day_of_week: DayOfWeek;
+          restaurant_name: string;
+          item_name: string;
+          price: number | null;
+          notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          day_of_week: DayOfWeek;
+          restaurant_name: string;
+          item_name: string;
+          price?: number | null;
+          notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          day_of_week?: DayOfWeek;
+          restaurant_name?: string;
+          item_name?: string;
+          price?: number | null;
+          notes?: string | null;
           icon?: string;
         };
         Relationships: [];
