@@ -13,7 +13,9 @@ export default async function SubscriptionsPage() {
   const [{ data: subscriptions }, { data: accounts }, { data: categories }] = await Promise.all([
     supabase
       .from("finance_subscriptions")
-      .select("id, name, icon, amount, cycle, account_id, category_id, destination_account_id, next_due_date, status")
+      .select(
+        "id, name, icon, amount, cycle, account_id, category_id, destination_account_id, next_due_date, status, is_mandatory"
+      )
       .order("next_due_date"),
     supabase.from("finance_accounts").select("id, name").order("created_at"),
     supabase.from("finance_categories").select("id, name").eq("type", "expense").order("name"),
@@ -48,6 +50,7 @@ export default async function SubscriptionsPage() {
           destinationAccountId: s.destination_account_id,
           nextDueDate: s.next_due_date,
           status: s.status,
+          isMandatory: s.is_mandatory,
           amountFormatted: formatCurrency(s.amount),
           nextDueDateFormatted: formatDate(s.next_due_date),
         }))}

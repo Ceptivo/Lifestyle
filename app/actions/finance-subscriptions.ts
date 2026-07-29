@@ -19,6 +19,7 @@ export async function addSubscription(formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "");
   const destinationAccountId = String(formData.get("destinationAccountId") ?? "") || null;
   const nextDueDate = String(formData.get("nextDueDate") ?? "");
+  const isMandatory = formData.get("isMandatory") === "on";
 
   if (!name || !amount || amount <= 0 || !accountId || !categoryId || !nextDueDate) return;
 
@@ -32,6 +33,7 @@ export async function addSubscription(formData: FormData) {
     category_id: categoryId,
     destination_account_id: destinationAccountId,
     next_due_date: nextDueDate,
+    is_mandatory: isMandatory,
   });
 
   if (error) throw new Error(error.message);
@@ -49,6 +51,7 @@ export async function updateSubscription(id: string, formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "");
   const destinationAccountId = String(formData.get("destinationAccountId") ?? "") || null;
   const nextDueDate = String(formData.get("nextDueDate") ?? "");
+  const isMandatory = formData.get("isMandatory") === "on";
 
   if (!name || !amount || amount <= 0 || !accountId || !categoryId || !nextDueDate) return;
 
@@ -64,6 +67,7 @@ export async function updateSubscription(id: string, formData: FormData) {
       category_id: categoryId,
       destination_account_id: destinationAccountId,
       next_due_date: nextDueDate,
+      is_mandatory: isMandatory,
     })
     .eq("id", id);
 

@@ -29,6 +29,7 @@ type Subscription = {
   destinationAccountId: string | null;
   nextDueDate: string;
   status: SubscriptionStatus;
+  isMandatory: boolean;
   amountFormatted: string;
   nextDueDateFormatted: string;
 };
@@ -108,6 +109,10 @@ function SubscriptionCard({
             ))}
           </Select>
           <Input name="nextDueDate" type="date" defaultValue={subscription.nextDueDate} required />
+          <label className="flex items-center gap-2 text-sm text-charcoal-soft">
+            <input type="checkbox" name="isMandatory" defaultChecked={subscription.isMandatory} className="accent-pink" />
+            Mandatory (can&rsquo;t be cancelled — tax, required insurance, etc.)
+          </label>
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? "Saving…" : "Save"}
           </Button>
@@ -123,7 +128,14 @@ function SubscriptionCard({
           <Icon name={subscription.icon} size={16} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{subscription.name}</p>
+          <p className="break-words hyphens-auto text-sm font-medium text-charcoal">
+            {subscription.name}
+            {subscription.isMandatory && (
+              <span className="ml-1.5 rounded-full bg-cream px-1.5 py-0.5 align-middle text-[9px] font-semibold uppercase tracking-wide text-charcoal-soft">
+                Mandatory
+              </span>
+            )}
+          </p>
           <p className="text-xs text-charcoal-soft">
             {subscription.amountFormatted} · {CYCLE_LABEL[subscription.cycle]}
             {paused ? " · Paused" : ` · Next ${subscription.nextDueDateFormatted}`}

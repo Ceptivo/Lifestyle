@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { SleepLogForm } from "@/components/health/SleepLogForm";
 import { SleepLogList } from "@/components/health/SleepLogList";
 import { SleepCorrelationChart } from "@/components/charts/SleepCorrelationChart";
+import { BackLink } from "@/components/ui/BackLink";
 import { bucketSleepData, generateSleepInsight } from "@/lib/health-insights";
 import { formatDate } from "@/lib/format";
 
@@ -40,6 +41,9 @@ export default async function SleepPage() {
 
   return (
     <div>
+      <BackLink href="/health" label="Back to Health" />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Sleep</h1>
+
       <div className="mb-6">
         <SleepLogForm />
       </div>

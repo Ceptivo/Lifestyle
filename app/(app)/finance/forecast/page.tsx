@@ -16,7 +16,7 @@ export default async function ForecastPage() {
     supabase.from("finance_transactions").select("type, amount, occurred_on, subscription_id"),
     supabase
       .from("finance_subscriptions")
-      .select("id, name, amount, cycle, next_due_date")
+      .select("id, name, amount, cycle, next_due_date, is_mandatory")
       .eq("status", "active"),
   ]);
 

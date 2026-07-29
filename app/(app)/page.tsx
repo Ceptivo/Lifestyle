@@ -52,10 +52,10 @@ export default async function HomePage() {
     supabase.from("finance_transactions").select("type, amount, occurred_on, category_id, subscription_id"),
     supabase.from("finance_categories").select("id, name"),
     supabase.from("finance_budgets").select("category_id, monthly_limit"),
-    supabase.from("finance_subscriptions").select("id, name, amount, next_due_date, cycle").eq("status", "active"),
+    supabase.from("finance_subscriptions").select("id, name, amount, next_due_date, cycle, is_mandatory").eq("status", "active"),
     supabase.from("finance_goals").select("name, current_amount, target_amount, target_date"),
     supabase.from("health_races").select("id, name, division, location, event_date").gte("event_date", today).order("event_date", { ascending: true }),
-    supabase.from("health_sleep_logs").select("duration_hours, mood_next_day, energy_next_day").order("sleep_date", { ascending: false }).limit(60),
+    supabase.from("health_sleep_logs").select("sleep_date, duration_hours, mood_next_day, energy_next_day").order("sleep_date", { ascending: false }).limit(60),
     supabase.from("social_people").select("*"),
     supabase.from("social_interactions").select("person_id, occurred_on").order("occurred_on", { ascending: false }),
     supabase.from("social_occasions").select("*"),
@@ -140,8 +140,8 @@ export default async function HomePage() {
     forecast: {
       firstNegativeLabel: forecast.firstNegative?.label ?? null,
       monthlyNet: forecast.monthlyNet,
-      biggestSubscription: forecast.biggestSubscription
-        ? { name: forecast.biggestSubscription.name, amount: forecast.biggestSubscription.amount }
+      biggestSubscription: forecast.biggestCancellableSubscription
+        ? { name: forecast.biggestCancellableSubscription.name, amount: forecast.biggestCancellableSubscription.amount }
         : null,
     },
   });
@@ -152,6 +152,7 @@ export default async function HomePage() {
   const sleepInsight = generateSleepInsight(sleepEntries);
   const recentSleep = sleepEntries.map((e) => e.durationHours).filter((v): v is number => v != null).slice(0, 7);
   const avgSleep = recentSleep.length ? recentSleep.reduce((sum, v) => sum + v, 0) / recentSleep.length : null;
+  const todaySleepLogged = (sleepLogs ?? []).some((l) => l.sleep_date === today);
 
   // --- Social: overdue people + upcoming occasions --------------------------
   const lastContactByPerson = new Map<string, string>();
@@ -266,6 +267,17 @@ export default async function HomePage() {
 
   if (sleepInsight) {
     items.push({ id: "sleep-insight", tone: "info", icon: "moon", title: "Sleep pattern", body: sleepInsight, href: "/health/sleep" });
+  }
+
+  if (!todaySleepLogged) {
+    items.push({
+      id: "sleep-log-reminder",
+      tone: "alert",
+      icon: "moon",
+      title: "Log last night's sleep",
+      body: "You haven't logged today's sleep yet — takes 10 seconds.",
+      href: "/health/sleep",
+    });
   }
 
   const reportItems = sortReportItems(items);

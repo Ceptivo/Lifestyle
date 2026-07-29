@@ -146,6 +146,7 @@ export interface Database {
           destination_account_id: string | null;
           next_due_date: string;
           status: SubscriptionStatus;
+          is_mandatory: boolean;
           created_at: string;
         };
         Insert: {
@@ -159,6 +160,7 @@ export interface Database {
           destination_account_id?: string | null;
           next_due_date: string;
           status?: SubscriptionStatus;
+          is_mandatory?: boolean;
           created_at?: string;
         };
         Update: {
@@ -171,6 +173,7 @@ export interface Database {
           destination_account_id?: string | null;
           next_due_date?: string;
           status?: SubscriptionStatus;
+          is_mandatory?: boolean;
         };
         Relationships: [];
       };

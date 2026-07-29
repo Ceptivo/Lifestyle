@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertTriangle } from "lucide-react";
 import { deleteJournalEntry } from "@/app/actions/health";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -12,6 +12,7 @@ type Entry = {
   triggers: string | null;
   notes: string | null;
   icon: string;
+  concernReason: string | null;
 };
 
 export function JournalEntryList({ entries }: { entries: Entry[] }) {
@@ -37,6 +38,11 @@ export function JournalEntryList({ entries }: { entries: Entry[] }) {
                 {e.triggers && ` · Trigger: ${e.triggers}`}
               </p>
               {e.notes && <p className="mt-0.5 text-xs text-charcoal-soft">{e.notes}</p>}
+              {e.concernReason && (
+                <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-danger">
+                  <AlertTriangle size={11} /> Worth a doctor visit
+                </p>
+              )}
             </div>
             <form action={deleteJournalEntry.bind(null, e.id)}>
               <button

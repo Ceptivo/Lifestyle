@@ -92,6 +92,11 @@ export function SubscriptionForm({ accounts, categories }: { accounts: Account[]
 
       <Input name="nextDueDate" type="date" defaultValue={todayLocalDate()} required />
 
+      <label className="flex items-center gap-2 text-sm text-charcoal-soft">
+        <input type="checkbox" name="isMandatory" className="accent-pink" />
+        Mandatory (can&rsquo;t be cancelled — tax, required insurance, etc.)
+      </label>
+
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "Saving…" : "Save subscription"}
       </Button>

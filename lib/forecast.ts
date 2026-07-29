@@ -10,7 +10,14 @@ import type { FinanceType, SubscriptionCycle } from "@/lib/types";
 
 type Account = { starting_balance: number };
 type Transaction = { type: FinanceType; amount: number; occurred_on: string; subscription_id: string | null };
-type Subscription = { id: string; name: string; amount: number; cycle: SubscriptionCycle; next_due_date: string };
+type Subscription = {
+  id: string;
+  name: string;
+  amount: number;
+  cycle: SubscriptionCycle;
+  next_due_date: string;
+  is_mandatory: boolean;
+};
 
 export type ForecastMonth = { label: string; balance: number; subscriptionTotal: number };
 export type ForecastStep = { title: string; body: string };
@@ -23,7 +30,7 @@ export type Forecast = {
   firstNegative: ForecastMonth | undefined;
   monthlyNet: number;
   trendingUp: boolean;
-  biggestSubscription: Subscription | null;
+  biggestCancellableSubscription: Subscription | null;
   steps: ForecastStep[];
 };
 
@@ -81,8 +88,12 @@ export function computeForecast(accounts: Account[], transactions: Transaction[]
   const monthlyNet = avgMonthlyIncome - avgMonthlyNonSubExpense - avgSubscriptionTotal;
   const trendingUp = monthlyNet >= 0;
 
-  const sortedSubs = [...subscriptions].sort((a, b) => b.amount - a.amount);
-  const biggestSubscription = sortedSubs[0] ?? null;
+  // Mandatory costs (tax, required insurance) are never a candidate for
+  // "review/cancel this" advice — they still count in the totals above,
+  // just not as a suggested cut.
+  const cancellableSubs = subscriptions.filter((s) => !s.is_mandatory);
+  const sortedCancellableSubs = [...cancellableSubs].sort((a, b) => b.amount - a.amount);
+  const biggestCancellableSubscription = sortedCancellableSubs[0] ?? null;
 
   const steps: ForecastStep[] = [];
   if (firstNegative) {
@@ -90,10 +101,10 @@ export function computeForecast(accounts: Account[], transactions: Transaction[]
       title: `Close the ~${formatCurrencyShort(Math.abs(monthlyNet))}/month gap`,
       body: `You're spending about ${formatCurrencyShort(Math.abs(monthlyNet))} more than you bring in each month on average — that's what pushes the balance negative by ${firstNegative.label}. Closing this gap, through more income or less spend, is the single biggest lever you have.`,
     });
-    if (biggestSubscription) {
+    if (biggestCancellableSubscription) {
       steps.push({
-        title: `Review ${biggestSubscription.name}`,
-        body: `Your largest recurring cost is ${biggestSubscription.name} at ${formatCurrencyShort(biggestSubscription.amount)}/${cycleUnit(biggestSubscription.cycle)}. Pausing, downgrading, or cancelling it goes a long way toward closing the gap.`,
+        title: `Review ${biggestCancellableSubscription.name}`,
+        body: `Your largest reviewable recurring cost is ${biggestCancellableSubscription.name} at ${formatCurrencyShort(biggestCancellableSubscription.amount)}/${cycleUnit(biggestCancellableSubscription.cycle)}. Pausing, downgrading, or cancelling it goes a long way toward closing the gap.`,
       });
     }
     if (avgMonthlyNonSubExpense > 0) {
@@ -117,10 +128,10 @@ export function computeForecast(accounts: Account[], transactions: Transaction[]
         body: `Consider directing some of that ${formatCurrencyShort(monthlyNet)}/month surplus into a savings Goal or an investment account so it keeps compounding instead of sitting idle.`,
       });
     }
-    if (biggestSubscription) {
+    if (biggestCancellableSubscription) {
       steps.push({
         title: "Still worth a periodic review",
-        body: `${biggestSubscription.name} is your biggest recurring cost at ${formatCurrencyShort(biggestSubscription.amount)}/${cycleUnit(biggestSubscription.cycle)} — worth checking every so often that you're still getting value from it.`,
+        body: `${biggestCancellableSubscription.name} is your biggest reviewable recurring cost at ${formatCurrencyShort(biggestCancellableSubscription.amount)}/${cycleUnit(biggestCancellableSubscription.cycle)} — worth checking every so often that you're still getting value from it.`,
       });
     }
   }
@@ -133,7 +144,7 @@ export function computeForecast(accounts: Account[], transactions: Transaction[]
     firstNegative,
     monthlyNet,
     trendingUp,
-    biggestSubscription,
+    biggestCancellableSubscription,
     steps,
   };
 }

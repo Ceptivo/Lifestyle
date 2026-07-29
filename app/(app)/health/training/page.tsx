@@ -4,8 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TrainingWeekPlan } from "@/components/health/TrainingWeekPlan";
 import { ActivityForm } from "@/components/health/ActivityForm";
 import { ActivityLogList } from "@/components/health/ActivityLogList";
-import { RaceForm } from "@/components/health/RaceForm";
-import { RaceList } from "@/components/health/RaceList";
+import { BackLink } from "@/components/ui/BackLink";
 import { todayLocalDate, formatDate } from "@/lib/format";
 import { mondayOf, addDays, formatWeekRangeLabel } from "@/lib/health";
 
@@ -19,7 +18,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
   const nextWeek = addDays(weekStart, 7);
 
   const supabase = createClient();
-  const [{ data: weekRow }, { data: activities }, { data: races }] = await Promise.all([
+  const [{ data: weekRow }, { data: activities }] = await Promise.all([
     supabase.from("health_training_weeks").select("id").eq("week_start_date", weekStart).maybeSingle(),
     supabase
       .from("health_activities")
@@ -27,7 +26,6 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
       .order("performed_on", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(30),
-    supabase.from("health_races").select("*").order("event_date", { ascending: true }),
   ]);
 
   let plans: Record<number, { dayOfWeek: number; title: string; description: string | null; icon: string } | null> = {};
@@ -57,24 +55,11 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
     };
   });
 
-  const raceRows = (races ?? []).map((r) => ({
-    isUpcoming: r.event_date >= today,
-    id: r.id,
-    name: r.name,
-    discipline: r.discipline,
-    division: r.division,
-    ageGroup: r.age_group,
-    location: r.location,
-    icon: r.icon,
-    eventDateFormatted: formatDate(r.event_date),
-    resultTime: r.result_time,
-    resultNotes: r.result_notes,
-  }));
-  const upcomingRaces = raceRows.filter((r) => r.isUpcoming);
-  const completedRaces = raceRows.filter((r) => !r.isUpcoming);
-
   return (
     <div>
+      <BackLink href="/health" label="Back to Health" />
+      <h1 className="mb-6 text-2xl font-bold text-charcoal">Training</h1>
+
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Weekly plan</h2>
       <div className="mb-3 flex items-center justify-between">
         <Link
@@ -101,15 +86,7 @@ export default async function TrainingPage({ searchParams }: { searchParams: Pro
       <div className="mb-4">
         <ActivityForm />
       </div>
-      <div className="mb-6">
-        <ActivityLogList activities={activityRows} />
-      </div>
-
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Races</h2>
-      <div className="mb-4">
-        <RaceForm />
-      </div>
-      <RaceList upcoming={upcomingRaces} completed={completedRaces} />
+      <ActivityLogList activities={activityRows} />
     </div>
   );
 }

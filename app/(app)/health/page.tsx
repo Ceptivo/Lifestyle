@@ -1,17 +1,19 @@
 import Link from "next/link";
-import { Dumbbell, Moon, BookOpen } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { FinanceMenuDrawer } from "@/components/finance/FinanceMenuDrawer";
 import { todayLocalDate, formatDate } from "@/lib/format";
 import { mondayOf, addDays, DAY_LABELS } from "@/lib/health";
 
 export const revalidate = 60;
 
-const QUICK_LINKS = [
-  { href: "/health/training", label: "Training", icon: Dumbbell },
-  { href: "/health/sleep", label: "Sleep", icon: Moon },
-  { href: "/health/journal", label: "Journal", icon: BookOpen },
+const HEALTH_LINKS = [
+  { href: "/health/training", label: "Training", icon: "dumbbell" },
+  { href: "/health/sleep", label: "Sleep", icon: "moon" },
+  { href: "/health/journal", label: "Journal", icon: "pill" },
+  { href: "/health/races", label: "Races", icon: "flag" },
+  { href: "/health/analytics", label: "Analytics", icon: "pie-chart" },
 ];
 
 export default async function HealthOverviewPage() {
@@ -25,7 +27,7 @@ export default async function HealthOverviewPage() {
   const [{ data: weekActivities }, { data: sleepLogs }, { data: nextRace }, { data: currentWeek }, { data: recentActivities }] =
     await Promise.all([
       supabase.from("health_activities").select("duration_minutes").gte("performed_on", weekStart).lte("performed_on", weekEnd),
-      supabase.from("health_sleep_logs").select("duration_hours").gte("sleep_date", sleepWindowStart).lte("sleep_date", today),
+      supabase.from("health_sleep_logs").select("sleep_date, duration_hours").gte("sleep_date", sleepWindowStart).lte("sleep_date", today),
       supabase
         .from("health_races")
         .select("id, name, event_date, location")
@@ -43,8 +45,10 @@ export default async function HealthOverviewPage() {
     ]);
 
   const weekMinutes = (weekActivities ?? []).reduce((sum, a) => sum + (a.duration_minutes ?? 0), 0);
+  const weekHours = weekMinutes / 60;
   const sleepDurations = (sleepLogs ?? []).map((s) => s.duration_hours).filter((v): v is number => v != null);
   const avgSleep = sleepDurations.length ? sleepDurations.reduce((sum, v) => sum + v, 0) / sleepDurations.length : null;
+  const todaySleepLogged = (sleepLogs ?? []).some((s) => s.sleep_date === today);
 
   let daysToRace: number | null = null;
   if (nextRace) {
@@ -62,56 +66,69 @@ export default async function HealthOverviewPage() {
     todayPlan = item ?? null;
   }
 
+  const reminders: { id: string; icon: string; title: string; body: string; href: string; alert: boolean }[] = [];
+  reminders.push({
+    id: "training",
+    icon: todayPlan?.icon ?? "dumbbell",
+    title: `${DAY_LABELS[todayDayOfWeek]}'s training`,
+    body: todayPlan ? todayPlan.title : "Nothing planned — set up this week's plan",
+    href: "/health/training",
+    alert: false,
+  });
+  reminders.push({
+    id: "sleep",
+    icon: "moon",
+    title: todaySleepLogged ? "Sleep logged" : "Log last night's sleep",
+    body: todaySleepLogged ? "Today's entry is in" : "Not logged yet — takes 10 seconds",
+    href: "/health/sleep",
+    alert: !todaySleepLogged,
+  });
+  if (nextRace && daysToRace != null && daysToRace <= 7) {
+    reminders.push({
+      id: "race",
+      icon: "flag",
+      title: `${nextRace.name} in ${daysToRace}d`,
+      body: nextRace.location ?? "Race day is coming up",
+      href: "/health/races",
+      alert: daysToRace <= 2,
+    });
+  }
+
   return (
     <div>
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-charcoal">Health</h1>
+          <p className="mt-1 text-sm text-charcoal-soft">Training, sleep, and how you&rsquo;re feeling.</p>
+        </div>
+        <FinanceMenuDrawer links={HEALTH_LINKS} title="Health" />
+      </div>
+
       <div className="mb-6 grid grid-cols-3 gap-2.5 sm:gap-3">
-        <StatCard label="This week" value={`${Math.round(weekMinutes)} min`} />
+        <StatCard label="Trained (wk)" value={`${weekHours.toFixed(1)}h`} />
         <StatCard label="Avg sleep (7d)" value={avgSleep != null ? `${avgSleep.toFixed(1)}h` : "—"} />
         <StatCard label="Next race" value={daysToRace != null ? `${daysToRace}d` : "—"} />
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
-        {DAY_LABELS[todayDayOfWeek]}&rsquo;s training
-      </h2>
-      <Card className="mb-6">
-        {todayPlan ? (
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-              <Icon name={todayPlan.icon} size={16} />
-            </span>
-            <div className="min-w-0">
-              <p className="font-medium text-charcoal">{todayPlan.title}</p>
-              {todayPlan.description && <p className="text-sm text-charcoal-soft">{todayPlan.description}</p>}
-            </div>
-          </div>
-        ) : (
-          <p className="text-center text-sm text-charcoal-soft">
-            Nothing planned for today.{" "}
-            <Link href="/health/training" className="font-semibold text-pink-dark">
-              Set up this week&rsquo;s plan
-            </Link>
-            .
-          </p>
-        )}
-      </Card>
-
-      {nextRace && (
-        <>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Next race</h2>
-          <Card className="mb-6 flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-              <Icon name="flag" size={16} />
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Today&rsquo;s health reminders</h2>
+      <Card className="mb-6 space-y-1">
+        {reminders.map((r) => (
+          <Link key={r.id} href={r.href} className="flex items-center gap-3 rounded-xl py-1.5 hover:bg-cream">
+            <span
+              className={
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full " +
+                (r.alert ? "bg-danger-soft text-danger" : "bg-pink-soft text-pink-dark")
+              }
+            >
+              <Icon name={r.icon} size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-medium text-charcoal">{nextRace.name}</p>
-              <p className="text-sm text-charcoal-soft">
-                {formatDate(nextRace.event_date)}
-                {nextRace.location && ` · ${nextRace.location}`}
-              </p>
+              <p className="truncate font-medium text-charcoal">{r.title}</p>
+              <p className="truncate text-sm text-charcoal-soft">{r.body}</p>
             </div>
-          </Card>
-        </>
-      )}
+          </Link>
+        ))}
+      </Card>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Recent activities</h2>
       <Card className="mb-6 space-y-1">
@@ -134,20 +151,6 @@ export default async function HealthOverviewPage() {
           </div>
         ))}
       </Card>
-
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {QUICK_LINKS.map(({ href, label, icon: LinkIcon }) => (
-          <Link key={href} href={href}>
-            <Card className="flex items-center gap-3 px-4 py-3.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                <LinkIcon size={16} />
-              </span>
-              <p className="font-medium text-charcoal">{label}</p>
-            </Card>
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

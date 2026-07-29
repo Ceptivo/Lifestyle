@@ -35,7 +35,10 @@ export default async function ProfilePage() {
     supabase.from("finance_accounts").select("id, name, starting_balance"),
     supabase.from("finance_transactions").select("type, amount, category_id, account_id, occurred_on, subscription_id"),
     supabase.from("finance_categories").select("id, name"),
-    supabase.from("finance_subscriptions").select("id, name, amount, cycle, next_due_date").eq("status", "active"),
+    supabase
+      .from("finance_subscriptions")
+      .select("id, name, amount, cycle, next_due_date, is_mandatory")
+      .eq("status", "active"),
     supabase.from("finance_goals").select("name, current_amount, target_amount, target_date"),
     supabase.from("finance_budgets").select("category_id, monthly_limit"),
   ]);
@@ -139,8 +142,8 @@ export default async function ProfilePage() {
     forecast: {
       firstNegativeLabel: forecast.firstNegative?.label ?? null,
       monthlyNet: forecast.monthlyNet,
-      biggestSubscription: forecast.biggestSubscription
-        ? { name: forecast.biggestSubscription.name, amount: forecast.biggestSubscription.amount }
+      biggestSubscription: forecast.biggestCancellableSubscription
+        ? { name: forecast.biggestCancellableSubscription.name, amount: forecast.biggestCancellableSubscription.amount }
         : null,
     },
   });
