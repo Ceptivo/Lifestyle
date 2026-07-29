@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_ICON } from "@/lib/icons";
+import type { GoalStatus } from "@/lib/types";
+
+const GOAL_STATUSES: GoalStatus[] = ["planned", "in_progress", "done"];
 
 function numberOrNull(value: FormDataEntryValue | null): number | null {
   if (value === null || value === "") return null;
@@ -227,6 +230,49 @@ export async function addJournalEntry(formData: FormData) {
 export async function deleteJournalEntry(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("health_journal_entries").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health", "layout");
+}
+
+// --- Goals -------------------------------------------------------------------
+
+export async function addHealthGoal(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const targetDate = String(formData.get("targetDate") ?? "");
+  const icon = String(formData.get("icon") ?? "target");
+
+  if (!name) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("health_goals").insert({
+    name,
+    description: description || null,
+    target_date: targetDate || null,
+    icon,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health", "layout");
+}
+
+export async function updateHealthGoalStatus(id: string, status: string) {
+  if (!(GOAL_STATUSES as string[]).includes(status)) return;
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("health_goals")
+    .update({ status: status as GoalStatus })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health", "layout");
+}
+
+export async function deleteHealthGoal(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("health_goals").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/health", "layout");

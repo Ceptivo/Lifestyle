@@ -13,6 +13,7 @@ const HEALTH_LINKS = [
   { href: "/health/sleep", label: "Sleep", icon: "moon" },
   { href: "/health/journal", label: "Journal", icon: "pill" },
   { href: "/health/races", label: "Races", icon: "flag" },
+  { href: "/health/goals", label: "Goals", icon: "target" },
   { href: "/health/analytics", label: "Analytics", icon: "pie-chart" },
 ];
 

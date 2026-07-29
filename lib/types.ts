@@ -914,6 +914,34 @@ export interface Database {
         Update: { content?: string };
         Relationships: [];
       };
+      health_goals: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          target_date: string | null;
+          status: GoalStatus;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          target_date?: string | null;
+          status?: GoalStatus;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          target_date?: string | null;
+          status?: GoalStatus;
+          icon?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
