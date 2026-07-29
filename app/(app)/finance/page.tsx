@@ -4,19 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard, Card } from "@/components/ui/Card";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { AccountsSummary } from "@/components/finance/AccountsSummary";
-import { BalanceTrendChart } from "@/components/charts/BalanceTrendChart";
-import { CategoryStackedBar } from "@/components/charts/CategoryStackedBar";
-import { MiniColumnChart } from "@/components/charts/MiniColumnChart";
 import { RingProgress } from "@/components/charts/RingProgress";
-import { CATEGORICAL, OTHER_SLOT } from "@/lib/chart-colors";
-import { formatCurrency, formatCurrencyCompact, formatDate, todayLocalDate } from "@/lib/format";
-import {
-  currentFinancialMonthKey,
-  financialMonthKey,
-  financialMonthLabel,
-  financialMonthRange,
-  shiftFinancialMonthKey,
-} from "@/lib/financial-month";
+import { formatCurrencyCompact } from "@/lib/format";
+import { currentFinancialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
 
 export const revalidate = 60;
 
@@ -32,38 +22,23 @@ const QUICK_LINKS = [
   { href: "/finance/profile", label: "Profile", icon: UserCog },
 ];
 
-const GRID_LINE_STEPS = 4;
-const TREND_WINDOW_DAYS = 30;
-const MONTHLY_CHART_COUNT = 6;
-
-function isoDate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 function pctDelta(current: number, previous: number): number {
   return previous !== 0 ? ((current - previous) / Math.abs(previous)) * 100 : NaN;
 }
 
 export default async function FinanceDashboardPage() {
   const supabase = createClient();
-  const [{ data: accounts }, { data: transactions }, { data: categories }] = await Promise.all([
+  const [{ data: accounts }, { data: transactions }] = await Promise.all([
     supabase.from("finance_accounts").select("id, name, icon, starting_balance").order("created_at"),
     supabase.from("finance_transactions").select("type, amount, occurred_on, account_id, category_id"),
-    supabase.from("finance_categories").select("id, name, icon"),
   ]);
 
-  const today = new Date(todayLocalDate() + "T00:00:00");
   const monthKey = currentFinancialMonthKey();
   const { start: monthStart, end: monthEnd } = financialMonthRange(monthKey);
   const lastMonthKey = shiftFinancialMonthKey(monthKey, -1);
   const { start: lastMonthStart, end: lastMonthEnd } = financialMonthRange(lastMonthKey);
 
-  const windowStartDate = new Date(today);
-  windowStartDate.setDate(windowStartDate.getDate() - (TREND_WINDOW_DAYS - 1));
-  const windowStart = isoDate(windowStartDate);
-
   const startingBalanceTotal = (accounts ?? []).reduce((sum, a) => sum + a.starting_balance, 0);
-  const categoriesById = Object.fromEntries((categories ?? []).map((c) => [c.id, { name: c.name, icon: c.icon }]));
 
   const accountBalances = new Map((accounts ?? []).map((a) => [a.id, a.starting_balance]));
   let monthIncome = 0;
@@ -71,39 +46,19 @@ export default async function FinanceDashboardPage() {
   let lastMonthIncome = 0;
   let lastMonthExpense = 0;
   let balanceAtMonthStart = startingBalanceTotal;
-  let balanceBeforeWindow = startingBalanceTotal;
-  const dayNet = new Map<string, number>();
-  const categoryTotals: Record<string, number> = {};
-
-  const monthKeys = Array.from({ length: MONTHLY_CHART_COUNT }, (_, i) => {
-    const key = shiftFinancialMonthKey(monthKey, -(MONTHLY_CHART_COUNT - 1 - i));
-    return { key, label: financialMonthLabel(key) };
-  });
-  const monthlyTotals = new Map(monthKeys.map((m) => [m.key, { income: 0, expense: 0 }]));
 
   for (const tx of transactions ?? []) {
     const delta = tx.type === "income" ? tx.amount : -tx.amount;
     accountBalances.set(tx.account_id, (accountBalances.get(tx.account_id) ?? 0) + delta);
 
     if (tx.occurred_on < monthStart) balanceAtMonthStart += delta;
-    if (tx.occurred_on < windowStart) balanceBeforeWindow += delta;
-    else dayNet.set(tx.occurred_on, (dayNet.get(tx.occurred_on) ?? 0) + delta);
 
     if (tx.occurred_on >= monthStart && tx.occurred_on <= monthEnd) {
       if (tx.type === "income") monthIncome += tx.amount;
-      else {
-        monthExpense += tx.amount;
-        categoryTotals[tx.category_id] = (categoryTotals[tx.category_id] ?? 0) + tx.amount;
-      }
+      else monthExpense += tx.amount;
     } else if (tx.occurred_on >= lastMonthStart && tx.occurred_on <= lastMonthEnd) {
       if (tx.type === "income") lastMonthIncome += tx.amount;
       else lastMonthExpense += tx.amount;
-    }
-
-    const bucket = monthlyTotals.get(financialMonthKey(tx.occurred_on));
-    if (bucket) {
-      if (tx.type === "income") bucket.income += tx.amount;
-      else bucket.expense += tx.amount;
     }
   }
 
@@ -114,54 +69,6 @@ export default async function FinanceDashboardPage() {
     icon: a.icon,
     balance: accountBalances.get(a.id) ?? a.starting_balance,
   }));
-
-  const trendPoints: { date: string; balance: number; dateFormatted: string; balanceFormatted: string }[] = [];
-  let running = balanceBeforeWindow;
-  for (let i = 0; i < TREND_WINDOW_DAYS; i++) {
-    const d = new Date(windowStartDate);
-    d.setDate(d.getDate() + i);
-    const dateStr = isoDate(d);
-    running += dayNet.get(dateStr) ?? 0;
-    trendPoints.push({ date: dateStr, balance: running, dateFormatted: formatDate(dateStr), balanceFormatted: formatCurrency(running) });
-  }
-  const trendMax = Math.max(...trendPoints.map((p) => p.balance), 0.01);
-  const trendMin = Math.min(0, ...trendPoints.map((p) => p.balance));
-  const balanceGridLines = Array.from({ length: GRID_LINE_STEPS + 1 }, (_, i) => {
-    const value = trendMax - (i / GRID_LINE_STEPS) * (trendMax - trendMin);
-    return { value, label: formatCurrencyCompact(value) };
-  });
-
-  const columnMax = Math.max(1, ...monthKeys.flatMap((m) => [monthlyTotals.get(m.key)?.income ?? 0, monthlyTotals.get(m.key)?.expense ?? 0]));
-  const columnGridLines = [
-    { value: columnMax, label: formatCurrency(columnMax) },
-    { value: columnMax / 2, label: formatCurrency(columnMax / 2) },
-    { value: 0, label: formatCurrency(0) },
-  ];
-
-  const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
-  const topCategories = sortedCategories.slice(0, CATEGORICAL.length - 1);
-  const otherEntries = sortedCategories.slice(CATEGORICAL.length - 1);
-  const otherTotal = otherEntries.reduce((sum, [, amt]) => sum + amt, 0);
-  const categorySegments = topCategories.map(([id, amt], i) => ({
-    categoryId: id,
-    categoryIds: [id],
-    name: categoriesById[id]?.name ?? "Uncategorized",
-    icon: categoriesById[id]?.icon ?? "more-horizontal",
-    amount: amt,
-    amountFormatted: formatCurrency(amt),
-    color: CATEGORICAL[i],
-  }));
-  if (otherTotal > 0) {
-    categorySegments.push({
-      categoryId: "other",
-      categoryIds: otherEntries.map(([id]) => id),
-      name: "Other",
-      icon: "more-horizontal",
-      amount: otherTotal,
-      amountFormatted: formatCurrency(otherTotal),
-      color: OTHER_SLOT,
-    });
-  }
 
   const monthSaved = monthIncome - monthExpense;
   const savingsRate = monthIncome > 0 ? (monthSaved / monthIncome) * 100 : 0;
@@ -208,38 +115,6 @@ export default async function FinanceDashboardPage() {
       <div className="mb-6">
         <AccountsSummary accounts={accountsWithBalance} />
       </div>
-
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
-        Balance — last 30 days
-      </h2>
-      <Card className="mb-6 px-2 py-4 sm:px-3">
-        <BalanceTrendChart points={trendPoints} gridLines={balanceGridLines} />
-      </Card>
-
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
-        Spending by category — this month
-      </h2>
-      <Card className="mb-6">
-        <CategoryStackedBar segments={categorySegments} total={monthExpense} />
-      </Card>
-
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Income vs. expenses</h2>
-      <Card className="mb-6">
-        <MiniColumnChart
-          gridLines={columnGridLines}
-          months={monthKeys.map((m) => {
-            const income = monthlyTotals.get(m.key)?.income ?? 0;
-            const expense = monthlyTotals.get(m.key)?.expense ?? 0;
-            return {
-              label: m.label,
-              income,
-              expense,
-              incomeFormatted: formatCurrency(income),
-              expenseFormatted: formatCurrency(expense),
-            };
-          })}
-        />
-      </Card>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Go to</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

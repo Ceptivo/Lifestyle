@@ -15,12 +15,23 @@ type Segment = {
   color: string;
 };
 
-export function CategoryStackedBar({ segments, total }: { segments: Segment[]; total: number }) {
+export function CategoryStackedBar({
+  segments,
+  total,
+  backTo,
+}: {
+  segments: Segment[];
+  total: number;
+  backTo?: string;
+}) {
   const [hovered, setHovered] = useState<string | null>(null);
 
   if (!segments.length || total <= 0) {
     return <p className="text-center text-sm text-charcoal-soft">No expenses logged this month yet.</p>;
   }
+
+  const hrefFor = (categoryIds: string[]) =>
+    `/finance/transactions?category=${categoryIds.join(",")}${backTo ? `&from=${backTo}` : ""}`;
 
   return (
     <div>
@@ -31,7 +42,7 @@ export function CategoryStackedBar({ segments, total }: { segments: Segment[]; t
           return (
             <Link
               key={s.categoryId}
-              href={`/finance/transactions?category=${s.categoryIds.join(",")}`}
+              href={hrefFor(s.categoryIds)}
               className={cn(
                 "block h-full transition-opacity",
                 i > 0 && "border-l-2 border-paper",
@@ -53,7 +64,7 @@ export function CategoryStackedBar({ segments, total }: { segments: Segment[]; t
           return (
             <li key={s.categoryId}>
               <Link
-                href={`/finance/transactions?category=${s.categoryIds.join(",")}`}
+                href={hrefFor(s.categoryIds)}
                 className={cn(
                   "flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors",
                   isHovered && "bg-cream"
