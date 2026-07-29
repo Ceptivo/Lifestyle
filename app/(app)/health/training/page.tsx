@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { TrainingWeekPlan } from "@/components/health/TrainingWeekPlan";
+import { TrainingWeekPlan, type PlanItem } from "@/components/health/TrainingWeekPlan";
 import { WeekTrainingSummary } from "@/components/health/WeekTrainingSummary";
+import { TrainingSummaryPanel } from "@/components/health/TrainingSummaryPanel";
 import { ActivityForm } from "@/components/health/ActivityForm";
 import { ActivityLogList } from "@/components/health/ActivityLogList";
 import { BackLink } from "@/components/ui/BackLink";
@@ -13,28 +14,40 @@ export default async function TrainingPage() {
   const today = todayLocalDate();
   const weekStart = mondayOf(today);
   const weekEnd = addDays(weekStart, 6);
+  const monthStart = `${today.slice(0, 7)}-01`;
 
   const supabase = createClient();
-  const [{ data: planRows }, { data: weekActivities }, { data: activities }] = await Promise.all([
-    supabase.from("health_training_plan").select("day_of_week, title, description, icon"),
-    supabase.from("health_activities").select("performed_on").gte("performed_on", weekStart).lte("performed_on", weekEnd),
+  const [{ data: planRows }, { data: activities }] = await Promise.all([
+    supabase.from("health_training_plan").select("id, day_of_week, title, description, icon"),
     supabase
       .from("health_activities")
       .select("id, title, activity_type, performed_on, duration_minutes, distance_km, calories, source, icon")
       .order("performed_on", { ascending: false })
       .order("created_at", { ascending: false })
-      .limit(30),
+      .limit(2000),
   ]);
 
-  const plans: Record<number, { dayOfWeek: number; title: string; description: string | null; icon: string } | null> =
-    Object.fromEntries(
-      (planRows ?? []).map((p) => [p.day_of_week, { dayOfWeek: p.day_of_week, title: p.title, description: p.description, icon: p.icon }])
-    );
+  const planItems: PlanItem[] = (planRows ?? []).map((p) => ({
+    id: p.id,
+    dayOfWeek: p.day_of_week,
+    title: p.title,
+    description: p.description,
+    icon: p.icon,
+  }));
 
-  const sessionCount = (weekActivities ?? []).length;
-  const trainedDays = new Set((weekActivities ?? []).map((a) => (new Date(a.performed_on + "T00:00:00").getDay() + 6) % 7));
+  const allActivities = activities ?? [];
+  const weekActivities = allActivities.filter((a) => a.performed_on >= weekStart && a.performed_on <= weekEnd);
+  const sessionCount = weekActivities.length;
+  const trainedDays = new Set(weekActivities.map((a) => (new Date(a.performed_on + "T00:00:00").getDay() + 6) % 7));
 
-  const activityRows = (activities ?? []).map((a) => {
+  const panelActivities = allActivities.map((a) => ({
+    activityType: a.activity_type,
+    performedOn: a.performed_on,
+    durationMinutes: a.duration_minutes,
+    distanceKm: a.distance_km,
+  }));
+
+  const activityRows = allActivities.slice(0, 30).map((a) => {
     const metaParts = [a.activity_type];
     if (a.duration_minutes) metaParts.push(`${a.duration_minutes}min`);
     if (a.distance_km) metaParts.push(`${a.distance_km}km`);
@@ -53,11 +66,14 @@ export default async function TrainingPage() {
   return (
     <div>
       <BackLink href="/health" label="Back to Health" />
-      <h1 className="mb-6 text-2xl font-bold text-charcoal">Training</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-charcoal">Training</h1>
+        <TrainingSummaryPanel activities={panelActivities} today={today} weekStart={weekStart} monthStart={monthStart} />
+      </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Weekly plan</h2>
       <div className="mb-6">
-        <TrainingWeekPlan plans={plans} />
+        <TrainingWeekPlan items={planItems} />
       </div>
 
       <div className="mb-6">

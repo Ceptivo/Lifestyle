@@ -15,32 +15,51 @@ function numberOrNull(value: FormDataEntryValue | null): number | null {
 
 // --- Training plan template --------------------------------------------
 //
-// A single reusable weekly template (one row per day_of_week 0-6) rather
-// than a distinct plan per calendar week — editing a day updates the
-// template for every week going forward.
+// A single reusable weekly template (day_of_week 0-6) rather than a
+// distinct plan per calendar week — editing it updates the template for
+// every week going forward. Any number of sessions can share a day.
 
-export async function saveTrainingPlanDay(formData: FormData) {
+export async function addTrainingPlanItem(formData: FormData) {
   const dayOfWeek = Number(formData.get("dayOfWeek"));
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const icon = String(formData.get("icon") ?? DEFAULT_ICON);
 
-  if (Number.isNaN(dayOfWeek)) return;
+  if (Number.isNaN(dayOfWeek) || !title) return;
 
   const supabase = createClient();
+  const { error } = await supabase.from("health_training_plan").insert({
+    day_of_week: dayOfWeek,
+    title,
+    description: description || null,
+    icon,
+  });
+  if (error) throw new Error(error.message);
 
-  if (!title) {
-    const { error } = await supabase.from("health_training_plan").delete().eq("day_of_week", dayOfWeek);
-    if (error) throw new Error(error.message);
-  } else {
-    const { error } = await supabase
-      .from("health_training_plan")
-      .upsert(
-        { day_of_week: dayOfWeek, title, description: description || null, icon, updated_at: new Date().toISOString() },
-        { onConflict: "day_of_week" }
-      );
-    if (error) throw new Error(error.message);
-  }
+  revalidatePath("/health", "layout");
+}
+
+export async function updateTrainingPlanItem(id: string, formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const icon = String(formData.get("icon") ?? DEFAULT_ICON);
+
+  if (!title) return;
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("health_training_plan")
+    .update({ title, description: description || null, icon, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health", "layout");
+}
+
+export async function deleteTrainingPlanItem(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("health_training_plan").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 
   revalidatePath("/health", "layout");
 }

@@ -220,6 +220,7 @@ export interface Database {
       };
       health_training_plan: {
         Row: {
+          id: string;
           day_of_week: number;
           title: string;
           description: string | null;
@@ -227,6 +228,7 @@ export interface Database {
           updated_at: string;
         };
         Insert: {
+          id?: string;
           day_of_week: number;
           title: string;
           description?: string | null;

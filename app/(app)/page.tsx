@@ -61,12 +61,11 @@ export default async function HomePage() {
   ]);
 
   const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
-  const { data: todayPlanRow } = await supabase
+  const { data: todayPlanRows } = await supabase
     .from("health_training_plan")
     .select("title")
-    .eq("day_of_week", todayDayOfWeek)
-    .maybeSingle();
-  const todayPlanTitle = todayPlanRow?.title ?? null;
+    .eq("day_of_week", todayDayOfWeek);
+  const todayPlanTitle = todayPlanRows?.length ? todayPlanRows.map((p) => p.title).join(" · ") : null;
 
   // --- Finance: balance, this-month figures, trailing averages ------------
   const monthPrefix = financialMonthKey(today);

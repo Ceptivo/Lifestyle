@@ -25,7 +25,7 @@ export default async function HealthOverviewPage() {
   const sleepWindowStart = addDays(today, -6);
   const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
 
-  const [{ data: weekActivities }, { data: sleepLogs }, { data: nextRace }, { data: planRow }, { data: recentActivities }] =
+  const [{ data: weekActivities }, { data: sleepLogs }, { data: nextRace }, { data: planRows }, { data: recentActivities }] =
     await Promise.all([
       supabase.from("health_activities").select("duration_minutes").gte("performed_on", weekStart).lte("performed_on", weekEnd),
       supabase.from("health_sleep_logs").select("sleep_date, duration_hours").gte("sleep_date", sleepWindowStart).lte("sleep_date", today),
@@ -36,7 +36,7 @@ export default async function HealthOverviewPage() {
         .order("event_date", { ascending: true })
         .limit(1)
         .maybeSingle(),
-      supabase.from("health_training_plan").select("title, description, icon").eq("day_of_week", todayDayOfWeek).maybeSingle(),
+      supabase.from("health_training_plan").select("title, description, icon").eq("day_of_week", todayDayOfWeek),
       supabase
         .from("health_activities")
         .select("id, title, activity_type, performed_on, duration_minutes, distance_km, icon")
@@ -56,14 +56,14 @@ export default async function HealthOverviewPage() {
     daysToRace = Math.round((new Date(nextRace.event_date + "T00:00:00").getTime() - new Date(today + "T00:00:00").getTime()) / 86400000);
   }
 
-  const todayPlan = planRow ?? null;
+  const todayPlans = planRows ?? [];
 
   const reminders: { id: string; icon: string; title: string; body: string; href: string; alert: boolean }[] = [];
   reminders.push({
     id: "training",
-    icon: todayPlan?.icon ?? "dumbbell",
+    icon: todayPlans[0]?.icon ?? "dumbbell",
     title: `${DAY_LABELS[todayDayOfWeek]}'s training`,
-    body: todayPlan ? todayPlan.title : "Nothing planned — set up this week's plan",
+    body: todayPlans.length ? todayPlans.map((p) => p.title).join(" · ") : "Nothing planned — set up this week's plan",
     href: "/health/training",
     alert: false,
   });
