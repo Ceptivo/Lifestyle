@@ -126,8 +126,6 @@ export async function deleteWorkGoal(id: string) {
 // --- Email updates ---------------------------------------------------------
 
 export async function createEmailUpdate(formData: FormData) {
-  const subject = String(formData.get("subject") ?? "").trim();
-  const sourceName = String(formData.get("sourceName") ?? "").trim();
   const receivedDate = String(formData.get("receivedDate") ?? "").trim();
   const rawText = String(formData.get("rawText") ?? "");
   const itemsJson = String(formData.get("itemsJson") ?? "[]");
@@ -153,8 +151,8 @@ export async function createEmailUpdate(formData: FormData) {
   const { data: update, error } = await supabase
     .from("work_email_updates")
     .insert({
-      subject: subject || null,
-      source_name: sourceName || null,
+      subject: "New updates",
+      source_name: "Scott Allnatt",
       received_date: receivedDate || null,
       raw_text: rawText,
     })

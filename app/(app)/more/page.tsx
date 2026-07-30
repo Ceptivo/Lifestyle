@@ -4,7 +4,7 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { Card } from "@/components/ui/Card";
 
 const SECTIONS = [
-  { href: "/work", label: "Work", subtitle: "Task tracker, notes", icon: Briefcase },
+  { href: "/work", label: "Work", subtitle: "Update checklists, goals", icon: Briefcase },
   { href: "/university", label: "University", subtitle: "Study material, exams, report card", icon: GraduationCap },
   { href: "/learning", label: "Learning & Growth", subtitle: "Reading list, skill practice", icon: BookOpen },
   { href: "/social", label: "Social & Relationships", subtitle: "People, shared goals, occasions", icon: Users },

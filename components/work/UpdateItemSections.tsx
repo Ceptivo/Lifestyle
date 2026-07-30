@@ -13,15 +13,15 @@ export type UpdateItem = {
   contextPath: string | null;
   questionNote: string | null;
   loggedAtFormatted: string | null;
-  subject: string | null;
-  sourceName: string | null;
+  receivedDateFormatted: string | null;
 };
 
 function ItemMeta({ item }: { item: UpdateItem }) {
-  const meta = [item.subject, item.sourceName].filter(Boolean).join(" · ");
   return (
     <>
-      {meta && <p className="text-[10px] font-semibold uppercase tracking-wide text-charcoal-soft/70">{meta}</p>}
+      {item.receivedDateFormatted && (
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-charcoal-soft/70">{item.receivedDateFormatted}</p>
+      )}
       {item.contextPath && <p className="text-xs text-charcoal-soft">{item.contextPath}</p>}
     </>
   );

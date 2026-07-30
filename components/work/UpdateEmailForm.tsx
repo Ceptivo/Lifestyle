@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { Plus, X, ChevronLeft, ChevronRight, Mail } from "lucide-react";
 import { createEmailUpdate } from "@/app/actions/work";
 import { Button } from "@/components/ui/Button";
@@ -33,20 +33,27 @@ function parseRawText(raw: string): Row[] {
 }
 
 // Non-header rows become checklist items; header rows just contribute a breadcrumb for their children.
-function buildItems(rows: Row[]): { text: string; contextPath: string | null }[] {
+// Walked live (on every row change) so the review list can show each item's current group as you indent it.
+function computeGroupPaths(rows: Row[]): Map<string, string | null> {
   const stack: string[] = [];
-  const items: { text: string; contextPath: string | null }[] = [];
+  const paths = new Map<string, string | null>();
   for (const row of rows) {
-    if (!row.text.trim()) continue;
     if (row.isHeader) {
       stack[row.depth] = row.text.trim();
       stack.length = row.depth + 1;
     } else {
       const contextPath = stack.slice(0, row.depth).filter(Boolean).join(" › ");
-      items.push({ text: row.text.trim(), contextPath: contextPath || null });
+      paths.set(row.id, contextPath || null);
     }
   }
-  return items;
+  return paths;
+}
+
+function buildItems(rows: Row[]): { text: string; contextPath: string | null }[] {
+  const groupPaths = computeGroupPaths(rows);
+  return rows
+    .filter((r) => !r.isHeader && r.text.trim())
+    .map((r) => ({ text: r.text.trim(), contextPath: groupPaths.get(r.id) ?? null }));
 }
 
 let rowCounter = 0;
@@ -58,12 +65,12 @@ function newRowId() {
 export function UpdateEmailForm() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"paste" | "review">("paste");
-  const [subject, setSubject] = useState("");
-  const [sourceName, setSourceName] = useState("");
   const [receivedDate, setReceivedDate] = useState(todayLocalDate());
   const [rawText, setRawText] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [isPending, startTransition] = useTransition();
+
+  const groupPaths = useMemo(() => computeGroupPaths(rows), [rows]);
 
   function updateRow(id: string, patch: Partial<Row>) {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -80,8 +87,6 @@ export function UpdateEmailForm() {
 
   function reset() {
     setStep("paste");
-    setSubject("");
-    setSourceName("");
     setReceivedDate(todayLocalDate());
     setRawText("");
     setRows([]);
@@ -93,8 +98,6 @@ export function UpdateEmailForm() {
     if (items.length === 0) return;
 
     const fd = new FormData();
-    fd.set("subject", subject);
-    fd.set("sourceName", sourceName);
     fd.set("receivedDate", receivedDate);
     fd.set("rawText", rawText);
     fd.set("itemsJson", JSON.stringify(items));
@@ -124,10 +127,6 @@ export function UpdateEmailForm() {
 
       {step === "paste" ? (
         <>
-          <div className="grid grid-cols-2 gap-2">
-            <Input placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
-            <Input placeholder="From (e.g. Scott Allnatt)" value={sourceName} onChange={(e) => setSourceName(e.target.value)} />
-          </div>
           <Input type="date" value={receivedDate} onChange={(e) => setReceivedDate(e.target.value)} />
           <Textarea rows={10} placeholder="Paste the email text here…" value={rawText} onChange={(e) => setRawText(e.target.value)} />
           <Button
@@ -148,6 +147,7 @@ export function UpdateEmailForm() {
             Fix anything that parsed wrong: use the arrows to change indent level, tap the{" "}
             <strong className="text-charcoal">I</strong>/<strong className="text-charcoal">H</strong> badge to mark a
             grouping line as a heading (no checkbox) instead of an item, or delete stray lines (like the sign-off).
+            Indent an item under a heading and it&apos;s grouped under it — shown below the line.
           </p>
           {rows.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border py-6 text-center text-xs text-charcoal-soft">
@@ -156,50 +156,55 @@ export function UpdateEmailForm() {
           ) : (
             <div className="max-h-[50vh] space-y-1.5 overflow-y-auto pr-0.5">
               {rows.map((row) => (
-                <div key={row.id} className="flex items-center gap-1" style={{ marginLeft: row.depth * 14 }}>
-                  <button
-                    type="button"
-                    onClick={() => updateRow(row.id, { depth: Math.max(0, row.depth - 1) })}
-                    disabled={row.depth === 0}
-                    aria-label="Outdent"
-                    className="shrink-0 rounded-full p-1 text-charcoal-soft hover:bg-cream hover:text-charcoal disabled:opacity-30"
-                  >
-                    <ChevronLeft size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateRow(row.id, { depth: Math.min(MAX_DEPTH, row.depth + 1) })}
-                    disabled={row.depth === MAX_DEPTH}
-                    aria-label="Indent"
-                    className="shrink-0 rounded-full p-1 text-charcoal-soft hover:bg-cream hover:text-charcoal disabled:opacity-30"
-                  >
-                    <ChevronRight size={14} />
-                  </button>
-                  <input
-                    value={row.text}
-                    onChange={(e) => updateRow(row.id, { text: e.target.value })}
-                    className="min-w-0 flex-1 rounded-lg border border-border bg-cream px-2 py-1.5 text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-pink"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => updateRow(row.id, { isHeader: !row.isHeader })}
-                    aria-label={row.isHeader ? "Marked as heading — tap to make it a checklist item" : "Marked as checklist item — tap to make it a heading"}
-                    title={row.isHeader ? "Heading (not checkable)" : "Checklist item"}
-                    className={cn(
-                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                      row.isHeader ? "bg-cream text-charcoal-soft" : "bg-pink-soft text-pink-dark"
-                    )}
-                  >
-                    {row.isHeader ? "H" : "I"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeRow(row.id)}
-                    aria-label="Remove line"
-                    className="shrink-0 rounded-full p-1 text-charcoal-soft hover:bg-cream hover:text-danger"
-                  >
-                    <X size={14} />
-                  </button>
+                <div key={row.id} style={{ marginLeft: row.depth * 14 }}>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => updateRow(row.id, { depth: Math.max(0, row.depth - 1) })}
+                      disabled={row.depth === 0}
+                      aria-label="Outdent"
+                      className="shrink-0 rounded-full p-1 text-charcoal-soft hover:bg-cream hover:text-charcoal disabled:opacity-30"
+                    >
+                      <ChevronLeft size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateRow(row.id, { depth: Math.min(MAX_DEPTH, row.depth + 1) })}
+                      disabled={row.depth === MAX_DEPTH}
+                      aria-label="Indent"
+                      className="shrink-0 rounded-full p-1 text-charcoal-soft hover:bg-cream hover:text-charcoal disabled:opacity-30"
+                    >
+                      <ChevronRight size={14} />
+                    </button>
+                    <input
+                      value={row.text}
+                      onChange={(e) => updateRow(row.id, { text: e.target.value })}
+                      className="min-w-0 flex-1 rounded-lg border border-border bg-cream px-2 py-1.5 text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-pink"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => updateRow(row.id, { isHeader: !row.isHeader })}
+                      aria-label={row.isHeader ? "Marked as heading — tap to make it a checklist item" : "Marked as checklist item — tap to make it a heading"}
+                      title={row.isHeader ? "Heading (not checkable)" : "Checklist item"}
+                      className={cn(
+                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                        row.isHeader ? "bg-cream text-charcoal-soft" : "bg-pink-soft text-pink-dark"
+                      )}
+                    >
+                      {row.isHeader ? "H" : "I"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeRow(row.id)}
+                      aria-label="Remove line"
+                      className="shrink-0 rounded-full p-1 text-charcoal-soft hover:bg-cream hover:text-danger"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {!row.isHeader && groupPaths.get(row.id) && (
+                    <p className="ml-11 mt-0.5 truncate text-[10px] text-charcoal-soft/70">Grouped under: {groupPaths.get(row.id)}</p>
+                  )}
                 </div>
               ))}
             </div>

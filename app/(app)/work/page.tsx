@@ -1,39 +1,66 @@
 import { createClient } from "@/lib/supabase/server";
-import { TaskForm } from "@/components/work/TaskForm";
-import { TaskList, type Task } from "@/components/work/TaskList";
-import { formatDate, todayLocalDate } from "@/lib/format";
+import { UpdateEmailForm } from "@/components/work/UpdateEmailForm";
+import { OpenItemsList, UncertainItemsList, ConfirmItemsList, type UpdateItem } from "@/components/work/UpdateItemSections";
+import { formatDate } from "@/lib/format";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
-export default async function WorkTasksPage() {
+export default async function WorkUpdatesPage() {
   const supabase = createClient();
-  const today = todayLocalDate();
-  const { data: tasks } = await supabase.from("work_tasks").select("*").order("created_at", { ascending: false });
+  const [{ data: updates }, { data: items }] = await Promise.all([
+    supabase.from("work_email_updates").select("id, received_date"),
+    supabase
+      .from("work_update_items")
+      .select("*")
+      .in("status", ["pending", "uncertain", "confirm_pending"])
+      .order("sort_order", { ascending: true }),
+  ]);
 
-  const sorted = [...(tasks ?? [])].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
-    if (a.due_date && b.due_date) return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
-    if (a.due_date) return -1;
-    if (b.due_date) return 1;
-    return 0;
+  const updateById = new Map((updates ?? []).map((u) => [u.id, u]));
+
+  const withStatus = (items ?? []).map((i) => {
+    const update = updateById.get(i.update_id);
+    const mapped: UpdateItem = {
+      id: i.id,
+      text: i.text,
+      contextPath: i.context_path,
+      questionNote: i.question_note,
+      loggedAtFormatted: null,
+      receivedDateFormatted: update?.received_date ? formatDate(update.received_date) : null,
+    };
+    return { status: i.status, mapped };
   });
 
-  const rows: Task[] = sorted.map((t) => ({
-    id: t.id,
-    title: t.title,
-    notes: t.notes,
-    done: t.done,
-    priority: t.priority,
-    dueDateFormatted: t.due_date ? formatDate(t.due_date) : null,
-    overdue: t.due_date ? t.due_date < today : false,
-  }));
+  const byStatus = (status: string) => withStatus.filter((r) => r.status === status).map((r) => r.mapped);
+  const pending = byStatus("pending");
+  const uncertain = byStatus("uncertain");
+  const confirmPending = byStatus("confirm_pending");
+  const totalOpen = pending.length + uncertain.length + confirmPending.length;
 
   return (
-    <div>
-      <div className="mb-6">
-        <TaskForm />
+    <div className="space-y-6">
+      <UpdateEmailForm />
+
+      {totalOpen > 0 && (
+        <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
+          {totalOpen} item{totalOpen === 1 ? "" : "s"} need attention
+        </p>
+      )}
+
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-charcoal">Open items ({pending.length})</h2>
+        <OpenItemsList items={pending} />
       </div>
-      <TaskList tasks={rows} />
+
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-charcoal">Flagged — ask Scott ({uncertain.length})</h2>
+        <UncertainItemsList items={uncertain} />
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-charcoal">Confirm updates ({confirmPending.length})</h2>
+        <ConfirmItemsList items={confirmPending} />
+      </div>
     </div>
   );
 }

@@ -128,7 +128,7 @@ export default async function GoalsPage() {
       </div>
 
       <StatusGoalSection title="Health" href="/health/goals" goals={toStatusRows(healthGoals)} />
-      <StatusGoalSection title="Work" href="/work/goals" goals={toStatusRows(workGoals)} />
+      <StatusGoalSection title="Work" href="/work" goals={toStatusRows(workGoals)} />
       <StatusGoalSection title="University" href="/university/goals" goals={toStatusRows(universityGoals)} />
       <StatusGoalSection title="Social" href="/social/goals" goals={toStatusRows(socialGoals)} />
     </div>

@@ -5,10 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
 const items = [
-  { href: "/work", label: "Tasks" },
-  { href: "/work/notes", label: "Notes" },
-  { href: "/work/goals", label: "Goals" },
-  { href: "/work/updates", label: "Updates" },
+  { href: "/work", label: "Updates" },
+  { href: "/work/log", label: "Log" },
 ];
 
 export function WorkSubNav() {
