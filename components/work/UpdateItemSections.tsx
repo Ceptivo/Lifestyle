@@ -13,6 +13,7 @@ export type UpdateItem = {
   contextPath: string | null;
   questionNote: string | null;
   loggedAtFormatted: string | null;
+  loggedDate: string | null;
   receivedDateFormatted: string | null;
 };
 
@@ -163,33 +164,59 @@ function Section({
   items,
   emptyMessage,
   row: Row,
+  previewCount,
 }: {
   items: UpdateItem[];
   emptyMessage: string;
   row: (props: { item: UpdateItem }) => React.ReactElement;
+  previewCount?: number;
 }) {
+  const [expanded, setExpanded] = useState(false);
+
   if (!items.length) return <p className="text-center text-sm text-charcoal-soft">{emptyMessage}</p>;
+
+  const truncated = !!previewCount && !expanded && items.length > previewCount;
+  const visible = truncated ? items.slice(0, previewCount) : items;
+
   return (
-    <ul className="space-y-2">
-      {items.map((item) => (
-        <li key={item.id}>
-          <Row item={item} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="space-y-2">
+        {visible.map((item) => (
+          <li key={item.id}>
+            <Row item={item} />
+          </li>
+        ))}
+      </ul>
+      {truncated && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="mt-2 w-full rounded-xl border border-dashed border-border py-2 text-xs font-medium text-charcoal-soft hover:bg-cream"
+        >
+          View more ({items.length - previewCount!})
+        </button>
+      )}
+    </>
   );
 }
 
 export function OpenItemsList({ items }: { items: UpdateItem[] }) {
-  return <Section items={items} row={OpenItemRow} emptyMessage="No open items. Paste an update email to get started." />;
+  return <Section items={items} row={OpenItemRow} emptyMessage="No open items. Paste an update email to get started." previewCount={2} />;
 }
 
 export function UncertainItemsList({ items }: { items: UpdateItem[] }) {
-  return <Section items={items} row={UncertainItemRow} emptyMessage="Nothing flagged. Flag an item if you're not sure what it means." />;
+  return (
+    <Section
+      items={items}
+      row={UncertainItemRow}
+      emptyMessage="Nothing flagged. Flag an item if you're not sure what it means."
+      previewCount={2}
+    />
+  );
 }
 
 export function ConfirmItemsList({ items }: { items: UpdateItem[] }) {
-  return <Section items={items} row={ConfirmItemRow} emptyMessage="Nothing waiting on confirmation." />;
+  return <Section items={items} row={ConfirmItemRow} emptyMessage="Nothing waiting on confirmation." previewCount={2} />;
 }
 
 export function LoggedItemsList({ items }: { items: UpdateItem[] }) {

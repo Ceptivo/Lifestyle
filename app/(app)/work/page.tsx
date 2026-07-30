@@ -26,6 +26,7 @@ export default async function WorkUpdatesPage() {
       contextPath: i.context_path,
       questionNote: i.question_note,
       loggedAtFormatted: null,
+      loggedDate: null,
       receivedDateFormatted: update?.received_date ? formatDate(update.received_date) : null,
     };
     return { status: i.status, mapped };
