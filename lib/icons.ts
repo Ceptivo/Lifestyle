@@ -73,6 +73,7 @@ import {
   Award,
   MapPin,
   Compass,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 
@@ -151,6 +152,7 @@ export const ICONS: Record<string, LucideIcon> = {
   award: Award,
   "map-pin": MapPin,
   compass: Compass,
+  mail: Mail,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

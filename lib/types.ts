@@ -9,6 +9,7 @@ export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "frida
 export type ActivityLocationType = "indoor" | "outdoor";
 export type ActivityPhysicalType = "physical" | "non_physical";
 export type ActivityCostTier = "cheap" | "expensive";
+export type WorkUpdateItemStatus = "pending" | "uncertain" | "confirm_pending" | "logged";
 
 export interface Database {
   public: {
@@ -849,6 +850,64 @@ export interface Database {
         Row: { id: string; title: string; content: string; created_at: string };
         Insert: { id?: string; title: string; content?: string; created_at?: string };
         Update: { title?: string; content?: string };
+        Relationships: [];
+      };
+      work_email_updates: {
+        Row: {
+          id: string;
+          subject: string | null;
+          source_name: string | null;
+          received_date: string | null;
+          raw_text: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject?: string | null;
+          source_name?: string | null;
+          received_date?: string | null;
+          raw_text: string;
+          created_at?: string;
+        };
+        Update: {
+          subject?: string | null;
+          source_name?: string | null;
+          received_date?: string | null;
+          raw_text?: string;
+        };
+        Relationships: [];
+      };
+      work_update_items: {
+        Row: {
+          id: string;
+          update_id: string;
+          context_path: string | null;
+          text: string;
+          sort_order: number;
+          status: WorkUpdateItemStatus;
+          question_note: string | null;
+          status_changed_at: string;
+          logged_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          update_id: string;
+          context_path?: string | null;
+          text: string;
+          sort_order?: number;
+          status?: WorkUpdateItemStatus;
+          question_note?: string | null;
+          status_changed_at?: string;
+          logged_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          status?: WorkUpdateItemStatus;
+          question_note?: string | null;
+          status_changed_at?: string;
+          logged_at?: string | null;
+        };
         Relationships: [];
       };
       university_study_materials: {

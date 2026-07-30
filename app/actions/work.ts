@@ -122,3 +122,118 @@ export async function deleteWorkGoal(id: string) {
 
   revalidatePath("/work", "layout");
 }
+
+// --- Email updates ---------------------------------------------------------
+
+export async function createEmailUpdate(formData: FormData) {
+  const subject = String(formData.get("subject") ?? "").trim();
+  const sourceName = String(formData.get("sourceName") ?? "").trim();
+  const receivedDate = String(formData.get("receivedDate") ?? "").trim();
+  const rawText = String(formData.get("rawText") ?? "");
+  const itemsJson = String(formData.get("itemsJson") ?? "[]");
+
+  let items: { text: string; contextPath: string | null }[] = [];
+  try {
+    const parsed = JSON.parse(itemsJson);
+    if (Array.isArray(parsed)) {
+      items = parsed
+        .map((it) => ({
+          text: String(it?.text ?? "").trim(),
+          contextPath: it?.contextPath ? String(it.contextPath).trim() : null,
+        }))
+        .filter((it) => it.text.length > 0);
+    }
+  } catch {
+    items = [];
+  }
+
+  if (!rawText.trim() || items.length === 0) return;
+
+  const supabase = createClient();
+  const { data: update, error } = await supabase
+    .from("work_email_updates")
+    .insert({
+      subject: subject || null,
+      source_name: sourceName || null,
+      received_date: receivedDate || null,
+      raw_text: rawText,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  const { error: itemsError } = await supabase.from("work_update_items").insert(
+    items.map((it, index) => ({
+      update_id: update.id,
+      context_path: it.contextPath,
+      text: it.text,
+      sort_order: index,
+    }))
+  );
+  if (itemsError) throw new Error(itemsError.message);
+
+  revalidatePath("/work", "layout");
+}
+
+export async function markItemDone(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("work_update_items")
+    .update({ status: "confirm_pending", status_changed_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/work", "layout");
+}
+
+export async function flagItemUncertain(id: string, formData: FormData) {
+  const note = String(formData.get("note") ?? "").trim();
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("work_update_items")
+    .update({ status: "uncertain", question_note: note || null, status_changed_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/work", "layout");
+}
+
+export async function resolveUncertainItem(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("work_update_items")
+    .update({ status: "confirm_pending", status_changed_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/work", "layout");
+}
+
+export async function confirmItem(id: string) {
+  const supabase = createClient();
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("work_update_items")
+    .update({ status: "logged", status_changed_at: now, logged_at: now })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/work", "layout");
+}
+
+export async function deleteUpdateItem(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("work_update_items").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/work", "layout");
+}
+
+export async function deleteEmailUpdate(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("work_email_updates").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/work", "layout");
+}

@@ -8,6 +8,7 @@ const items = [
   { href: "/work", label: "Tasks" },
   { href: "/work/notes", label: "Notes" },
   { href: "/work/goals", label: "Goals" },
+  { href: "/work/updates", label: "Updates" },
 ];
 
 export function WorkSubNav() {
