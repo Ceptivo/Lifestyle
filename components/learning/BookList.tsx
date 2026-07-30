@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Trash2, Pencil } from "lucide-react";
 import { updateBookProgress, deleteBook } from "@/app/actions/learning";
 import { Card } from "@/components/ui/Card";
@@ -39,14 +40,16 @@ function BookCard({ book }: { book: Book }) {
   return (
     <Card className="px-4 py-3.5">
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-          <Icon name={book.icon} size={16} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="break-words hyphens-auto text-sm font-semibold text-charcoal">{book.title}</p>
-          {book.author && <p className="text-xs text-charcoal-soft">{book.author}</p>}
-          {book.reason && <p className="mt-1 text-xs italic text-charcoal-soft">&ldquo;{book.reason}&rdquo;</p>}
-        </div>
+        <Link href={`/learning/books/${book.id}`} className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
+            <Icon name={book.icon} size={16} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="break-words hyphens-auto text-sm font-semibold text-charcoal">{book.title}</p>
+            {book.author && <p className="text-xs text-charcoal-soft">{book.author}</p>}
+            {book.reason && <p className="mt-1 text-xs italic text-charcoal-soft">&ldquo;{book.reason}&rdquo;</p>}
+          </div>
+        </Link>
         <div className="flex shrink-0 gap-1">
           <button type="button" onClick={() => setEditing((v) => !v)} aria-label="Update progress" className="rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-charcoal">
             <Pencil size={14} />
@@ -96,7 +99,7 @@ function BookCard({ book }: { book: Book }) {
 
 export function BookList({ books }: { books: Book[] }) {
   if (!books.length) {
-    return <p className="text-center text-sm text-charcoal-soft">Nothing on your reading list yet.</p>;
+    return <p className="text-center text-sm text-charcoal-soft">Nothing currently on the go.</p>;
   }
 
   return (

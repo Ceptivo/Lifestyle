@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
 import { addActivity } from "@/app/actions/activities";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Field";
+import { Input, Select } from "@/components/ui/Field";
 
 export function ActivityForm() {
   const [open, setOpen] = useState(false);
@@ -42,6 +42,20 @@ export function ActivityForm() {
       <div className="grid grid-cols-2 gap-2">
         <Input name="location" placeholder="Location (optional)" />
         <Input name="costEstimate" type="number" inputMode="decimal" step="0.01" min="0" placeholder="Est. cost (optional)" />
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <Select name="locationType" defaultValue="outdoor">
+          <option value="outdoor">Outdoor</option>
+          <option value="indoor">Indoor</option>
+        </Select>
+        <Select name="physicalType" defaultValue="physical">
+          <option value="physical">Physical</option>
+          <option value="non_physical">Non-physical</option>
+        </Select>
+        <Select name="costTier" defaultValue="cheap">
+          <option value="cheap">Cheap</option>
+          <option value="expensive">Expensive</option>
+        </Select>
       </div>
       <Input name="notes" placeholder="Notes (optional)" />
 

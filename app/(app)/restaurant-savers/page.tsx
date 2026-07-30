@@ -31,6 +31,9 @@ export default async function RestaurantSaversPage() {
     name: l.name,
     notes: l.notes,
     icon: l.icon,
+    category: l.category,
+    price: l.price,
+    rating: l.rating,
   }));
 
   const today = todayWeekday();

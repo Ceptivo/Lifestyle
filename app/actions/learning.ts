@@ -50,6 +50,36 @@ export async function updateBookProgress(id: string, formData: FormData) {
   revalidatePath("/learning", "layout");
 }
 
+export async function updateBookDetails(id: string, formData: FormData) {
+  const description = String(formData.get("description") ?? "").trim();
+  const keyTakeaways = String(formData.get("keyTakeaways") ?? "").trim();
+  const ratingRaw = String(formData.get("rating") ?? "");
+  const pagesRaw = String(formData.get("pages") ?? "");
+  const progressPct = Math.min(100, Math.max(0, Number(formData.get("progressPct") ?? 0)));
+  const statusRaw = String(formData.get("status") ?? "reading");
+  const status = (STATUSES as string[]).includes(statusRaw) ? (statusRaw as ReadingStatus) : "reading";
+
+  const rating = ratingRaw ? Math.min(5, Math.max(1, Math.round(Number(ratingRaw)))) : null;
+  const pages = pagesRaw ? Math.max(0, Math.round(Number(pagesRaw))) : null;
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("learning_reading_list")
+    .update({
+      description: description || null,
+      key_takeaways: keyTakeaways || null,
+      rating,
+      pages,
+      progress_pct: progressPct,
+      status,
+      finished_date: status === "finished" ? new Date().toISOString().slice(0, 10) : null,
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/learning", "layout");
+}
+
 export async function deleteBook(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("learning_reading_list").delete().eq("id", id);
@@ -99,6 +129,43 @@ export async function addSkillSession(skillId: string, formData: FormData) {
 export async function deleteSkillSession(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("learning_skill_sessions").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/learning", "layout");
+}
+
+// --- Skills (courses/skill development, distinct from hobby practice) ------
+
+export async function addCourse(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const icon = String(formData.get("icon") ?? DEFAULT_ICON);
+  if (!name) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("learning_courses").insert({ name, description: description || null, icon });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/learning", "layout");
+}
+
+export async function updateCourseProgress(id: string, formData: FormData) {
+  const progressPct = Math.min(100, Math.max(0, Number(formData.get("progressPct") ?? 0)));
+  const improvementNotes = String(formData.get("improvementNotes") ?? "").trim();
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("learning_courses")
+    .update({ progress_pct: progressPct, improvement_notes: improvementNotes || null })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/learning", "layout");
+}
+
+export async function deleteCourse(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("learning_courses").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/learning", "layout");

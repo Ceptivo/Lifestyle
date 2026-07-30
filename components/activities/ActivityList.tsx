@@ -6,6 +6,7 @@ import { toggleActivityDone, deleteActivity } from "@/app/actions/activities";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
+import type { ActivityLocationType, ActivityPhysicalType, ActivityCostTier } from "@/lib/types";
 
 export type ActivityItem = {
   id: string;
@@ -15,7 +16,27 @@ export type ActivityItem = {
   location: string | null;
   costLabel: string | null;
   notes: string | null;
+  locationType: ActivityLocationType;
+  physicalType: ActivityPhysicalType;
+  costTier: ActivityCostTier;
 };
+
+const TAG_LABEL: Record<string, string> = {
+  indoor: "Indoor",
+  outdoor: "Outdoor",
+  physical: "Physical",
+  non_physical: "Non-physical",
+  cheap: "Cheap",
+  expensive: "Expensive",
+};
+
+function Tag({ value }: { value: string }) {
+  return (
+    <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-charcoal-soft">
+      {TAG_LABEL[value] ?? value}
+    </span>
+  );
+}
 
 function Row({ item }: { item: ActivityItem }) {
   const [isPending, startTransition] = useTransition();
@@ -39,6 +60,11 @@ function Row({ item }: { item: ActivityItem }) {
           {[item.location, item.costLabel].filter(Boolean).join(" · ") || "No location or estimate"}
         </p>
         {item.notes && <p className="text-xs text-charcoal-soft">{item.notes}</p>}
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          <Tag value={item.locationType} />
+          <Tag value={item.physicalType} />
+          <Tag value={item.costTier} />
+        </div>
       </div>
       <form action={deleteActivity.bind(null, item.id)}>
         <button type="submit" aria-label="Delete activity" className="shrink-0 rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-danger">
@@ -49,9 +75,9 @@ function Row({ item }: { item: ActivityItem }) {
   );
 }
 
-export function ActivityList({ items }: { items: ActivityItem[] }) {
+export function ActivityList({ items, emptyMessage = "No activities yet — add something to do." }: { items: ActivityItem[]; emptyMessage?: string }) {
   if (!items.length) {
-    return <p className="text-center text-sm text-charcoal-soft">No activities yet — add something to do.</p>;
+    return <p className="text-center text-sm text-charcoal-soft">{emptyMessage}</p>;
   }
 
   return (

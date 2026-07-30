@@ -14,7 +14,7 @@ export function WorkSubNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="-mx-4 mb-6 overflow-x-auto px-4">
+    <nav className="-mx-4 mb-6 overflow-x-auto px-4 scrollbar-hide">
       <ul className="flex w-max gap-1.5">
         {items.map(({ href, label }) => {
           const active = href === "/work" ? pathname === "/work" : pathname.startsWith(href);

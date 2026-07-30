@@ -6,6 +6,9 @@ export type GoalStatus = "planned" | "in_progress" | "done";
 export type ReadingStatus = "want_to_read" | "reading" | "finished";
 export type TaskPriority = "low" | "medium" | "high";
 export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+export type ActivityLocationType = "indoor" | "outdoor";
+export type ActivityPhysicalType = "physical" | "non_physical";
+export type ActivityCostTier = "cheap" | "expensive";
 
 export interface Database {
   public: {
@@ -484,6 +487,10 @@ export interface Database {
           started_date: string | null;
           finished_date: string | null;
           icon: string;
+          description: string | null;
+          key_takeaways: string | null;
+          rating: number | null;
+          pages: number | null;
           created_at: string;
         };
         Insert: {
@@ -496,6 +503,10 @@ export interface Database {
           started_date?: string | null;
           finished_date?: string | null;
           icon?: string;
+          description?: string | null;
+          key_takeaways?: string | null;
+          rating?: number | null;
+          pages?: number | null;
           created_at?: string;
         };
         Update: {
@@ -507,6 +518,10 @@ export interface Database {
           started_date?: string | null;
           finished_date?: string | null;
           icon?: string;
+          description?: string | null;
+          key_takeaways?: string | null;
+          rating?: number | null;
+          pages?: number | null;
         };
         Relationships: [];
       };
@@ -520,6 +535,34 @@ export interface Database {
         Row: { id: string; skill_id: string; session_date: string; notes: string | null; created_at: string };
         Insert: { id?: string; skill_id: string; session_date?: string; notes?: string | null; created_at?: string };
         Update: { session_date?: string; notes?: string | null };
+        Relationships: [];
+      };
+      learning_courses: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          progress_pct: number;
+          improvement_notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          progress_pct?: number;
+          improvement_notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          progress_pct?: number;
+          improvement_notes?: string | null;
+          icon?: string;
+        };
         Relationships: [];
       };
       home_maintenance_tasks: {
@@ -991,6 +1034,9 @@ export interface Database {
           notes: string | null;
           done: boolean;
           icon: string;
+          location_type: ActivityLocationType;
+          physical_type: ActivityPhysicalType;
+          cost_tier: ActivityCostTier;
           created_at: string;
         };
         Insert: {
@@ -1001,6 +1047,9 @@ export interface Database {
           notes?: string | null;
           done?: boolean;
           icon?: string;
+          location_type?: ActivityLocationType;
+          physical_type?: ActivityPhysicalType;
+          cost_tier?: ActivityCostTier;
           created_at?: string;
         };
         Update: {
@@ -1010,6 +1059,9 @@ export interface Database {
           notes?: string | null;
           done?: boolean;
           icon?: string;
+          location_type?: ActivityLocationType;
+          physical_type?: ActivityPhysicalType;
+          cost_tier?: ActivityCostTier;
         };
         Relationships: [];
       };
@@ -1050,6 +1102,9 @@ export interface Database {
           name: string;
           notes: string | null;
           icon: string;
+          category: string | null;
+          price: number | null;
+          rating: number | null;
           created_at: string;
         };
         Insert: {
@@ -1057,12 +1112,18 @@ export interface Database {
           name: string;
           notes?: string | null;
           icon?: string;
+          category?: string | null;
+          price?: number | null;
+          rating?: number | null;
           created_at?: string;
         };
         Update: {
           name?: string;
           notes?: string | null;
           icon?: string;
+          category?: string | null;
+          price?: number | null;
+          rating?: number | null;
         };
         Relationships: [];
       };

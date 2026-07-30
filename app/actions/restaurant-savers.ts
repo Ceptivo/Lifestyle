@@ -64,10 +64,21 @@ export async function deleteSpecial(id: string) {
 export async function addLunchOption(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
+  const priceRaw = String(formData.get("price") ?? "");
+  const ratingRaw = String(formData.get("rating") ?? "");
   if (!name) return;
 
+  const rating = ratingRaw ? Math.min(5, Math.max(1, Math.round(Number(ratingRaw)))) : null;
+
   const supabase = createClient();
-  const { error } = await supabase.from("lunch_options").insert({ name, notes: notes || null });
+  const { error } = await supabase.from("lunch_options").insert({
+    name,
+    notes: notes || null,
+    category: category || null,
+    price: priceRaw ? Math.round(Number(priceRaw) * 100) / 100 : null,
+    rating,
+  });
   if (error) throw new Error(error.message);
 
   revalidatePath("/restaurant-savers");
@@ -76,10 +87,24 @@ export async function addLunchOption(formData: FormData) {
 export async function updateLunchOption(id: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
+  const priceRaw = String(formData.get("price") ?? "");
+  const ratingRaw = String(formData.get("rating") ?? "");
   if (!name) return;
 
+  const rating = ratingRaw ? Math.min(5, Math.max(1, Math.round(Number(ratingRaw)))) : null;
+
   const supabase = createClient();
-  const { error } = await supabase.from("lunch_options").update({ name, notes: notes || null }).eq("id", id);
+  const { error } = await supabase
+    .from("lunch_options")
+    .update({
+      name,
+      notes: notes || null,
+      category: category || null,
+      price: priceRaw ? Math.round(Number(priceRaw) * 100) / 100 : null,
+      rating,
+    })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/restaurant-savers");

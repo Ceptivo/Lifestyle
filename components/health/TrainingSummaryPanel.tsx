@@ -108,7 +108,7 @@ function AllTimeHeatmap({ earliestDate, today, countsByDate }: { earliestDate: s
   }
 
   return (
-    <div className="overflow-x-auto pb-1">
+    <div className="overflow-x-auto pb-1 scrollbar-hide">
       <div className="flex gap-1">
         {weeks.map((week, wi) => {
           const monthLabel = week.find((d) => d.endsWith("-01"));

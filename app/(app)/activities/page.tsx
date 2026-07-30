@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/ui/BackLink";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { ActivityForm } from "@/components/activities/ActivityForm";
-import { ActivityList, type ActivityItem } from "@/components/activities/ActivityList";
+import { ActivityBrowser } from "@/components/activities/ActivityBrowser";
+import type { ActivityItem } from "@/components/activities/ActivityList";
 import { formatCurrency } from "@/lib/format";
 
 export const revalidate = 60;
@@ -23,6 +24,9 @@ export default async function ActivitiesPage() {
     location: i.location,
     costLabel: i.cost_estimate != null ? `~${formatCurrency(i.cost_estimate)}` : null,
     notes: i.notes,
+    locationType: i.location_type,
+    physicalType: i.physical_type,
+    costTier: i.cost_tier,
   }));
 
   return (
@@ -32,7 +36,7 @@ export default async function ActivitiesPage() {
       <div className="mb-6">
         <ActivityForm />
       </div>
-      <ActivityList items={rows} />
+      <ActivityBrowser items={rows} />
     </div>
   );
 }

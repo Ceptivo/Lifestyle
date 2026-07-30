@@ -7,13 +7,14 @@ import { cn } from "@/lib/cn";
 const items = [
   { href: "/learning", label: "Reading" },
   { href: "/learning/skills", label: "Skills" },
+  { href: "/learning/hobbies", label: "Hobbies" },
 ];
 
 export function LearningSubNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="-mx-4 mb-6 overflow-x-auto px-4">
+    <nav className="-mx-4 mb-6 overflow-x-auto px-4 scrollbar-hide">
       <ul className="flex w-max gap-1.5">
         {items.map(({ href, label }) => {
           const active = href === "/learning" ? pathname === "/learning" : pathname.startsWith(href);

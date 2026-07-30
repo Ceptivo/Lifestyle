@@ -129,7 +129,7 @@ export function SpecialsByDay({ items, defaultDay }: { items: SpecialItem[]; def
 
   return (
     <div>
-      <div className="mb-4 flex gap-1.5 overflow-x-auto">
+      <div className="mb-4 flex gap-1.5 overflow-x-auto scrollbar-hide">
         {DAY_TABS.map((d) => (
           <button
             key={d.value}

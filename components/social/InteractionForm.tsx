@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Field";
 import { todayLocalDate } from "@/lib/format";
 
-const TYPES = ["Meetup", "Call", "Video", "Text", "Other"];
+const TYPES = ["Meet up", "Dinner", "Breakfast", "Lunch", "Call", "Video", "Text", "Other"];
 
 export function InteractionForm({ personId }: { personId: string }) {
   const [open, setOpen] = useState(false);
+  const [interactionType, setInteractionType] = useState("Meet up");
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -29,6 +30,7 @@ export function InteractionForm({ personId }: { personId: string }) {
         startTransition(async () => {
           await addInteraction(personId, formData);
           formRef.current?.reset();
+          setInteractionType("Meet up");
           setOpen(false);
         });
       }}
@@ -46,7 +48,7 @@ export function InteractionForm({ personId }: { personId: string }) {
         </button>
       </div>
 
-      <Select name="interactionType" defaultValue="Meetup">
+      <Select name="interactionType" value={interactionType} onChange={(e) => setInteractionType(e.target.value)}>
         {TYPES.map((t) => (
           <option key={t} value={t}>
             {t}
@@ -54,7 +56,7 @@ export function InteractionForm({ personId }: { personId: string }) {
         ))}
       </Select>
       <Input name="occurredOn" type="date" defaultValue={todayLocalDate()} required />
-      <Input name="notes" placeholder="Notes (optional)" maxLength={200} />
+      {interactionType === "Other" && <Input name="notes" placeholder="What was it?" maxLength={200} autoFocus />}
 
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "Saving…" : "Save"}

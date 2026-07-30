@@ -4,13 +4,13 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { Card } from "@/components/ui/Card";
 
 const SECTIONS = [
-  { href: "/social", label: "Social & Relationships", subtitle: "People, shared goals, occasions", icon: Users },
-  { href: "/learning", label: "Learning & Growth", subtitle: "Reading list, skill practice", icon: BookOpen },
-  { href: "/environment", label: "Home & Environment", subtitle: "Maintenance, chores", icon: Wrench },
-  { href: "/travel", label: "Travel & Experiences", subtitle: "Trips, packing, bucket list", icon: Plane },
-  { href: "/personal", label: "Personal Admin", subtitle: "Documents, passwords, checklist", icon: ShieldCheck },
   { href: "/work", label: "Work", subtitle: "Task tracker, notes", icon: Briefcase },
   { href: "/university", label: "University", subtitle: "Study material, exams, report card", icon: GraduationCap },
+  { href: "/learning", label: "Learning & Growth", subtitle: "Reading list, skill practice", icon: BookOpen },
+  { href: "/social", label: "Social & Relationships", subtitle: "People, shared goals, occasions", icon: Users },
+  { href: "/environment", label: "Home & Environment", subtitle: "Maintenance, chores", icon: Wrench },
+  { href: "/personal", label: "Personal Admin", subtitle: "Documents, passwords, checklist", icon: ShieldCheck },
+  { href: "/travel", label: "Travel & Experiences", subtitle: "Trips, packing, bucket list", icon: Plane },
   { href: "/activities", label: "Activities to do", subtitle: "Ideas with cost estimates and locations", icon: Compass },
   { href: "/restaurant-savers", label: "Restaurant Savers", subtitle: "Daily food specials, every day", icon: UtensilsCrossed },
 ];

@@ -60,7 +60,7 @@ export async function deletePerson(id: string) {
 
 export async function addInteraction(personId: string, formData: FormData) {
   const occurredOn = String(formData.get("occurredOn") ?? "");
-  const interactionType = String(formData.get("interactionType") ?? "Meetup").trim();
+  const interactionType = String(formData.get("interactionType") ?? "Meet up").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!personId || !occurredOn) return;
@@ -69,7 +69,7 @@ export async function addInteraction(personId: string, formData: FormData) {
   const { error } = await supabase.from("social_interactions").insert({
     person_id: personId,
     occurred_on: occurredOn,
-    interaction_type: interactionType || "Meetup",
+    interaction_type: interactionType || "Meet up",
     notes: notes || null,
   });
   if (error) throw new Error(error.message);
