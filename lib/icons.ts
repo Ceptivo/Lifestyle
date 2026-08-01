@@ -74,6 +74,7 @@ import {
   MapPin,
   Compass,
   Mail,
+  Upload,
   type LucideIcon,
 } from "lucide-react";
 
@@ -153,6 +154,7 @@ export const ICONS: Record<string, LucideIcon> = {
   "map-pin": MapPin,
   compass: Compass,
   mail: Mail,
+  upload: Upload,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

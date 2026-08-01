@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { AddTransactionForm } from "@/components/finance/AddTransactionForm";
 import { TransactionList } from "@/components/finance/TransactionList";
+import { NeedsReviewList } from "@/components/finance/NeedsReviewList";
 import { FinanceBackLink } from "@/components/finance/FinanceBackLink";
 import { cn } from "@/lib/cn";
 import type { FinanceType } from "@/lib/types";
@@ -31,25 +32,25 @@ function withParams(params: Record<string, string | undefined>): string {
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; add?: string; category?: string; from?: string }>;
+  searchParams: Promise<{ filter?: string; category?: string; from?: string }>;
 }) {
-  const { filter, add, category, from } = await searchParams;
+  const { filter, category, from } = await searchParams;
   const activeTab = TABS.some((t) => t.key === filter) ? (filter as (typeof TABS)[number]["key"]) : "all";
-  const quickAddOpen = add === "expense" || add === "income" || add === "other";
-  const quickAddType: FinanceType = add === "income" ? "income" : "expense";
   const categoryIds = category ? category.split(",").filter(Boolean) : null;
   const backTarget = (from && BACK_TARGETS[from]) || { href: "/finance", label: "Back to Finance" };
 
   const supabase = createClient();
-  const [{ data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
+  const [{ data: accounts }, { data: categories }, { data: transactions }, { data: needsReview }] = await Promise.all([
     supabase.from("finance_accounts").select("id, name").order("created_at"),
     supabase.from("finance_categories").select("id, name, icon, type").order("name"),
     supabase
       .from("finance_transactions")
       .select("*")
+      .eq("needs_review", false)
       .order("occurred_on", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(200),
+    supabase.from("finance_transactions").select("*").eq("needs_review", true).order("occurred_on", { ascending: false }),
   ]);
 
   // Stable sort on top of the DB order: within the same day, income lands
@@ -82,13 +83,15 @@ export default async function TransactionsPage({
       <h1 className="mb-6 text-2xl font-bold text-charcoal">Transactions</h1>
 
       <div className="mb-6">
-        <AddTransactionForm
-          accounts={accounts ?? []}
-          categories={categories ?? []}
-          initialOpen={quickAddOpen}
-          initialType={quickAddType}
-        />
+        <Link
+          href="/finance/import"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-pink px-5 py-2.5 text-sm font-semibold text-ink hover:bg-pink-dark"
+        >
+          <Upload size={16} /> Import statement
+        </Link>
       </div>
+
+      <NeedsReviewList transactions={needsReview ?? []} categories={categories ?? []} />
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Recent transactions</h2>

@@ -20,6 +20,7 @@ export interface Database {
           name: string;
           icon: string;
           starting_balance: number;
+          bank_account_number: string | null;
           created_at: string;
         };
         Insert: {
@@ -27,12 +28,14 @@ export interface Database {
           name: string;
           icon?: string;
           starting_balance?: number;
+          bank_account_number?: string | null;
           created_at?: string;
         };
         Update: {
           name?: string;
           icon?: string;
           starting_balance?: number;
+          bank_account_number?: string | null;
         };
         Relationships: [];
       };
@@ -68,6 +71,11 @@ export interface Database {
           amount: number;
           description: string | null;
           occurred_on: string;
+          needs_review: boolean;
+          review_note: string | null;
+          balance_after: number | null;
+          bank_reference: string | null;
+          import_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -79,6 +87,11 @@ export interface Database {
           amount: number;
           description?: string | null;
           occurred_on?: string;
+          needs_review?: boolean;
+          review_note?: string | null;
+          balance_after?: number | null;
+          bank_reference?: string | null;
+          import_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -89,6 +102,57 @@ export interface Database {
           amount?: number;
           description?: string | null;
           occurred_on?: string;
+          needs_review?: boolean;
+          review_note?: string | null;
+        };
+        Relationships: [];
+      };
+      finance_statement_imports: {
+        Row: {
+          id: string;
+          account_id: string | null;
+          file_name: string | null;
+          bank_name: string | null;
+          account_number: string | null;
+          statement_period_start: string | null;
+          statement_period_end: string | null;
+          opening_balance: number | null;
+          closing_balance: number | null;
+          total_credits: number | null;
+          total_debits: number | null;
+          total_fees: number | null;
+          interest_rate: number | null;
+          transactions_count: number;
+          flagged_count: number;
+          reconciled: boolean;
+          raw_text: string;
+          imported_at: string;
+        };
+        Insert: {
+          id?: string;
+          account_id?: string | null;
+          file_name?: string | null;
+          bank_name?: string | null;
+          account_number?: string | null;
+          statement_period_start?: string | null;
+          statement_period_end?: string | null;
+          opening_balance?: number | null;
+          closing_balance?: number | null;
+          total_credits?: number | null;
+          total_debits?: number | null;
+          total_fees?: number | null;
+          interest_rate?: number | null;
+          transactions_count?: number;
+          flagged_count?: number;
+          reconciled?: boolean;
+          raw_text: string;
+          imported_at?: string;
+        };
+        Update: {
+          account_id?: string | null;
+          transactions_count?: number;
+          flagged_count?: number;
+          reconciled?: boolean;
         };
         Relationships: [];
       };

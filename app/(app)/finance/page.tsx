@@ -11,6 +11,7 @@ import { currentFinancialMonthKey, financialMonthRange, shiftFinancialMonthKey }
 export const revalidate = 60;
 
 const QUICK_LINKS = [
+  { href: "/finance/import", label: "Import Statement", icon: "upload" },
   { href: "/finance/profile", label: "Profile", icon: "user-cog" },
   { href: "/finance/analytics", label: "Analytics", icon: "pie-chart" },
   { href: "/finance/transactions", label: "Transactions", icon: "receipt" },
