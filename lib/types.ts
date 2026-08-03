@@ -1283,6 +1283,7 @@ export interface Database {
           module_id: string | null;
           title: string;
           due_date: string | null;
+          due_time: string | null;
           notes: string | null;
           status: AssignmentStatus;
           flagged: boolean;
@@ -1294,6 +1295,7 @@ export interface Database {
           module_id?: string | null;
           title: string;
           due_date?: string | null;
+          due_time?: string | null;
           notes?: string | null;
           status?: AssignmentStatus;
           flagged?: boolean;
@@ -1304,6 +1306,7 @@ export interface Database {
           module_id?: string | null;
           title?: string;
           due_date?: string | null;
+          due_time?: string | null;
           notes?: string | null;
           status?: AssignmentStatus;
           flagged?: boolean;

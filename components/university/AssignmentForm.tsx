@@ -52,7 +52,8 @@ export function AssignmentForm({ modules }: { modules: ModuleOption[] }) {
         ))}
       </Select>
       <Input name="dueDate" type="date" placeholder="Due date (leave blank if TBC)" />
-      <Input name="notes" placeholder="Notes (optional)" />
+      <Input name="dueTime" type="time" placeholder="Due time (optional)" />
+      <Input name="notes" placeholder="Description (optional)" />
       <label className="flex items-center gap-2 text-sm text-charcoal-soft">
         <input type="checkbox" name="flagged" className="h-4 w-4 rounded border-border text-pink accent-pink" />
         Flag as important

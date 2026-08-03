@@ -6,11 +6,11 @@ import { cn } from "@/lib/cn";
 
 const items = [
   { href: "/university", label: "Overview" },
-  { href: "/university/study-material", label: "Study Material" },
+  { href: "/university/calendar", label: "Calendar" },
   { href: "/university/assignments", label: "Assignments" },
   { href: "/university/exams", label: "Exams" },
-  { href: "/university/calendar", label: "Calendar" },
   { href: "/university/attendance", label: "Attendance" },
+  { href: "/university/study-material", label: "Study Material" },
   { href: "/university/grades", label: "Report Card" },
   { href: "/university/goals", label: "Goals" },
 ];

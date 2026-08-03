@@ -336,7 +336,7 @@ export default async function HomePage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Today&rsquo;s lectures</h2>
           <Link href="/university/calendar" className="mb-6 block">
             <Card>
-              <LectureDayList lectures={todayLectureRows} attendance />
+              <LectureDayList lectures={todayLectureRows} />
             </Card>
           </Link>
         </>

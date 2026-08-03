@@ -5,13 +5,23 @@ import { todayLocalDate, formatDate } from "@/lib/format";
 
 export const revalidate = 60;
 
+// Attendance is only tracked from when the feature was actually set up —
+// earlier lecture rows (seeded for the whole semester) shouldn't count
+// against a percentage nobody was ticking boxes for yet.
+const ATTENDANCE_TRACKING_START = "2026-08-03";
+
 export default async function AttendancePage() {
   const supabase = createClient();
   const today = todayLocalDate();
 
   const [{ data: modules }, { data: lectures }] = await Promise.all([
     supabase.from("university_modules").select("id, code, name, icon"),
-    supabase.from("university_lectures").select("*").lte("lecture_date", today).order("lecture_date", { ascending: false }),
+    supabase
+      .from("university_lectures")
+      .select("*")
+      .gte("lecture_date", ATTENDANCE_TRACKING_START)
+      .lte("lecture_date", today)
+      .order("lecture_date", { ascending: false }),
   ]);
 
   const moduleById = new Map((modules ?? []).map((m) => [m.id, m]));

@@ -33,11 +33,24 @@ export type Assignment = {
   moduleCode: string | null;
   dueDate: string | null;
   dueDateFormatted: string | null;
+  dueTime: string | null;
+  daysUntil: number | null;
   notes: string | null;
   status: AssignmentStatus;
   flagged: boolean;
   overdue: boolean;
 };
+
+export type AssignmentMonthGroup = { month: string; assignments: Assignment[] };
+
+function pillLabel(assignment: Assignment): string {
+  if (assignment.status !== "pending") return STATUS_LABEL[assignment.status];
+  if (assignment.daysUntil == null) return "Pending";
+  if (assignment.daysUntil < 0) return "Overdue";
+  if (assignment.daysUntil === 0) return "Due today";
+  if (assignment.daysUntil === 1) return "Due tomorrow";
+  return `In ${assignment.daysUntil} days`;
+}
 
 function AssignmentEditForm({ assignment, onDone }: { assignment: Assignment; onDone: () => void }) {
   const [isPending, startTransition] = useTransition();
@@ -53,8 +66,11 @@ function AssignmentEditForm({ assignment, onDone }: { assignment: Assignment; on
       className="mt-2 space-y-2"
     >
       <Input name="title" defaultValue={assignment.title} required className="text-sm" />
+      <div className="flex gap-2">
+        <Input name="dueDate" type="date" defaultValue={assignment.dueDate ?? ""} className="flex-1 text-sm" />
+        <Input name="dueTime" type="time" defaultValue={assignment.dueTime ?? ""} className="flex-1 text-sm" />
+      </div>
       <Textarea name="notes" defaultValue={assignment.notes ?? ""} placeholder="Description (optional)" rows={2} className="text-sm" />
-      <Input name="dueDate" type="date" defaultValue={assignment.dueDate ?? ""} className="text-sm" />
       <div className="flex gap-1.5">
         <Button type="submit" disabled={isPending} className="h-8 flex-1 px-3 py-1.5 text-xs">
           {isPending ? "Saving…" : "Save"}
@@ -81,6 +97,7 @@ function AssignmentRow({ assignment }: { assignment: Assignment }) {
         {assignment.dueDateFormatted ? (
           <p className={cn("text-xs", assignment.overdue ? "font-semibold text-danger" : "text-charcoal-soft")}>
             Due {assignment.dueDateFormatted}
+            {assignment.dueTime && ` · ${assignment.dueTime.slice(0, 5)}`}
             {assignment.overdue && " · overdue"}
           </p>
         ) : (
@@ -119,27 +136,35 @@ function AssignmentRow({ assignment }: { assignment: Assignment }) {
           type="button"
           disabled={isPending}
           onClick={() => startTransition(() => updateAssignmentStatus(assignment.id, STATUS_FLOW[assignment.status]))}
-          className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide", STATUS_CLASS[assignment.status])}
+          className={cn("shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide", STATUS_CLASS[assignment.status])}
         >
-          {STATUS_LABEL[assignment.status]}
+          {pillLabel(assignment)}
         </button>
       </div>
     </Card>
   );
 }
 
-export function AssignmentList({ assignments }: { assignments: Assignment[] }) {
-  if (!assignments.length) {
+export function AssignmentList({ groups }: { groups: AssignmentMonthGroup[] }) {
+  const hasAny = groups.some((g) => g.assignments.length > 0);
+  if (!hasAny) {
     return <p className="text-center text-sm text-charcoal-soft">No assignments yet. Add your first one.</p>;
   }
 
   return (
-    <ul className="space-y-2">
-      {assignments.map((a) => (
-        <li key={a.id}>
-          <AssignmentRow assignment={a} />
-        </li>
+    <div className="space-y-6">
+      {groups.map((g) => (
+        <div key={g.month}>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">{g.month}</h3>
+          <ul className="space-y-2">
+            {g.assignments.map((a) => (
+              <li key={a.id}>
+                <AssignmentRow assignment={a} />
+              </li>
+            ))}
+          </ul>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }

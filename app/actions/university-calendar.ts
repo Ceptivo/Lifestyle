@@ -10,6 +10,7 @@ export async function addAssignment(formData: FormData) {
   const moduleId = String(formData.get("moduleId") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const dueDate = String(formData.get("dueDate") ?? "").trim();
+  const dueTime = String(formData.get("dueTime") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
   const flagged = formData.get("flagged") === "on";
 
@@ -20,6 +21,7 @@ export async function addAssignment(formData: FormData) {
     module_id: moduleId || null,
     title,
     due_date: dueDate || null,
+    due_time: dueTime || null,
     notes: notes || null,
     flagged,
   });
@@ -31,6 +33,7 @@ export async function addAssignment(formData: FormData) {
 export async function updateAssignment(id: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const dueDate = String(formData.get("dueDate") ?? "").trim();
+  const dueTime = String(formData.get("dueTime") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!title) return;
@@ -38,7 +41,7 @@ export async function updateAssignment(id: string, formData: FormData) {
   const supabase = createClient();
   const { error } = await supabase
     .from("university_assignments")
-    .update({ title, due_date: dueDate || null, notes: notes || null })
+    .update({ title, due_date: dueDate || null, due_time: dueTime || null, notes: notes || null })
     .eq("id", id);
   if (error) throw new Error(error.message);
 

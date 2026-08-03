@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { AssignmentForm, type ModuleOption } from "@/components/university/AssignmentForm";
-import { AssignmentList, type Assignment } from "@/components/university/AssignmentList";
+import { AssignmentList, type Assignment, type AssignmentMonthGroup } from "@/components/university/AssignmentList";
 import { formatDate, todayLocalDate } from "@/lib/format";
+import { daysBetween } from "@/lib/social";
 
 export const revalidate = 60;
 
@@ -22,18 +23,36 @@ export default async function AssignmentsPage() {
     moduleCode: (a.module_id && moduleById.get(a.module_id)?.code) || null,
     dueDate: a.due_date,
     dueDateFormatted: a.due_date ? formatDate(a.due_date) : null,
+    dueTime: a.due_time,
+    daysUntil: a.due_date ? daysBetween(today, a.due_date) : null,
     notes: a.notes,
     status: a.status,
     flagged: a.flagged,
     overdue: a.status !== "graded" && a.due_date != null && a.due_date < today,
   }));
 
+  const byMonth = new Map<string, Assignment[]>();
+  const tbc: Assignment[] = [];
+  for (const a of rows) {
+    if (!a.dueDate) {
+      tbc.push(a);
+      continue;
+    }
+    const monthKey = new Date(a.dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const bucket = byMonth.get(monthKey) ?? [];
+    bucket.push(a);
+    byMonth.set(monthKey, bucket);
+  }
+
+  const groups: AssignmentMonthGroup[] = [...byMonth.entries()].map(([month, monthAssignments]) => ({ month, assignments: monthAssignments }));
+  if (tbc.length > 0) groups.push({ month: "TBC", assignments: tbc });
+
   return (
     <div>
       <div className="mb-6">
         <AssignmentForm modules={moduleOptions} />
       </div>
-      <AssignmentList assignments={rows} />
+      <AssignmentList groups={groups} />
     </div>
   );
 }
