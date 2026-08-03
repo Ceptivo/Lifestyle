@@ -1,9 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Flag, Trash2 } from "lucide-react";
-import { updateAssignmentStatus, toggleAssignmentFlag, deleteAssignment } from "@/app/actions/university-calendar";
+import { updateAssignmentStatus, toggleAssignmentFlag, deleteAssignment, updateAssignmentDueDate } from "@/app/actions/university-calendar";
 import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import type { AssignmentStatus } from "@/lib/types";
 
@@ -29,7 +31,7 @@ export type Assignment = {
   id: string;
   title: string;
   moduleCode: string | null;
-  dueDateFormatted: string;
+  dueDateFormatted: string | null;
   notes: string | null;
   status: AssignmentStatus;
   flagged: boolean;
@@ -38,6 +40,7 @@ export type Assignment = {
 
 function AssignmentRow({ assignment }: { assignment: Assignment }) {
   const [isPending, startTransition] = useTransition();
+  const [settingDate, setSettingDate] = useState(false);
 
   return (
     <Card className={cn("flex items-start gap-3 px-4 py-3.5", assignment.flagged && "border-danger/40 bg-danger-soft")}>
@@ -46,11 +49,36 @@ function AssignmentRow({ assignment }: { assignment: Assignment }) {
           {assignment.title}
           {assignment.moduleCode && <span className="font-normal text-charcoal-soft"> · {assignment.moduleCode}</span>}
         </p>
-        <p className={cn("text-xs", assignment.overdue ? "font-semibold text-danger" : "text-charcoal-soft")}>
-          Due {assignment.dueDateFormatted}
-          {assignment.overdue && " · overdue"}
-        </p>
+        {assignment.dueDateFormatted ? (
+          <p className={cn("text-xs", assignment.overdue ? "font-semibold text-danger" : "text-charcoal-soft")}>
+            Due {assignment.dueDateFormatted}
+            {assignment.overdue && " · overdue"}
+          </p>
+        ) : (
+          <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-soft">TBC</p>
+        )}
         {assignment.notes && <p className="mt-0.5 text-xs text-charcoal-soft">{assignment.notes}</p>}
+        {!assignment.dueDateFormatted &&
+          (settingDate ? (
+            <form
+              action={(formData) => {
+                startTransition(async () => {
+                  await updateAssignmentDueDate(assignment.id, formData);
+                  setSettingDate(false);
+                });
+              }}
+              className="mt-2 flex items-center gap-1.5"
+            >
+              <Input name="dueDate" type="date" required className="h-8 flex-1 px-2 py-1 text-xs" />
+              <Button type="submit" disabled={isPending} className="h-8 px-2.5 py-1 text-xs">
+                Save
+              </Button>
+            </form>
+          ) : (
+            <button type="button" onClick={() => setSettingDate(true)} className="mt-1 text-xs font-medium text-pink-dark">
+              Set date
+            </button>
+          ))}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">
         <div className="flex items-center gap-1.5">

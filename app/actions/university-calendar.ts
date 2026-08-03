@@ -13,16 +13,27 @@ export async function addAssignment(formData: FormData) {
   const notes = String(formData.get("notes") ?? "").trim();
   const flagged = formData.get("flagged") === "on";
 
-  if (!title || !dueDate) return;
+  if (!title) return;
 
   const supabase = createClient();
   const { error } = await supabase.from("university_assignments").insert({
     module_id: moduleId || null,
     title,
-    due_date: dueDate,
+    due_date: dueDate || null,
     notes: notes || null,
     flagged,
   });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/university", "layout");
+}
+
+export async function updateAssignmentDueDate(id: string, formData: FormData) {
+  const dueDate = String(formData.get("dueDate") ?? "").trim();
+  if (!dueDate) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("university_assignments").update({ due_date: dueDate }).eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/university", "layout");
