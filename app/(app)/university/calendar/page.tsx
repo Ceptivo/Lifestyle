@@ -5,6 +5,15 @@ import { addDays, mondayOf } from "@/lib/university-calendar";
 
 export const revalidate = 60;
 
+// Term dates longer than this are term-level context (e.g. "Semester 2
+// lectures" spanning 4 months) rather than a day-specific event — showing
+// them as a banner on every single day would just be noise.
+const MAX_BANNER_SPAN_DAYS = 25;
+
+function daySpan(start: string, end: string): number {
+  return (new Date(end + "T00:00:00").getTime() - new Date(start + "T00:00:00").getTime()) / 86400000;
+}
+
 export default async function UniversityCalendarPage({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
   const { date } = await searchParams;
   const todayIso = todayLocalDate();
@@ -62,7 +71,7 @@ export default async function UniversityCalendarPage({ searchParams }: { searchP
           flagged: a.flagged,
         })),
       banners: (termDates ?? [])
-        .filter((t) => dateIso >= t.start_date && dateIso <= t.end_date)
+        .filter((t) => dateIso >= t.start_date && dateIso <= t.end_date && daySpan(t.start_date, t.end_date) <= MAX_BANNER_SPAN_DAYS)
         .map((t) => ({ label: t.label, icon: t.icon })),
     };
   });
