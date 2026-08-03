@@ -75,6 +75,8 @@ import {
   Compass,
   Mail,
   Upload,
+  Calculator,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -155,6 +157,8 @@ export const ICONS: Record<string, LucideIcon> = {
   compass: Compass,
   mail: Mail,
   upload: Upload,
+  calculator: Calculator,
+  megaphone: Megaphone,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

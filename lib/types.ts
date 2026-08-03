@@ -3,6 +3,7 @@ export type SubscriptionCycle = "weekly" | "monthly" | "yearly";
 export type SubscriptionStatus = "active" | "paused" | "cancelled";
 export type HealthSource = "manual" | "samsung_health";
 export type GoalStatus = "planned" | "in_progress" | "done";
+export type AssignmentStatus = "pending" | "submitted" | "graded";
 export type ReadingStatus = "want_to_read" | "reading" | "finished";
 export type TaskPriority = "low" | "medium" | "high";
 export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
@@ -1144,6 +1145,124 @@ export interface Database {
           description?: string | null;
           target_date?: string | null;
           status?: GoalStatus;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      university_modules: {
+        Row: {
+          id: string;
+          code: string;
+          name: string;
+          lecturer: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          name: string;
+          lecturer?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          code?: string;
+          name?: string;
+          lecturer?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      university_lectures: {
+        Row: {
+          id: string;
+          module_id: string;
+          lecture_date: string;
+          start_time: string;
+          end_time: string;
+          room: string | null;
+          week_label: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          module_id: string;
+          lecture_date: string;
+          start_time: string;
+          end_time: string;
+          room?: string | null;
+          week_label?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          module_id?: string;
+          lecture_date?: string;
+          start_time?: string;
+          end_time?: string;
+          room?: string | null;
+          week_label?: string | null;
+        };
+        Relationships: [];
+      };
+      university_term_dates: {
+        Row: {
+          id: string;
+          label: string;
+          start_date: string;
+          end_date: string;
+          notes: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          label: string;
+          start_date: string;
+          end_date: string;
+          notes?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          label?: string;
+          start_date?: string;
+          end_date?: string;
+          notes?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      university_assignments: {
+        Row: {
+          id: string;
+          module_id: string | null;
+          title: string;
+          due_date: string;
+          notes: string | null;
+          status: AssignmentStatus;
+          flagged: boolean;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          module_id?: string | null;
+          title: string;
+          due_date: string;
+          notes?: string | null;
+          status?: AssignmentStatus;
+          flagged?: boolean;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          module_id?: string | null;
+          title?: string;
+          due_date?: string;
+          notes?: string | null;
+          status?: AssignmentStatus;
+          flagged?: boolean;
           icon?: string;
         };
         Relationships: [];
