@@ -6,7 +6,7 @@ import { uploadDocument } from "@/app/actions/personal";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Field";
 
-const CATEGORIES = ["Insurance", "Warranty", "ID", "Other"];
+const CATEGORIES = ["Insurance", "Warranty", "ID", "Birth Certificate", "Other"];
 
 export function DocumentForm() {
   const [open, setOpen] = useState(false);

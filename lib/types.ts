@@ -204,6 +204,31 @@ export interface Database {
         };
         Relationships: [];
       };
+      wishlist_items: {
+        Row: {
+          id: string;
+          name: string;
+          category: string;
+          price: number | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          category: string;
+          price?: number | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          category?: string;
+          price?: number | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
       finance_subscriptions: {
         Row: {
           id: string;
