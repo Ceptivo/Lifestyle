@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Flag, Trash2 } from "lucide-react";
-import { updateAssignmentStatus, toggleAssignmentFlag, deleteAssignment, updateAssignmentDueDate } from "@/app/actions/university-calendar";
+import { Flag, Pencil, Trash2, X } from "lucide-react";
+import { updateAssignmentStatus, toggleAssignmentFlag, deleteAssignment, updateAssignment } from "@/app/actions/university-calendar";
 import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Field";
+import { Input, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import type { AssignmentStatus } from "@/lib/types";
@@ -31,6 +31,7 @@ export type Assignment = {
   id: string;
   title: string;
   moduleCode: string | null;
+  dueDate: string | null;
   dueDateFormatted: string | null;
   notes: string | null;
   status: AssignmentStatus;
@@ -38,9 +39,37 @@ export type Assignment = {
   overdue: boolean;
 };
 
+function AssignmentEditForm({ assignment, onDone }: { assignment: Assignment; onDone: () => void }) {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <form
+      action={(formData) => {
+        startTransition(async () => {
+          await updateAssignment(assignment.id, formData);
+          onDone();
+        });
+      }}
+      className="mt-2 space-y-2"
+    >
+      <Input name="title" defaultValue={assignment.title} required className="text-sm" />
+      <Textarea name="notes" defaultValue={assignment.notes ?? ""} placeholder="Description (optional)" rows={2} className="text-sm" />
+      <Input name="dueDate" type="date" defaultValue={assignment.dueDate ?? ""} className="text-sm" />
+      <div className="flex gap-1.5">
+        <Button type="submit" disabled={isPending} className="h-8 flex-1 px-3 py-1.5 text-xs">
+          {isPending ? "Saving…" : "Save"}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onDone} className="h-8 px-3 py-1.5 text-xs">
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function AssignmentRow({ assignment }: { assignment: Assignment }) {
   const [isPending, startTransition] = useTransition();
-  const [settingDate, setSettingDate] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   return (
     <Card className={cn("flex items-start gap-3 px-4 py-3.5", assignment.flagged && "border-danger/40 bg-danger-soft")}>
@@ -57,31 +86,20 @@ function AssignmentRow({ assignment }: { assignment: Assignment }) {
         ) : (
           <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-soft">TBC</p>
         )}
-        {assignment.notes && <p className="mt-0.5 text-xs text-charcoal-soft">{assignment.notes}</p>}
-        {!assignment.dueDateFormatted &&
-          (settingDate ? (
-            <form
-              action={(formData) => {
-                startTransition(async () => {
-                  await updateAssignmentDueDate(assignment.id, formData);
-                  setSettingDate(false);
-                });
-              }}
-              className="mt-2 flex items-center gap-1.5"
-            >
-              <Input name="dueDate" type="date" required className="h-8 flex-1 px-2 py-1 text-xs" />
-              <Button type="submit" disabled={isPending} className="h-8 px-2.5 py-1 text-xs">
-                Save
-              </Button>
-            </form>
-          ) : (
-            <button type="button" onClick={() => setSettingDate(true)} className="mt-1 text-xs font-medium text-pink-dark">
-              Set date
-            </button>
-          ))}
+        {assignment.notes && <p className="mt-0.5 break-words text-xs text-charcoal-soft">{assignment.notes}</p>}
+
+        {editing && <AssignmentEditForm assignment={assignment} onDone={() => setEditing(false)} />}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setEditing((v) => !v)}
+            aria-label={editing ? "Cancel edit" : "Edit assignment"}
+            className="rounded-full p-1.5 text-charcoal-soft hover:bg-cream hover:text-charcoal"
+          >
+            {editing ? <X size={14} /> : <Pencil size={13} />}
+          </button>
           <button
             type="button"
             disabled={isPending}

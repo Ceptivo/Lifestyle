@@ -20,6 +20,7 @@ export default async function AssignmentsPage() {
     id: a.id,
     title: a.title,
     moduleCode: (a.module_id && moduleById.get(a.module_id)?.code) || null,
+    dueDate: a.due_date,
     dueDateFormatted: a.due_date ? formatDate(a.due_date) : null,
     notes: a.notes,
     status: a.status,

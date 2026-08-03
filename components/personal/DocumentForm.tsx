@@ -56,13 +56,14 @@ export function DocumentForm() {
       </Select>
       <Input name="expiryDate" type="date" placeholder="Expiry date (optional)" />
       <input
-        name="file"
+        name="files"
         type="file"
+        multiple
         required
         accept=".pdf,.png,.jpg,.jpeg,.heic,.doc,.docx"
         className="w-full rounded-xl border border-border bg-paper px-4 py-2.5 text-sm text-charcoal file:mr-3 file:rounded-full file:border-0 file:bg-pink-soft file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-pink-dark"
       />
-      <p className="text-xs text-charcoal-soft">Up to 10MB.</p>
+      <p className="text-xs text-charcoal-soft">Up to 10MB per file. Select multiple files for things like the front and back of an ID.</p>
 
       {error && <p className="text-xs font-medium text-danger">{error}</p>}
 

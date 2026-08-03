@@ -24,7 +24,7 @@ export default async function OccasionsPage() {
       return {
         id: o.id,
         label: o.label,
-        personName: peopleById[o.person_id] ?? "Someone",
+        personName: (o.person_id ? peopleById[o.person_id] : o.person_name) ?? "Someone",
         icon: o.icon,
         nextDate: next,
         nextOccurrenceFormatted: formatDate(next),
@@ -38,7 +38,6 @@ export default async function OccasionsPage() {
     <div>
       <div className="mb-6">
         <OccasionForm people={people ?? []} />
-        {!people?.length && <p className="mt-2 text-center text-xs text-charcoal-soft">Add a person first before tracking an occasion for them.</p>}
       </div>
       <OccasionList occasions={rows} />
     </div>

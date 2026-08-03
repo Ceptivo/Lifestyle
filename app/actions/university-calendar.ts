@@ -28,12 +28,18 @@ export async function addAssignment(formData: FormData) {
   revalidatePath("/university", "layout");
 }
 
-export async function updateAssignmentDueDate(id: string, formData: FormData) {
+export async function updateAssignment(id: string, formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
   const dueDate = String(formData.get("dueDate") ?? "").trim();
-  if (!dueDate) return;
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  if (!title) return;
 
   const supabase = createClient();
-  const { error } = await supabase.from("university_assignments").update({ due_date: dueDate }).eq("id", id);
+  const { error } = await supabase
+    .from("university_assignments")
+    .update({ title, due_date: dueDate || null, notes: notes || null })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/university", "layout");

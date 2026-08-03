@@ -232,7 +232,7 @@ export default async function HomePage() {
       id: `occasion-${o.id}`,
       tone: o.daysUntil <= 2 ? "alert" : "tip",
       icon: o.icon,
-      title: `${o.label} · ${peopleById[o.person_id] ?? "Someone"}`,
+      title: `${o.label} · ${(o.person_id ? peopleById[o.person_id] : o.person_name) ?? "Someone"}`,
       body: o.daysUntil === 0 ? "Today!" : o.daysUntil === 1 ? "Tomorrow" : `In ${o.daysUntil} days`,
       href: "/social/occasions",
     });

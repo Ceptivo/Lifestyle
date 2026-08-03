@@ -133,18 +133,20 @@ export async function deleteSharedGoal(id: string) {
 // --- Occasions -----------------------------------------------------------------
 
 export async function addOccasion(formData: FormData) {
-  const personId = String(formData.get("personId") ?? "");
+  const personId = String(formData.get("personId") ?? "").trim();
+  const personName = String(formData.get("personName") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim();
   const occasionDate = String(formData.get("occasionDate") ?? "");
   const recurring = formData.get("recurring") === "on";
   const giftIdeas = String(formData.get("giftIdeas") ?? "").trim();
   const icon = String(formData.get("icon") ?? DEFAULT_ICON);
 
-  if (!personId || !label || !occasionDate) return;
+  if ((!personId && !personName) || !label || !occasionDate) return;
 
   const supabase = createClient();
   const { error } = await supabase.from("social_occasions").insert({
-    person_id: personId,
+    person_id: personId || null,
+    person_name: personId ? null : personName,
     label,
     occasion_date: occasionDate,
     recurring,

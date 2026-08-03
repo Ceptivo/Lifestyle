@@ -9,15 +9,18 @@ import { IconPicker } from "@/components/ui/IconPicker";
 
 type Person = { id: string; name: string };
 
+const CUSTOM_PERSON = "__custom__";
+
 export function OccasionForm({ people }: { people: Person[] }) {
   const [open, setOpen] = useState(false);
   const [icon, setIcon] = useState("gift");
+  const [selectedPerson, setSelectedPerson] = useState(people[0]?.id ?? CUSTOM_PERSON);
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
 
   if (!open) {
     return (
-      <Button onClick={() => setOpen(true)} disabled={!people.length} className="w-full">
+      <Button onClick={() => setOpen(true)} className="w-full">
         <Plus size={16} /> Add occasion
       </Button>
     );
@@ -32,6 +35,7 @@ export function OccasionForm({ people }: { people: Person[] }) {
           await addOccasion(formData);
           formRef.current?.reset();
           setIcon("gift");
+          setSelectedPerson(people[0]?.id ?? CUSTOM_PERSON);
           setOpen(false);
         });
       }}
@@ -44,13 +48,16 @@ export function OccasionForm({ people }: { people: Person[] }) {
         </button>
       </div>
 
-      <Select name="personId" defaultValue={people[0]?.id ?? ""}>
+      <Select name="personId" value={selectedPerson === CUSTOM_PERSON ? "" : selectedPerson} onChange={(e) => setSelectedPerson(e.target.value || CUSTOM_PERSON)}>
         {people.map((p) => (
           <option key={p.id} value={p.id}>
             {p.name}
           </option>
         ))}
+        <option value="">Someone else — type a name</option>
       </Select>
+
+      {selectedPerson === CUSTOM_PERSON && <Input name="personName" placeholder="Their name" required />}
 
       <Input name="label" placeholder="Occasion (e.g. Birthday, Anniversary)" required />
       <Input name="occasionDate" type="date" required />
@@ -67,7 +74,7 @@ export function OccasionForm({ people }: { people: Person[] }) {
 
       <IconPicker name="icon" value={icon} onChange={setIcon} />
 
-      <Button type="submit" disabled={isPending || !people.length} className="w-full">
+      <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "Saving…" : "Save occasion"}
       </Button>
     </form>

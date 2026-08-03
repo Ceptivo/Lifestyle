@@ -20,40 +20,57 @@ export async function uploadDocument(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const category = String(formData.get("category") ?? "other");
   const expiryDate = String(formData.get("expiryDate") ?? "");
-  const file = formData.get("file");
+  const files = formData.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
 
-  if (!name || !(file instanceof File) || file.size === 0) return;
-  if (file.size > MAX_FILE_SIZE) throw new Error("File is larger than the 10MB limit.");
+  if (!name || files.length === 0) return;
+  for (const file of files) {
+    if (file.size > MAX_FILE_SIZE) throw new Error(`${file.name} is larger than the 10MB limit.`);
+  }
 
   const supabase = createClient();
-  const storagePath = `${randomUUID()}/${file.name}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const documentId = randomUUID();
 
-  const { error: uploadError } = await supabase.storage.from(DOCUMENTS_BUCKET).upload(storagePath, buffer, {
-    contentType: file.type || "application/octet-stream",
-  });
-  if (uploadError) throw new Error(uploadError.message);
-
-  const { error: insertError } = await supabase.from("personal_documents").insert({
+  const { error: insertDocError } = await supabase.from("personal_documents").insert({
+    id: documentId,
     name,
     category: category || "other",
     expiry_date: expiryDate || null,
-    storage_path: storagePath,
-    file_name: file.name,
-    file_size: file.size,
-    content_type: file.type || null,
   });
-  if (insertError) throw new Error(insertError.message);
+  if (insertDocError) throw new Error(insertDocError.message);
+
+  const fileRows = [];
+  for (const file of files) {
+    const storagePath = `${documentId}/${randomUUID()}-${file.name}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const { error: uploadError } = await supabase.storage.from(DOCUMENTS_BUCKET).upload(storagePath, buffer, {
+      contentType: file.type || "application/octet-stream",
+    });
+    if (uploadError) throw new Error(uploadError.message);
+
+    fileRows.push({
+      document_id: documentId,
+      storage_path: storagePath,
+      file_name: file.name,
+      file_size: file.size,
+      content_type: file.type || null,
+    });
+  }
+
+  const { error: insertFilesError } = await supabase.from("personal_document_files").insert(fileRows);
+  if (insertFilesError) throw new Error(insertFilesError.message);
 
   revalidatePath("/personal", "layout");
 }
 
 export async function deleteDocument(id: string) {
   const supabase = createClient();
-  const { data: doc, error: fetchError } = await supabase.from("personal_documents").select("storage_path").eq("id", id).single();
+  const { data: files, error: fetchError } = await supabase.from("personal_document_files").select("storage_path").eq("document_id", id);
   if (fetchError) throw new Error(fetchError.message);
 
-  await supabase.storage.from(DOCUMENTS_BUCKET).remove([doc.storage_path]);
+  if (files && files.length > 0) {
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove(files.map((f) => f.storage_path));
+  }
 
   const { error } = await supabase.from("personal_documents").delete().eq("id", id);
   if (error) throw new Error(error.message);

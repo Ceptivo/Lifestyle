@@ -85,7 +85,7 @@ export default async function SocialOverviewPage() {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-charcoal">
-                  {o.label} · {peopleById[o.person_id] ?? "Someone"}
+                  {o.label} · {(o.person_id ? peopleById[o.person_id] : o.person_name) ?? "Someone"}
                 </p>
                 <p className="text-xs text-charcoal-soft">
                   {formatDate(o.next)} · {o.daysUntil === 0 ? "Today!" : o.daysUntil === 1 ? "Tomorrow" : `In ${o.daysUntil} days`}

@@ -509,7 +509,8 @@ export interface Database {
       social_occasions: {
         Row: {
           id: string;
-          person_id: string;
+          person_id: string | null;
+          person_name: string | null;
           label: string;
           occasion_date: string;
           recurring: boolean;
@@ -519,7 +520,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          person_id: string;
+          person_id?: string | null;
+          person_name?: string | null;
           label: string;
           occasion_date: string;
           recurring?: boolean;
@@ -820,10 +822,6 @@ export interface Database {
           name: string;
           category: string;
           expiry_date: string | null;
-          storage_path: string;
-          file_name: string;
-          file_size: number | null;
-          content_type: string | null;
           uploaded_at: string;
         };
         Insert: {
@@ -831,13 +829,31 @@ export interface Database {
           name: string;
           category?: string;
           expiry_date?: string | null;
+          uploaded_at?: string;
+        };
+        Update: { name?: string; category?: string; expiry_date?: string | null };
+        Relationships: [];
+      };
+      personal_document_files: {
+        Row: {
+          id: string;
+          document_id: string;
+          storage_path: string;
+          file_name: string;
+          file_size: number | null;
+          content_type: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          document_id: string;
           storage_path: string;
           file_name: string;
           file_size?: number | null;
           content_type?: string | null;
-          uploaded_at?: string;
+          created_at?: string;
         };
-        Update: { name?: string; category?: string; expiry_date?: string | null };
+        Update: { storage_path?: string; file_name?: string; file_size?: number | null; content_type?: string | null };
         Relationships: [];
       };
       personal_credentials: {
