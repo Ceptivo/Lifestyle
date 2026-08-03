@@ -75,7 +75,7 @@ export default async function HomePage() {
 
   const [{ data: universityModules }, { data: todayLectures }, { data: monthAssignments }] = await Promise.all([
     supabase.from("university_modules").select("id, code, name, icon"),
-    supabase.from("university_lectures").select("id, start_time, end_time, room, module_id").eq("lecture_date", today).order("start_time"),
+    supabase.from("university_lectures").select("id, start_time, end_time, room, module_id, attended").eq("lecture_date", today).order("start_time"),
     supabase
       .from("university_assignments")
       .select("*")
@@ -95,6 +95,7 @@ export default async function HomePage() {
       startTime: l.start_time,
       endTime: l.end_time,
       room: l.room,
+      attended: l.attended,
     };
   });
 
@@ -335,7 +336,7 @@ export default async function HomePage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Today&rsquo;s lectures</h2>
           <Link href="/university/calendar" className="mb-6 block">
             <Card>
-              <LectureDayList lectures={todayLectureRows} />
+              <LectureDayList lectures={todayLectureRows} attendance />
             </Card>
           </Link>
         </>

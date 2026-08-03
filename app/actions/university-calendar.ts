@@ -73,3 +73,12 @@ export async function deleteAssignment(id: string) {
 
   revalidatePath("/university", "layout");
 }
+
+export async function toggleLectureAttendance(id: string, attended: boolean) {
+  const supabase = createClient();
+  const { error } = await supabase.from("university_lectures").update({ attended }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/university", "layout");
+  revalidatePath("/", "layout");
+}

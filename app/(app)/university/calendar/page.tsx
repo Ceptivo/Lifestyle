@@ -60,6 +60,7 @@ export default async function UniversityCalendarPage({ searchParams }: { searchP
             startTime: l.start_time,
             endTime: l.end_time,
             room: l.room,
+            attended: l.attended,
           };
         }),
       assignments: (assignments ?? [])

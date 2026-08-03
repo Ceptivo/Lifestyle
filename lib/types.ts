@@ -1224,6 +1224,7 @@ export interface Database {
           end_time: string;
           room: string | null;
           week_label: string | null;
+          attended: boolean;
           created_at: string;
         };
         Insert: {
@@ -1234,6 +1235,7 @@ export interface Database {
           end_time: string;
           room?: string | null;
           week_label?: string | null;
+          attended?: boolean;
           created_at?: string;
         };
         Update: {
@@ -1243,6 +1245,7 @@ export interface Database {
           end_time?: string;
           room?: string | null;
           week_label?: string | null;
+          attended?: boolean;
         };
         Relationships: [];
       };

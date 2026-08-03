@@ -13,6 +13,7 @@ const QUICK_LINKS = [
   { href: "/university/assignments", label: "Assignments", icon: "clipboard-list" },
   { href: "/university/exams", label: "Exams", icon: "calendar-days" },
   { href: "/university/calendar", label: "Calendar", icon: "graduation-cap" },
+  { href: "/university/attendance", label: "Attendance", icon: "list-checks" },
   { href: "/university/grades", label: "Report Card", icon: "pie-chart" },
   { href: "/university/goals", label: "Goals", icon: "target" },
 ];
@@ -23,7 +24,7 @@ export default async function UniversityOverviewPage() {
 
   const [{ data: modules }, { data: todayLectures }, { data: nextAssignment }, { data: nextExam }, { data: grades }] = await Promise.all([
     supabase.from("university_modules").select("id, code, name, icon"),
-    supabase.from("university_lectures").select("id, start_time, end_time, room, module_id").eq("lecture_date", today).order("start_time"),
+    supabase.from("university_lectures").select("id, start_time, end_time, room, module_id, attended").eq("lecture_date", today).order("start_time"),
     supabase.from("university_assignments").select("*").not("due_date", "is", null).gte("due_date", today).order("due_date").limit(1).maybeSingle(),
     supabase.from("university_exams").select("*").gte("exam_date", today).order("exam_date").limit(1).maybeSingle(),
     supabase.from("university_grades").select("mark, max_mark"),
@@ -40,6 +41,7 @@ export default async function UniversityOverviewPage() {
       startTime: l.start_time,
       endTime: l.end_time,
       room: l.room,
+      attended: l.attended,
     };
   });
 
@@ -61,7 +63,7 @@ export default async function UniversityOverviewPage() {
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Today&rsquo;s lectures</h2>
       <Card className="mb-6">
-        <LectureDayList lectures={todayLectureRows} />
+        <LectureDayList lectures={todayLectureRows} attendance />
       </Card>
 
       {(nextAssignment || nextExam) && (

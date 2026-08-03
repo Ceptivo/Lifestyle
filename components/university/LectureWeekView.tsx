@@ -98,7 +98,7 @@ export function LectureWeekView({
               <p className="text-sm text-charcoal-soft">No lectures</p>
             )}
 
-            {day.lectures.length > 0 && <LectureDayList lectures={day.lectures} />}
+            {day.lectures.length > 0 && <LectureDayList lectures={day.lectures} attendance />}
           </div>
         ))}
       </Card>
