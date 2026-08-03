@@ -3,6 +3,7 @@ import { Target } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ReportList } from "@/components/home/ReportList";
+import { LectureDayList, type DayLecture } from "@/components/university/LectureDayList";
 import { generateInsights } from "@/lib/insights";
 import { computeForecast } from "@/lib/forecast";
 import { generateSleepInsight } from "@/lib/health-insights";
@@ -73,8 +74,8 @@ export default async function HomePage() {
   const calMonthEnd = `${year}-${String(monthNum).padStart(2, "0")}-${String(new Date(year, monthNum, 0).getDate()).padStart(2, "0")}`;
 
   const [{ data: universityModules }, { data: todayLectures }, { data: monthAssignments }] = await Promise.all([
-    supabase.from("university_modules").select("id, code, name"),
-    supabase.from("university_lectures").select("start_time, end_time, module_id").eq("lecture_date", today).order("start_time"),
+    supabase.from("university_modules").select("id, code, name, icon"),
+    supabase.from("university_lectures").select("id, start_time, end_time, room, module_id").eq("lecture_date", today).order("start_time"),
     supabase
       .from("university_assignments")
       .select("*")
@@ -84,9 +85,18 @@ export default async function HomePage() {
   ]);
 
   const moduleById = new Map((universityModules ?? []).map((m) => [m.id, m]));
-  const todayLectureSummary = (todayLectures ?? [])
-    .map((l) => `${l.start_time.slice(0, 5)} ${moduleById.get(l.module_id)?.name ?? "Lecture"}`)
-    .join(" · ");
+  const todayLectureRows: DayLecture[] = (todayLectures ?? []).map((l) => {
+    const mod = moduleById.get(l.module_id);
+    return {
+      id: l.id,
+      moduleCode: mod?.code ?? "",
+      moduleName: mod?.name ?? "Lecture",
+      moduleIcon: mod?.icon ?? "book-open",
+      startTime: l.start_time,
+      endTime: l.end_time,
+      room: l.room,
+    };
+  });
 
   const reminderItems: ReportItem[] = (monthAssignments ?? []).map((a) => {
     const mod = a.module_id ? moduleById.get(a.module_id) : null;
@@ -280,17 +290,6 @@ export default async function HomePage() {
     });
   }
 
-  if (todayLectureSummary) {
-    items.push({
-      id: "lectures-today",
-      tone: "info",
-      icon: "graduation-cap",
-      title: "Today's lectures",
-      body: todayLectureSummary,
-      href: "/university/calendar",
-    });
-  }
-
   if (topFinanceInsight) {
     items.push({
       id: `finance-${topFinanceInsight.id}`,
@@ -330,6 +329,17 @@ export default async function HomePage() {
       <div className="mb-6">
         <ReportList items={reportItems} />
       </div>
+
+      {todayLectureRows.length > 0 && (
+        <>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Today&rsquo;s lectures</h2>
+          <Link href="/university/calendar" className="mb-6 block">
+            <Card>
+              <LectureDayList lectures={todayLectureRows} />
+            </Card>
+          </Link>
+        </>
+      )}
 
       {reminderItems.length > 0 && (
         <>

@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { LectureDayList, type DayLecture } from "@/components/university/LectureDayList";
 import { cn } from "@/lib/cn";
-import { addDays, formatShortDate, formatTimeRange, formatWeekDay, formatWeekRange } from "@/lib/university-calendar";
+import { addDays, formatShortDate, formatWeekDay, formatWeekRange } from "@/lib/university-calendar";
 
-export type DayLecture = { id: string; moduleCode: string; moduleName: string; moduleIcon: string; startTime: string; endTime: string; room: string | null };
+export type { DayLecture };
 export type DayAssignment = { id: string; title: string; moduleCode: string | null; flagged: boolean };
 export type DayBanner = { label: string; icon: string };
 
@@ -97,24 +98,7 @@ export function LectureWeekView({
               <p className="text-sm text-charcoal-soft">No lectures</p>
             )}
 
-            {day.lectures.length > 0 && (
-              <div className="space-y-1.5">
-                {day.lectures.map((l) => (
-                  <div key={l.id} className="flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pink-soft text-pink-dark">
-                      <Icon name={l.moduleIcon} size={14} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-charcoal">{l.moduleName}</p>
-                      <p className="text-xs text-charcoal-soft">
-                        {formatTimeRange(l.startTime, l.endTime)}
-                        {l.room && ` · ${l.room}`}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {day.lectures.length > 0 && <LectureDayList lectures={day.lectures} />}
           </div>
         ))}
       </Card>
