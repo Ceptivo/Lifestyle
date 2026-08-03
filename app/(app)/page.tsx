@@ -8,7 +8,7 @@ import { computeForecast } from "@/lib/forecast";
 import { generateSleepInsight } from "@/lib/health-insights";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { daysBetween, nextOccurrence } from "@/lib/social";
-import { formatCurrency, todayLocalDate } from "@/lib/format";
+import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
 import { sortReportItems, type ReportItem } from "@/lib/daily-report";
 import { financialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
 
@@ -66,6 +66,42 @@ export default async function HomePage() {
     .select("title")
     .eq("day_of_week", todayDayOfWeek);
   const todayPlanTitle = todayPlanRows?.length ? todayPlanRows.map((p) => p.title).join(" · ") : null;
+
+  // --- University: today's lectures + this month's assignment reminders -----
+  const [year, monthNum] = today.split("-").map(Number);
+  const calMonthStart = `${year}-${String(monthNum).padStart(2, "0")}-01`;
+  const calMonthEnd = `${year}-${String(monthNum).padStart(2, "0")}-${String(new Date(year, monthNum, 0).getDate()).padStart(2, "0")}`;
+
+  const [{ data: universityModules }, { data: todayLectures }, { data: monthAssignments }] = await Promise.all([
+    supabase.from("university_modules").select("id, code, name"),
+    supabase.from("university_lectures").select("start_time, end_time, module_id").eq("lecture_date", today).order("start_time"),
+    supabase
+      .from("university_assignments")
+      .select("*")
+      .gte("due_date", calMonthStart)
+      .lte("due_date", calMonthEnd)
+      .order("due_date"),
+  ]);
+
+  const moduleById = new Map((universityModules ?? []).map((m) => [m.id, m]));
+  const todayLectureSummary = (todayLectures ?? [])
+    .map((l) => `${l.start_time.slice(0, 5)} ${moduleById.get(l.module_id)?.name ?? "Lecture"}`)
+    .join(" · ");
+
+  const reminderItems: ReportItem[] = (monthAssignments ?? []).map((a) => {
+    const mod = a.module_id ? moduleById.get(a.module_id) : null;
+    const daysUntil = daysBetween(today, a.due_date!);
+    const body =
+      daysUntil === 0 ? "Due today" : daysUntil === 1 ? "Due tomorrow" : daysUntil > 0 ? `Due in ${daysUntil}d (${formatDate(a.due_date!)})` : `Overdue — was due ${formatDate(a.due_date!)}`;
+    return {
+      id: `assignment-${a.id}`,
+      tone: a.flagged ? "alert" : daysUntil >= 0 && daysUntil <= 3 ? "tip" : "info",
+      icon: a.flagged ? "flag" : "clipboard-list",
+      title: `${a.title}${mod ? ` · ${mod.code}` : ""}`,
+      body,
+      href: "/university/assignments",
+    };
+  });
 
   // --- Finance: balance, this-month figures, trailing averages ------------
   const monthPrefix = financialMonthKey(today);
@@ -244,6 +280,17 @@ export default async function HomePage() {
     });
   }
 
+  if (todayLectureSummary) {
+    items.push({
+      id: "lectures-today",
+      tone: "info",
+      icon: "graduation-cap",
+      title: "Today's lectures",
+      body: todayLectureSummary,
+      href: "/university/calendar",
+    });
+  }
+
   if (topFinanceInsight) {
     items.push({
       id: `finance-${topFinanceInsight.id}`,
@@ -283,6 +330,15 @@ export default async function HomePage() {
       <div className="mb-6">
         <ReportList items={reportItems} />
       </div>
+
+      {reminderItems.length > 0 && (
+        <>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Reminders</h2>
+          <div className="mb-6">
+            <ReportList items={reminderItems} />
+          </div>
+        </>
+      )}
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">All in One</h2>
       <Link href="/goals">

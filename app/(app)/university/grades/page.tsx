@@ -42,6 +42,7 @@ export default async function ReportCardPage() {
       <div className="mb-6">
         <GradeForm />
       </div>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Year 1 Semester 1</h2>
       <GradeList groups={groups} />
     </div>
   );
