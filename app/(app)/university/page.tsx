@@ -80,7 +80,7 @@ export default async function UniversityOverviewPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-charcoal">
                     {nextAssignment.title}
-                    {assignmentModule && ` · ${assignmentModule.code}`}
+                    {assignmentModule && ` · ${assignmentModule.name}`}
                   </p>
                   <p className="truncate text-sm text-charcoal-soft">
                     Due {formatDate(nextAssignment.due_date!)} · {assignmentDaysUntil}d

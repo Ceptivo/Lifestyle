@@ -108,7 +108,7 @@ export default async function HomePage() {
       id: `assignment-${a.id}`,
       tone: a.flagged ? "alert" : daysUntil >= 0 && daysUntil <= 3 ? "tip" : "info",
       icon: a.flagged ? "flag" : "clipboard-list",
-      title: `${a.title}${mod ? ` · ${mod.code}` : ""}`,
+      title: `${a.title}${mod ? ` · ${mod.name}` : ""}`,
       body,
       href: "/university/assignments",
     };

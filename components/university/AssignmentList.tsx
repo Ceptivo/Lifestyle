@@ -31,6 +31,7 @@ export type Assignment = {
   id: string;
   title: string;
   moduleCode: string | null;
+  moduleName: string | null;
   dueDate: string | null;
   dueDateFormatted: string | null;
   dueTime: string | null;
@@ -92,8 +93,9 @@ function AssignmentRow({ assignment }: { assignment: Assignment }) {
       <div className="min-w-0 flex-1">
         <p className="break-words hyphens-auto text-sm font-medium text-charcoal">
           {assignment.title}
-          {assignment.moduleCode && <span className="font-normal text-charcoal-soft"> · {assignment.moduleCode}</span>}
+          {assignment.moduleName && <span className="font-normal text-charcoal-soft"> · {assignment.moduleName}</span>}
         </p>
+        {assignment.moduleCode && <p className="text-[11px] font-medium text-charcoal-soft">Module Code: {assignment.moduleCode}</p>}
         {assignment.dueDateFormatted ? (
           <p className={cn("text-xs", assignment.overdue ? "font-semibold text-danger" : "text-charcoal-soft")}>
             Due {assignment.dueDateFormatted}
