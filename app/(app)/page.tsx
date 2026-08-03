@@ -35,6 +35,11 @@ export default async function HomePage() {
     day: "numeric",
   });
 
+  const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
+  const [year, monthNum] = today.split("-").map(Number);
+  const calMonthStart = `${year}-${String(monthNum).padStart(2, "0")}-01`;
+  const calMonthEnd = `${year}-${String(monthNum).padStart(2, "0")}-${String(new Date(year, monthNum, 0).getDate()).padStart(2, "0")}`;
+
   const [
     { data: accounts },
     { data: transactions },
@@ -47,6 +52,10 @@ export default async function HomePage() {
     { data: people },
     { data: interactions },
     { data: occasions },
+    { data: todayPlanRows },
+    { data: universityModules },
+    { data: todayLectures },
+    { data: monthAssignments },
   ] = await Promise.all([
     supabase.from("finance_accounts").select("starting_balance"),
     supabase.from("finance_transactions").select("type, amount, occurred_on, category_id, subscription_id"),
@@ -59,21 +68,7 @@ export default async function HomePage() {
     supabase.from("social_people").select("*"),
     supabase.from("social_interactions").select("person_id, occurred_on").order("occurred_on", { ascending: false }),
     supabase.from("social_occasions").select("*"),
-  ]);
-
-  const todayDayOfWeek = (new Date(today + "T00:00:00").getDay() + 6) % 7;
-  const { data: todayPlanRows } = await supabase
-    .from("health_training_plan")
-    .select("title")
-    .eq("day_of_week", todayDayOfWeek);
-  const todayPlanTitle = todayPlanRows?.length ? todayPlanRows.map((p) => p.title).join(" · ") : null;
-
-  // --- University: today's lectures + this month's assignment reminders -----
-  const [year, monthNum] = today.split("-").map(Number);
-  const calMonthStart = `${year}-${String(monthNum).padStart(2, "0")}-01`;
-  const calMonthEnd = `${year}-${String(monthNum).padStart(2, "0")}-${String(new Date(year, monthNum, 0).getDate()).padStart(2, "0")}`;
-
-  const [{ data: universityModules }, { data: todayLectures }, { data: monthAssignments }] = await Promise.all([
+    supabase.from("health_training_plan").select("title").eq("day_of_week", todayDayOfWeek),
     supabase.from("university_modules").select("id, code, name, icon"),
     supabase.from("university_lectures").select("id, start_time, end_time, room, module_id, attended").eq("lecture_date", today).order("start_time"),
     supabase
@@ -83,6 +78,10 @@ export default async function HomePage() {
       .lte("due_date", calMonthEnd)
       .order("due_date"),
   ]);
+
+  const todayPlanTitle = todayPlanRows?.length ? todayPlanRows.map((p) => p.title).join(" · ") : null;
+
+  // --- University: today's lectures + this month's assignment reminders -----
 
   const moduleById = new Map((universityModules ?? []).map((m) => [m.id, m]));
   const todayLectureRows: DayLecture[] = (todayLectures ?? []).map((l) => {
