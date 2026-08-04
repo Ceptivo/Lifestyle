@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, BookOpen, Wrench, Plane, ShieldCheck, Briefcase, GraduationCap, Compass, UtensilsCrossed, ShoppingCart } from "lucide-react";
+import { Users, BookOpen, Wrench, Plane, ShieldCheck, Briefcase, GraduationCap, Compass, UtensilsCrossed, ShoppingCart, Bell } from "lucide-react";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { Card } from "@/components/ui/Card";
 
@@ -11,6 +11,7 @@ const SECTIONS = [
   { href: "/environment", label: "Home & Environment", subtitle: "Maintenance, chores", icon: Wrench },
   { href: "/personal", label: "Personal Admin", subtitle: "Documents, passwords, checklist", icon: ShieldCheck },
   { href: "/travel", label: "Travel & Experiences", subtitle: "Trips, packing, bucket list", icon: Plane },
+  { href: "/reminders", label: "Reminders", subtitle: "Priority-flagged notes, pinnable to Home", icon: Bell },
   { href: "/wishlist", label: "Things I Need", subtitle: "What to buy, by category", icon: ShoppingCart },
   { href: "/activities", label: "Activities to do", subtitle: "Ideas with cost estimates and locations", icon: Compass },
   { href: "/restaurant-savers", label: "Restaurant Savers", subtitle: "Daily food specials, every day", icon: UtensilsCrossed },

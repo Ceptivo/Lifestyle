@@ -77,6 +77,7 @@ import {
   Upload,
   Calculator,
   Megaphone,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -159,6 +160,7 @@ export const ICONS: Record<string, LucideIcon> = {
   upload: Upload,
   calculator: Calculator,
   megaphone: Megaphone,
+  bell: Bell,
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

@@ -11,6 +11,7 @@ export type ActivityLocationType = "indoor" | "outdoor";
 export type ActivityPhysicalType = "physical" | "non_physical";
 export type ActivityCostTier = "cheap" | "expensive";
 export type WorkUpdateItemStatus = "pending" | "uncertain" | "confirm_pending" | "logged";
+export type ReminderPriority = "low" | "medium" | "urgent";
 
 export interface Database {
   public: {
@@ -226,6 +227,40 @@ export interface Database {
           category?: string;
           price?: number | null;
           icon?: string;
+        };
+        Relationships: [];
+      };
+      reminders: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          priority: ReminderPriority;
+          remind_at: string | null;
+          show_on_home: boolean;
+          home_display_start: string | null;
+          home_display_end: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          priority?: ReminderPriority;
+          remind_at?: string | null;
+          show_on_home?: boolean;
+          home_display_start?: string | null;
+          home_display_end?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          priority?: ReminderPriority;
+          remind_at?: string | null;
+          show_on_home?: boolean;
+          home_display_start?: string | null;
+          home_display_end?: string | null;
         };
         Relationships: [];
       };

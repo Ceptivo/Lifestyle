@@ -91,6 +91,15 @@ export function todayLocalDate(): string {
   return new Date(now.getTime() - offsetMs).toISOString().slice(0, 10);
 }
 
+// Local (not UTC) date + time as "YYYY-MM-DDTHH:mm:ss", for comparing
+// against the plain "timestamp" (no time zone) columns this app stores
+// wall-clock values in — see todayLocalDate() above for why.
+export function nowLocalDateTime(): string {
+  const now = new Date();
+  const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - offsetMs).toISOString().slice(0, 19);
+}
+
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
 
 export function todayWeekday(): (typeof WEEKDAY_NAMES)[number] {

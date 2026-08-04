@@ -9,7 +9,7 @@ import { computeForecast } from "@/lib/forecast";
 import { generateSleepInsight } from "@/lib/health-insights";
 import { monthlyEquivalent } from "@/lib/subscriptions";
 import { daysBetween, nextOccurrence } from "@/lib/social";
-import { formatCurrency, formatDate, todayLocalDate } from "@/lib/format";
+import { formatCurrency, formatDate, formatDateTime, nowLocalDateTime, todayLocalDate } from "@/lib/format";
 import { sortReportItems, type ReportItem } from "@/lib/daily-report";
 import { financialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
 
@@ -56,6 +56,7 @@ export default async function HomePage() {
     { data: universityModules },
     { data: todayLectures },
     { data: monthAssignments },
+    { data: homeReminders },
   ] = await Promise.all([
     supabase.from("finance_accounts").select("starting_balance"),
     supabase.from("finance_transactions").select("type, amount, occurred_on, category_id, subscription_id"),
@@ -77,6 +78,7 @@ export default async function HomePage() {
       .gte("due_date", calMonthStart)
       .lte("due_date", calMonthEnd)
       .order("due_date"),
+    supabase.from("reminders").select("id, title, description, priority, remind_at, home_display_start, home_display_end").eq("show_on_home", true),
   ]);
 
   const todayPlanTitle = todayPlanRows?.length ? todayPlanRows.map((p) => p.title).join(" · ") : null;
@@ -213,8 +215,25 @@ export default async function HomePage() {
     .filter((o) => o.daysUntil <= 7)
     .sort((a, b) => a.daysUntil - b.daysUntil);
 
+  // --- Reminders pinned to Home, within their display window (if set) ------
+  const nowLocal = nowLocalDateTime();
+  const activeReminders = (homeReminders ?? []).filter(
+    (r) => (!r.home_display_start || r.home_display_start <= nowLocal) && (!r.home_display_end || r.home_display_end >= nowLocal)
+  );
+
   // --- Assemble the briefing ---------------------------------------------------
   const items: ReportItem[] = [];
+
+  for (const r of activeReminders) {
+    items.push({
+      id: `reminder-${r.id}`,
+      tone: r.priority === "urgent" ? "alert" : r.priority === "low" ? "info" : "tip",
+      icon: "bell",
+      title: r.title,
+      body: r.description ?? (r.remind_at ? `Reminder set for ${formatDateTime(r.remind_at)}` : "Reminder"),
+      href: "/reminders",
+    });
+  }
 
   for (const p of overduePeople.slice(0, 3)) {
     items.push({
