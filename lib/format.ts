@@ -91,13 +91,18 @@ export function todayLocalDate(): string {
   return new Date(now.getTime() - offsetMs).toISOString().slice(0, 10);
 }
 
-// Local (not UTC) date + time as "YYYY-MM-DDTHH:mm:ss", for comparing
-// against the plain "timestamp" (no time zone) columns this app stores
-// wall-clock values in — see todayLocalDate() above for why.
+// This app's server runs in UTC (Vercel's default), but its one user is in
+// South Africa — SAST, UTC+2, no DST — so it can't be read off the runtime's
+// own offset the way todayLocalDate() reads the browser's. Hardcoded since
+// there's no per-request signal of the user's zone on a server component.
+const SAST_OFFSET_MINUTES = 120;
+
+// Local (SAST) date + time as "YYYY-MM-DDTHH:mm:ss", for comparing against
+// the plain "timestamp" (no time zone) columns this app stores wall-clock
+// values in (e.g. reminders' display window, typed via a datetime-local
+// input that carries no time zone of its own).
 export function nowLocalDateTime(): string {
-  const now = new Date();
-  const offsetMs = now.getTimezoneOffset() * 60 * 1000;
-  return new Date(now.getTime() - offsetMs).toISOString().slice(0, 19);
+  return new Date(Date.now() + SAST_OFFSET_MINUTES * 60 * 1000).toISOString().slice(0, 19);
 }
 
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
