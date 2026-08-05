@@ -11,7 +11,8 @@ export const revalidate = 60;
 const HEALTH_LINKS = [
   { href: "/health/training", label: "Training", icon: "dumbbell" },
   { href: "/health/sleep", label: "Sleep", icon: "moon" },
-  { href: "/health/journal", label: "Journal", icon: "pill" },
+  { href: "/health/symptoms", label: "Symptoms", icon: "pill" },
+  { href: "/health/journal", label: "Journal", icon: "notebook-pen" },
   { href: "/health/races", label: "Races", icon: "flag" },
   { href: "/health/goals", label: "Goals", icon: "target" },
   { href: "/health/analytics", label: "Analytics", icon: "pie-chart" },

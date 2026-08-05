@@ -226,6 +226,40 @@ export async function deleteJournalEntry(id: string) {
   revalidatePath("/health", "layout");
 }
 
+// --- Diary (free-form daily journal, distinct from the symptom Journal above) ---
+
+export async function addDiaryEntry(formData: FormData) {
+  const entryDate = String(formData.get("entryDate") ?? "");
+  const content = String(formData.get("content") ?? "").trim();
+
+  if (!entryDate || !content) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("health_diary_entries").insert({ entry_date: entryDate, content });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health/journal", "layout");
+}
+
+export async function updateDiaryEntry(id: string, formData: FormData) {
+  const content = String(formData.get("content") ?? "").trim();
+  if (!content) return;
+
+  const supabase = createClient();
+  const { error } = await supabase.from("health_diary_entries").update({ content }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health/journal", "layout");
+}
+
+export async function deleteDiaryEntry(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("health_diary_entries").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/health/journal", "layout");
+}
+
 // --- Goals -------------------------------------------------------------------
 
 export async function addHealthGoal(formData: FormData) {

@@ -486,6 +486,25 @@ export interface Database {
         };
         Relationships: [];
       };
+      health_diary_entries: {
+        Row: {
+          id: string;
+          entry_date: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          entry_date: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: {
+          entry_date?: string;
+          content?: string;
+        };
+        Relationships: [];
+      };
       social_people: {
         Row: {
           id: string;
