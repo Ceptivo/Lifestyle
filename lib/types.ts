@@ -505,6 +505,43 @@ export interface Database {
         };
         Relationships: [];
       };
+      habits: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      habit_logs: {
+        Row: {
+          id: string;
+          habit_id: string;
+          log_date: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          habit_id: string;
+          log_date: string;
+          created_at?: string;
+        };
+        Update: {
+          log_date?: string;
+        };
+        Relationships: [];
+      };
       social_people: {
         Row: {
           id: string;
