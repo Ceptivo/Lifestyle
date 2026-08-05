@@ -31,7 +31,14 @@ export function ReportList({ items }: { items: ReportItem[] }) {
                 <Icon name={item.icon} size={16} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{item.title}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="break-words hyphens-auto text-sm font-medium text-charcoal">{item.title}</p>
+                  {item.badge && (
+                    <span className={cn("shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide", TONE_CLASSES[item.tone])}>
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
                 <p className="break-words hyphens-auto text-xs text-charcoal-soft">{item.body}</p>
               </div>
             </Card>

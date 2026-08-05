@@ -7,6 +7,7 @@ export type ReportItem = {
   title: string;
   body: string;
   href: string;
+  badge?: string;
 };
 
 const SEVERITY: Record<ReportTone, number> = { alert: 0, tip: 1, info: 2 };

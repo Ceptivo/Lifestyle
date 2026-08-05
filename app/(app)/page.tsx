@@ -12,6 +12,7 @@ import { daysBetween, nextOccurrence } from "@/lib/social";
 import { formatCurrency, formatDate, formatDateTime, nowLocalDateTime, todayLocalDate } from "@/lib/format";
 import { sortReportItems, type ReportItem } from "@/lib/daily-report";
 import { financialMonthKey, financialMonthRange, shiftFinancialMonthKey } from "@/lib/financial-month";
+import { verseOfTheDay } from "@/lib/bible-verses";
 
 export const revalidate = 60;
 
@@ -39,6 +40,11 @@ export default async function HomePage() {
   const [year, monthNum] = today.split("-").map(Number);
   const calMonthStart = `${year}-${String(monthNum).padStart(2, "0")}-01`;
   const calMonthEnd = `${year}-${String(monthNum).padStart(2, "0")}-${String(new Date(year, monthNum, 0).getDate()).padStart(2, "0")}`;
+  const weekAheadDate = (() => {
+    const d = new Date(today + "T00:00:00");
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().slice(0, 10);
+  })();
 
   const [
     { data: accounts },
@@ -57,6 +63,7 @@ export default async function HomePage() {
     { data: todayLectures },
     { data: monthAssignments },
     { data: homeReminders },
+    { data: dueMaintenanceTasks },
   ] = await Promise.all([
     supabase.from("finance_accounts").select("starting_balance"),
     supabase.from("finance_transactions").select("type, amount, occurred_on, category_id, subscription_id"),
@@ -79,6 +86,7 @@ export default async function HomePage() {
       .lte("due_date", calMonthEnd)
       .order("due_date"),
     supabase.from("reminders").select("id, title, description, priority, remind_at, home_display_start, home_display_end").eq("show_on_home", true),
+    supabase.from("home_maintenance_tasks").select("id, title, notes, next_due_date, icon").gte("next_due_date", today).lte("next_due_date", weekAheadDate),
   ]);
 
   const todayPlanTitle = todayPlanRows?.length ? todayPlanRows.map((p) => p.title).join(" · ") : null;
@@ -224,6 +232,7 @@ export default async function HomePage() {
   // --- Assemble the briefing ---------------------------------------------------
   const items: ReportItem[] = [];
 
+  const REMINDER_PRIORITY_LABEL: Record<string, string> = { urgent: "Urgent", medium: "Medium", low: "Low" };
   for (const r of activeReminders) {
     items.push({
       id: `reminder-${r.id}`,
@@ -232,6 +241,7 @@ export default async function HomePage() {
       title: r.title,
       body: r.description ?? (r.remind_at ? `Reminder set for ${formatDateTime(r.remind_at)}` : "Reminder"),
       href: "/reminders",
+      badge: REMINDER_PRIORITY_LABEL[r.priority],
     });
   }
 
@@ -281,6 +291,18 @@ export default async function HomePage() {
         href: "/finance/subscriptions",
       });
     }
+  }
+
+  for (const t of dueMaintenanceTasks ?? []) {
+    const daysUntilDue = daysBetween(today, t.next_due_date);
+    items.push({
+      id: `maintenance-${t.id}`,
+      tone: daysUntilDue <= 2 ? "alert" : "tip",
+      icon: t.icon,
+      title: `${t.title} due ${daysUntilDue === 0 ? "today" : daysUntilDue === 1 ? "tomorrow" : `in ${daysUntilDue}d`}`,
+      body: t.notes ?? `Due ${formatDate(t.next_due_date)}`,
+      href: "/environment",
+    });
   }
 
   const nextRace = (races ?? [])[0];
@@ -336,6 +358,7 @@ export default async function HomePage() {
   }
 
   const reportItems = sortReportItems(items);
+  const verse = verseOfTheDay(today);
 
   return (
     <div>
@@ -345,9 +368,20 @@ export default async function HomePage() {
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Today&rsquo;s briefing</h2>
+      <Card className="mb-3">
+        <p className="text-center text-sm font-bold text-charcoal">
+          &ldquo;You do not decide your future, you decide your habits that decide your future.&rdquo;
+        </p>
+      </Card>
       <div className="mb-6">
         <ReportList items={reportItems} />
       </div>
+
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Verse of the day</h2>
+      <Card className="mb-6">
+        <p className="text-center text-sm italic text-charcoal">&ldquo;{verse.text}&rdquo;</p>
+        <p className="mt-2 text-center text-xs font-semibold text-charcoal-soft">{verse.reference}</p>
+      </Card>
 
       {todayLectureRows.length > 0 && (
         <>
