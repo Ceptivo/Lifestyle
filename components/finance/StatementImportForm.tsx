@@ -2,8 +2,15 @@
 
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, X, Flag, CheckCircle2, AlertTriangle } from "lucide-react";
-import { previewStatementImport, commitStatementImport, type ImportPreview, type PreviewTransaction } from "@/app/actions/finance-import";
+import { Upload, X, Flag, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
+import {
+  previewStatementImport,
+  commitStatementImport,
+  verifyStatementImport,
+  type ImportPreview,
+  type PreviewTransaction,
+  type VerificationResult,
+} from "@/app/actions/finance-import";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Field";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -23,6 +30,8 @@ export function StatementImportForm({ accounts, categories }: { accounts: Accoun
   const [showFlaggedOnly, setShowFlaggedOnly] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [doneResult, setDoneResult] = useState<{ count: number; flagged: number } | null>(null);
+  const [verification, setVerification] = useState<VerificationResult | null>(null);
+  const [verifying, setVerifying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -100,6 +109,19 @@ export function StatementImportForm({ accounts, categories }: { accounts: Accoun
         setDoneResult(result);
         setStep("done");
         router.refresh();
+
+        setVerifying(true);
+        try {
+          const v = await verifyStatementImport(result.importId);
+          setVerification(v);
+        } catch (e) {
+          setVerification({
+            allPassed: false,
+            checks: [{ id: "error", label: "Verification failed to run", passed: false, detail: e instanceof Error ? e.message : "Unknown error." }],
+          });
+        } finally {
+          setVerifying(false);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Couldn't save this import.");
       }
@@ -114,6 +136,8 @@ export function StatementImportForm({ accounts, categories }: { accounts: Accoun
     setNewAccountName("");
     setError(null);
     setDoneResult(null);
+    setVerification(null);
+    setVerifying(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -127,6 +151,33 @@ export function StatementImportForm({ accounts, categories }: { accounts: Accoun
             {doneResult.flagged} of them are flagged for review — you&apos;ll find them under &quot;Needs review&quot; on the Transactions page.
           </p>
         )}
+
+        <div className="rounded-xl border border-border bg-cream p-3 text-left">
+          <div className="mb-2 flex items-center gap-1.5">
+            <ShieldCheck size={15} className="text-charcoal-soft" />
+            <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-soft">Verified against the bank statement</p>
+          </div>
+          {verifying ? (
+            <p className="text-xs text-charcoal-soft">Re-reading the PDF and checking every figure…</p>
+          ) : verification ? (
+            <ul className="space-y-2">
+              {verification.checks.map((c) => (
+                <li key={c.id} className="flex items-start gap-2">
+                  {c.passed ? (
+                    <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-500" />
+                  ) : (
+                    <AlertTriangle size={15} className="mt-0.5 shrink-0 text-danger" />
+                  )}
+                  <div className="min-w-0">
+                    <p className={cn("text-xs font-semibold", c.passed ? "text-charcoal" : "text-danger")}>{c.label}</p>
+                    <p className="text-xs text-charcoal-soft">{c.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+
         <Button onClick={reset} className="w-full">
           Import another statement
         </Button>

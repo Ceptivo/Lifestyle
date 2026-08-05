@@ -207,6 +207,77 @@ export async function commitStatementImport(formData: FormData): Promise<{ impor
   return { importId: importRow.id, count: transactions.length, flagged: flaggedCount };
 }
 
+export type VerificationCheck = { id: string; label: string; passed: boolean; detail: string };
+export type VerificationResult = { allPassed: boolean; checks: VerificationCheck[] };
+
+// Independent post-save audit: re-parses the statement text stored on the
+// import row from scratch (not the client's cached preview) and compares it
+// against what actually landed in finance_transactions, so a bug between
+// preview and commit — or a row that failed to insert — can't hide.
+export async function verifyStatementImport(importId: string): Promise<VerificationResult> {
+  const supabase = createClient();
+
+  const { data: importRow, error: importError } = await supabase
+    .from("finance_statement_imports")
+    .select("raw_text, opening_balance, closing_balance, total_credits, total_debits")
+    .eq("id", importId)
+    .single();
+  if (importError) throw new Error(importError.message);
+
+  const { data: savedTransactions, error: txError } = await supabase
+    .from("finance_transactions")
+    .select("type, amount")
+    .eq("import_id", importId);
+  if (txError) throw new Error(txError.message);
+
+  const reparsed = parseNedbankStatementText(importRow.raw_text);
+  const saved = savedTransactions ?? [];
+
+  const checks: VerificationCheck[] = [];
+
+  // Check 1 — every row the statement contains made it into the app.
+  const countMatch = saved.length === reparsed.transactions.length;
+  checks.push({
+    id: "count",
+    label: "Every transaction was saved",
+    passed: countMatch,
+    detail: countMatch
+      ? `${saved.length} of ${saved.length} transactions from the statement are saved in the app.`
+      : `The statement has ${reparsed.transactions.length} transactions, but ${saved.length} are saved — re-import to fix this.`,
+  });
+
+  // Check 2 — saved credits/debits match the totals printed on the statement.
+  const savedCredits = Math.round(saved.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0) * 100) / 100;
+  const savedDebits = Math.round(saved.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0) * 100) / 100;
+  const statedCredits = importRow.total_credits ?? reparsed.totalCredits ?? 0;
+  const statedDebits = importRow.total_debits ?? reparsed.totalDebits ?? 0;
+  const totalsMatch = Math.abs(savedCredits - statedCredits) < 0.02 && Math.abs(savedDebits - statedDebits) < 0.02;
+  checks.push({
+    id: "totals",
+    label: "Credits and debits match the statement",
+    passed: totalsMatch,
+    detail: totalsMatch
+      ? `Saved credits ${savedCredits.toFixed(2)} and debits ${savedDebits.toFixed(2)} match the statement exactly.`
+      : `Statement shows credits ${statedCredits.toFixed(2)} / debits ${statedDebits.toFixed(2)}, but the app has ${savedCredits.toFixed(2)} / ${savedDebits.toFixed(2)}.`,
+  });
+
+  // Check 3 — opening balance + net of saved transactions = the statement's own closing balance.
+  const openingBalance = importRow.opening_balance ?? reparsed.openingBalance ?? 0;
+  const statedClosing = importRow.closing_balance ?? reparsed.closingBalance;
+  const computedClosing = Math.round((openingBalance + savedCredits - savedDebits) * 100) / 100;
+  const balanceMatch = statedClosing != null && Math.abs(computedClosing - statedClosing) < 0.02;
+  checks.push({
+    id: "balance",
+    label: "Balance reconciles with the bank's own figures",
+    passed: balanceMatch,
+    detail: balanceMatch
+      ? `Opening balance plus every saved transaction lands exactly on the statement's closing balance of ${computedClosing.toFixed(2)}.`
+      : `Opening balance + saved transactions computes to ${computedClosing.toFixed(2)}, but the statement's closing balance is ${(statedClosing ?? 0).toFixed(2)}.`,
+  });
+
+  return { allPassed: checks.every((c) => c.passed), checks };
+}
+
 export async function resolveTransactionReview(id: string, formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "");
   if (!categoryId) return;
