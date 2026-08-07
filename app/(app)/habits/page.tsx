@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeading } from "@/components/ui/PageHeading";
+import { Card } from "@/components/ui/Card";
 import { HabitForm } from "@/components/habits/HabitForm";
 import { HabitList, type Habit } from "@/components/habits/HabitList";
+import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { todayLocalDate } from "@/lib/format";
 
 export const revalidate = 60;
@@ -37,6 +39,16 @@ export default async function HabitsPage() {
 
   const last7Dates = Array.from({ length: 7 }, (_, i) => addDaysLocal(today, -(6 - i)));
 
+  const monthStart = `${today.slice(0, 7)}-01`;
+  const totalHabits = (habits ?? []).length;
+  const doneCountByDate = new Map<string, number>();
+  for (const l of logs ?? []) {
+    doneCountByDate.set(l.log_date, (doneCountByDate.get(l.log_date) ?? 0) + 1);
+  }
+  const completionByDate = new Map<string, { done: number; total: number }>(
+    [...doneCountByDate.entries()].map(([date, done]) => [date, { done, total: totalHabits }])
+  );
+
   const rows: Habit[] = (habits ?? []).map((h) => {
     const dates = logsByHabit.get(h.id) ?? new Set<string>();
     const todayDone = dates.has(today);
@@ -65,6 +77,16 @@ export default async function HabitsPage() {
       <div className="mb-6">
         <HabitForm />
       </div>
+
+      {totalHabits > 0 && (
+        <>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal-soft">This month</h2>
+          <Card className="mb-6">
+            <HabitHeatmap monthStart={monthStart} completionByDate={completionByDate} />
+          </Card>
+        </>
+      )}
+
       <HabitList habits={rows} />
     </div>
   );

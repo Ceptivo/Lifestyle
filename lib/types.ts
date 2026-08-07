@@ -12,6 +12,7 @@ export type ActivityPhysicalType = "physical" | "non_physical";
 export type ActivityCostTier = "cheap" | "expensive";
 export type WorkUpdateItemStatus = "pending" | "uncertain" | "confirm_pending" | "logged";
 export type ReminderPriority = "low" | "medium" | "urgent";
+export type VehicleReminderCategory = "maintenance" | "insurance" | "license";
 
 export interface Database {
   public: {
@@ -227,6 +228,152 @@ export interface Database {
           category?: string;
           price?: number | null;
           icon?: string;
+        };
+        Relationships: [];
+      };
+      shopping_list_items: {
+        Row: {
+          id: string;
+          name: string;
+          checked: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          checked?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          checked?: boolean;
+        };
+        Relationships: [];
+      };
+      vehicles: {
+        Row: {
+          id: string;
+          name: string;
+          make: string | null;
+          model: string | null;
+          year: number | null;
+          license_plate: string | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          make?: string | null;
+          model?: string | null;
+          year?: number | null;
+          license_plate?: string | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          make?: string | null;
+          model?: string | null;
+          year?: number | null;
+          license_plate?: string | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      vehicle_reminders: {
+        Row: {
+          id: string;
+          vehicle_id: string;
+          category: VehicleReminderCategory;
+          title: string;
+          notes: string | null;
+          provider: string | null;
+          next_due_date: string;
+          interval_days: number | null;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          vehicle_id: string;
+          category?: VehicleReminderCategory;
+          title: string;
+          notes?: string | null;
+          provider?: string | null;
+          next_due_date: string;
+          interval_days?: number | null;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          category?: VehicleReminderCategory;
+          title?: string;
+          notes?: string | null;
+          provider?: string | null;
+          next_due_date?: string;
+          interval_days?: number | null;
+          icon?: string;
+        };
+        Relationships: [];
+      };
+      vehicle_fuel_logs: {
+        Row: {
+          id: string;
+          vehicle_id: string;
+          log_date: string;
+          odometer_km: number | null;
+          liters: number | null;
+          cost: number;
+          fuel_station: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          vehicle_id: string;
+          log_date: string;
+          odometer_km?: number | null;
+          liters?: number | null;
+          cost: number;
+          fuel_station?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          log_date?: string;
+          odometer_km?: number | null;
+          liters?: number | null;
+          cost?: number;
+          fuel_station?: string | null;
+        };
+        Relationships: [];
+      };
+      vehicle_service_logs: {
+        Row: {
+          id: string;
+          vehicle_id: string;
+          service_date: string;
+          odometer_km: number | null;
+          description: string;
+          cost: number | null;
+          workshop: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          vehicle_id: string;
+          service_date: string;
+          odometer_km?: number | null;
+          description: string;
+          cost?: number | null;
+          workshop?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          service_date?: string;
+          odometer_km?: number | null;
+          description?: string;
+          cost?: number | null;
+          workshop?: string | null;
         };
         Relationships: [];
       };

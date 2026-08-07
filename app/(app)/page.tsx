@@ -358,7 +358,7 @@ export default async function HomePage() {
   }
 
   const reportItems = sortReportItems(items);
-  const verse = verseOfTheDay(today);
+  const verse = await verseOfTheDay(today);
 
   return (
     <div>
