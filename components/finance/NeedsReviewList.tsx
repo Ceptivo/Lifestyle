@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { resolveTransactionReview } from "@/app/actions/finance-import";
 import { Card } from "@/components/ui/Card";
@@ -15,6 +16,7 @@ type Category = { id: string; name: string; type: FinanceType };
 function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[] }) {
   const [categoryId, setCategoryId] = useState(tx.category_id);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const isIncome = tx.type === "income";
 
   return (
@@ -46,7 +48,10 @@ function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[]
           onClick={() => {
             const fd = new FormData();
             fd.set("categoryId", categoryId);
-            startTransition(() => resolveTransactionReview(tx.id, fd));
+            startTransition(async () => {
+              await resolveTransactionReview(tx.id, fd);
+              router.refresh();
+            });
           }}
           className="shrink-0 px-3"
         >
