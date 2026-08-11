@@ -58,9 +58,17 @@ function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[]
                 } else {
                   setError(`Couldn't save — ${result.error ?? "unknown error"}`);
                 }
-              } catch (e) {
-                const detail = e instanceof Error ? e.message : String(e);
-                setError(`Couldn't save — ${detail}`);
+              } catch {
+                // A thrown error here (rather than the {ok,error} return
+                // path above) means the Server Action call itself failed —
+                // in practice this is always a stale build: the browser
+                // still has a page loaded from before the latest deploy, so
+                // the action reference it's calling no longer exists on the
+                // server. Reloading picks up the current deploy's action
+                // reference, which resolves it without the user needing to
+                // understand what happened.
+                setError("The app just updated — reloading, please try saving again once it loads.");
+                window.location.reload();
               }
             });
           }}
