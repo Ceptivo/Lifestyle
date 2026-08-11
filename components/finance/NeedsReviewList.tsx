@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { resolveTransactionReview } from "@/app/actions/finance-import";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Field";
@@ -15,6 +15,7 @@ type Category = { id: string; name: string; type: FinanceType };
 
 function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[] }) {
   const [categoryId, setCategoryId] = useState(tx.category_id);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const isIncome = tx.type === "income";
@@ -48,9 +49,14 @@ function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[]
           onClick={() => {
             const fd = new FormData();
             fd.set("categoryId", categoryId);
+            setError(null);
             startTransition(async () => {
-              await resolveTransactionReview(tx.id, fd);
-              router.refresh();
+              try {
+                await resolveTransactionReview(tx.id, fd);
+                router.refresh();
+              } catch {
+                setError("Couldn't save that — the app may have just updated. Reload the page and try again.");
+              }
             });
           }}
           className="shrink-0 px-3"
@@ -58,6 +64,12 @@ function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[]
           <CheckCircle2 size={16} />
         </Button>
       </div>
+      {error && (
+        <p className="mt-2 flex items-start gap-1.5 text-xs text-danger">
+          <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+          {error}
+        </p>
+      )}
     </Card>
   );
 }
