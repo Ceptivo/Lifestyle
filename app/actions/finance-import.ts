@@ -278,17 +278,25 @@ export async function verifyStatementImport(importId: string): Promise<Verificat
   return { allPassed: checks.every((c) => c.passed), checks };
 }
 
-export async function resolveTransactionReview(id: string, formData: FormData) {
+// Returns the error message as data (never throws) — Next.js redacts thrown
+// Server Action errors in production before they reach the client's catch
+// block, which would otherwise hide the real Postgres/Supabase error text
+// needed to diagnose a save failure.
+export async function resolveTransactionReview(id: string, formData: FormData): Promise<{ ok: boolean; error?: string }> {
   const categoryId = String(formData.get("categoryId") ?? "");
-  if (!categoryId) return;
+  if (!categoryId) return { ok: false, error: "No category selected." };
 
   const supabase = createClient();
   const { error } = await supabase
     .from("finance_transactions")
     .update({ category_id: categoryId, needs_review: false, review_note: null })
     .eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("resolveTransactionReview update failed:", error);
+    return { ok: false, error: error.message };
+  }
 
   revalidatePath("/finance", "layout");
   revalidatePath("/");
+  return { ok: true };
 }

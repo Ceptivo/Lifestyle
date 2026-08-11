@@ -52,10 +52,15 @@ function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[]
             setError(null);
             startTransition(async () => {
               try {
-                await resolveTransactionReview(tx.id, fd);
-                router.refresh();
-              } catch {
-                setError("Couldn't save that — the app may have just updated. Reload the page and try again.");
+                const result = await resolveTransactionReview(tx.id, fd);
+                if (result.ok) {
+                  router.refresh();
+                } else {
+                  setError(`Couldn't save — ${result.error ?? "unknown error"}`);
+                }
+              } catch (e) {
+                const detail = e instanceof Error ? e.message : String(e);
+                setError(`Couldn't save — ${detail}`);
               }
             });
           }}
