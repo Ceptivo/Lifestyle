@@ -1,19 +1,27 @@
+// Intl.NumberFormat("en-ZA", ...) resolves differently depending on which
+// locale data the running JS engine happens to have bundled — full ICU
+// picks proper en-ZA grouping, a reduced/small-ICU build silently falls
+// back to something else. Server and client don't always agree, which
+// causes a hydration mismatch on every amount on the page and forces React
+// to throw away and re-render the whole subtree around it. Formatting by
+// hand here is plain string math with no locale lookup involved, so it's
+// guaranteed to produce byte-identical output everywhere.
+function groupThousands(digits: string): string {
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-ZA", {
-    style: "currency",
-    currency: "ZAR",
-    maximumFractionDigits: 2,
-  }).format(amount);
+  const sign = amount < 0 ? "-" : "";
+  const [intPart, decPart] = Math.abs(amount).toFixed(2).split(".");
+  return `${sign}R ${groupThousands(intPart)}.${decPart}`;
 }
 
 // Rounds to whole Rand — for tight spaces (stat cards, ring labels) where the
 // cents aren't worth the extra width.
 export function formatCurrencyCompact(amount: number): string {
-  return new Intl.NumberFormat("en-ZA", {
-    style: "currency",
-    currency: "ZAR",
-    maximumFractionDigits: 0,
-  }).format(amount);
+  const sign = amount < 0 ? "-" : "";
+  const rounded = Math.round(Math.abs(amount));
+  return `${sign}R ${groupThousands(String(rounded))}`;
 }
 
 export function formatDate(iso: string): string {

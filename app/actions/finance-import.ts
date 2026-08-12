@@ -283,17 +283,23 @@ export async function verifyStatementImport(importId: string): Promise<Verificat
 // block, which would otherwise hide the real Postgres/Supabase error text
 // needed to diagnose a save failure.
 export async function resolveTransactionReview(id: string, formData: FormData): Promise<{ ok: boolean; error?: string }> {
-  const categoryId = String(formData.get("categoryId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "").trim();
+  if (!id) return { ok: false, error: "Missing transaction id." };
   if (!categoryId) return { ok: false, error: "No category selected." };
 
   const supabase = createClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("finance_transactions")
     .update({ category_id: categoryId, needs_review: false, review_note: null })
-    .eq("id", id);
+    .eq("id", id)
+    .select("id");
+
   if (error) {
     console.error("resolveTransactionReview update failed:", error);
     return { ok: false, error: error.message };
+  }
+  if (!data || data.length === 0) {
+    return { ok: false, error: "That transaction no longer exists — refresh the page and try again." };
   }
 
   revalidatePath("/finance", "layout");

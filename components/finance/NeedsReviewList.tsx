@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { resolveTransactionReview } from "@/app/actions/finance-import";
 import { Card } from "@/components/ui/Card";
@@ -14,11 +13,11 @@ type Transaction = Database["public"]["Tables"]["finance_transactions"]["Row"];
 type Category = { id: string; name: string; type: FinanceType };
 
 function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[] }) {
-  const [categoryId, setCategoryId] = useState(tx.category_id);
+  const [categoryId, setCategoryId] = useState(tx.category_id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
   const isIncome = tx.type === "income";
+  const options = categories.filter((c) => c.type === tx.type);
 
   return (
     <Card className="border-orange-500/30 px-4 py-3.5">
@@ -33,50 +32,39 @@ function ReviewRow({ tx, categories }: { tx: Transaction; categories: Category[]
           {formatCurrency(tx.amount)}
         </p>
       </div>
-      <div className="flex items-center gap-2">
-        <Select className="flex-1" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-          {categories
-            .filter((c) => c.type === tx.type)
-            .map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
+
+      {/* A real <form action> submission, not a programmatic call from
+          onClick — Next.js's built-in Server Action handling (route
+          refresh, pending state) is designed around actual form
+          submissions, which is the pattern every other save form in this
+          app already uses. */}
+      <form
+        action={(formData) => {
+          setError(null);
+          startTransition(async () => {
+            try {
+              const result = await resolveTransactionReview(tx.id, formData);
+              if (!result.ok) setError(result.error ?? "Something went wrong saving this.");
+            } catch {
+              setError("The app just updated — reloading, please try again once it loads.");
+              window.location.reload();
+            }
+          });
+        }}
+        className="flex items-center gap-2"
+      >
+        <Select name="categoryId" className="flex-1" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+          {options.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
         </Select>
-        <Button
-          type="button"
-          disabled={isPending}
-          onClick={() => {
-            const fd = new FormData();
-            fd.set("categoryId", categoryId);
-            setError(null);
-            startTransition(async () => {
-              try {
-                const result = await resolveTransactionReview(tx.id, fd);
-                if (result.ok) {
-                  router.refresh();
-                } else {
-                  setError(`Couldn't save — ${result.error ?? "unknown error"}`);
-                }
-              } catch {
-                // A thrown error here (rather than the {ok,error} return
-                // path above) means the Server Action call itself failed —
-                // in practice this is always a stale build: the browser
-                // still has a page loaded from before the latest deploy, so
-                // the action reference it's calling no longer exists on the
-                // server. Reloading picks up the current deploy's action
-                // reference, which resolves it without the user needing to
-                // understand what happened.
-                setError("The app just updated — reloading, please try saving again once it loads.");
-                window.location.reload();
-              }
-            });
-          }}
-          className="shrink-0 px-3"
-        >
+        <Button type="submit" disabled={isPending || !categoryId} className="shrink-0 px-3">
           <CheckCircle2 size={16} />
         </Button>
-      </div>
+      </form>
+
       {error && (
         <p className="mt-2 flex items-start gap-1.5 text-xs text-danger">
           <AlertTriangle size={13} className="mt-0.5 shrink-0" />
