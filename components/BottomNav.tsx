@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Wallet, HeartPulse, Plus, MoreHorizontal } from "lucide-react";
+import { Home, Wallet, HeartPulse, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { QuickAddFab } from "@/components/QuickAddFab";
 
 const items = [
   { href: "/", label: "Home", icon: Home },
@@ -12,7 +13,7 @@ const items = [
   { href: "/more", label: "More", icon: MoreHorizontal },
 ];
 
-export function BottomNav() {
+export function BottomNav({ vehicles }: { vehicles: { id: string; name: string }[] }) {
   const pathname = usePathname();
 
   return (
@@ -36,14 +37,7 @@ export function BottomNav() {
             );
           })}
 
-          {/* Placeholder — quick-add was removed with manual transaction entry; a new function is TBD. */}
-          <button
-            type="button"
-            aria-label="Quick actions (coming soon)"
-            className="-mt-8 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-pink text-ink shadow-lg transition-transform active:scale-95"
-          >
-            <Plus size={26} strokeWidth={2.5} />
-          </button>
+          <QuickAddFab vehicles={vehicles} />
 
           {items.slice(2).map(({ href, label, icon: Icon }) => {
             const active = pathname.startsWith(href);
