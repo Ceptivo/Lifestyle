@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   // module file at runtime — bundling it rewrites/hoists that path and breaks
   // worker setup, so it needs to load as a real, un-bundled Node module.
   serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
+  env: {
+    // Baked into the client bundle at build time so BuildVersionWatcher can
+    // compare it against the currently-deployed commit. Vercel sets this
+    // automatically; falls back for local dev where it's unset.
+    NEXT_PUBLIC_BUILD_ID: process.env.VERCEL_GIT_COMMIT_SHA ?? "dev",
+  },
   async headers() {
     return [
       {

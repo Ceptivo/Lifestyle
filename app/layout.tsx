@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { BuildVersionWatcher } from "@/components/BuildVersionWatcher";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-cream text-charcoal font-sans">
         {children}
         <ServiceWorkerRegister />
+        <BuildVersionWatcher buildId={process.env.NEXT_PUBLIC_BUILD_ID ?? "dev"} />
       </body>
     </html>
   );
